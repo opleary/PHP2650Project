@@ -18,6 +18,8 @@ library(ggplot2)
 library(ggthemes)
 library(gganimate)
 library(gifski)
+library(survival)
+library(randomForestSRC)
 ```
 
 # Predicting Survival and Controlling for Biased with Random Survival Forests and Condtional Inference Forests Using Right-Censored Data
@@ -36,3 +38,32 @@ Survival
 
 
 ## Conditional Inference Forests
+
+
+
+## Methods
+
+
+
+## Results
+
+
+\textbf{PBC Data}
+
+Primary sclerosing cholangitis is an autoimmune disease leading to destruction of the small bile ducts in the liver. Progression is slow but inexorable, eventually leading to cirrhosis and liver decompensation. 
+
+This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
+
+```{r}
+# example
+pbc
+```
+
+
+```{r}
+pbc_rf <- rfsrc(Surv(years, status) ~ ., data = pbc,
+ nsplit = 10,
+ na.action = "na.impute")
+
+```
+
