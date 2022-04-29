@@ -1,1 +1,21 @@
+---
+output: md_document
+always_allow_html: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+library(ical)
+library(kableExtra)
+library(janitor)
+library(reshape2)
+library(data.table)
+library(ggplot2)
+library(ggthemes)
+library(gganimate)
+library(gifski)
+```
+
 
