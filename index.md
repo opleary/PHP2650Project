@@ -1,4 +1,4 @@
-## Welcome to GitHub Pages
+##  Predicting Survival and Controlling for Biased with Random Survival Forests and Condtional Inference Forests Using Right-Censored Data 
 
 You can use the [editor on GitHub](https://github.com/brichards21/PHP2650Project/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
 
