@@ -41,7 +41,7 @@ Survival
 
 ## Results
 
-\textbf{PBC Data}
+### PBC Data
 
 Primary sclerosing cholangitis is an autoimmune disease leading to destruction of the small bile ducts in the liver. Progression is slow but inexorable, eventually leading to cirrhosis and liver decompensation.
 
@@ -74,7 +74,7 @@ pbc_vars <- data.frame(
 ```
 
 | Variable | Description                                                                        |
-|----------|------------------------------------------------------------------------------------|
+|-----------------------|-------------------------------------------------|
 | id       | case number                                                                        |
 | time     | number of days between registration and the earlier of death                       |
 | status   | status at endpoint, 0/1/2 for censored, transplant, dead                           |
