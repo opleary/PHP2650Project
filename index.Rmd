@@ -27,33 +27,23 @@ library(tidyr)
 
 # Predicting Survival and Controlling for Biased with Random Survival Forests and Condtional Inference Forests Using Right-Censored Data
 
-
-
 ## What is Survival Analysis?
 
-Survival 
-
+Survival
 
 ## Review of Random Forests
 
-
 ## Random Survival Forests
-
 
 ## Conditional Inference Forests
 
-
-
 ## Methods
-
-
 
 ## Results
 
-
 \textbf{PBC Data}
 
-Primary sclerosing cholangitis is an autoimmune disease leading to destruction of the small bile ducts in the liver. Progression is slow but inexorable, eventually leading to cirrhosis and liver decompensation. 
+Primary sclerosing cholangitis is an autoimmune disease leading to destruction of the small bile ducts in the liver. Progression is slow but inexorable, eventually leading to cirrhosis and liver decompensation.
 
 This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
@@ -65,27 +55,58 @@ pbc_vars <- data.frame(
                 "copper", "alk.phos", "ast", "trig",
                 "platelet", "protime", "stage"),
   Description = c("case number", "number of days between registration and the earlier of death",
-                  "status at endpoint, 0/1/2 for censored, transplant, dead", "1/2/NA for D-penicillmain, placebo, not randomised", "in years", "")
+                  "status at endpoint, 0/1/2 for censored, transplant, dead", "1/2/NA for D-penicillmain, placebo, not randomised", "in years", "m/f",
+                  "presence of ascites", "presence of hepatomegaly or enlarged liver", "blood vessel malformations in the skin", "0 no edema, 0.5 untreated or successfully treated 1 edema despite diuretic therapy",
+                  "serum bilirunbin (mg/dl)",
+                  "serum cholesterol (mg/dl)", "serum albumin (g/dl)",
+                  "urine copper (ug/day)", "alkaline phosphotase (U/liter)",
+                  "aspartate aminotransferase, once called SGOT (U/ml)",
+                  "triglycerides (mg/dl)",
+                  "platelet count", "standardised blood clotting time",
+                  "histologic stage of disease (needs biopsy)")
 )
 # example
-pbc
 ```
 
+```{r}
+
+#kable(pbc_vars)
+```
+
+| Variable | Description                                                                        |
+|----------|------------------------------------------------------------------------------------|
+| id       | case number                                                                        |
+| time     | number of days between registration and the earlier of death                       |
+| status   | status at endpoint, 0/1/2 for censored, transplant, dead                           |
+| trt      | 1/2/NA for D-penicillmain, placebo, not randomised                                 |
+| age      | in years                                                                           |
+| sex      | m/f                                                                                |
+| ascites  | presence of ascites                                                                |
+| hepato   | presence of hepatomegaly or enlarged liver                                         |
+| spiders  | blood vessel malformations in the skin                                             |
+| edema    | 0 no edema, 0.5 untreated or successfully treated 1 edema despite diuretic therapy |
+| bili     | serum bilirunbin (mg/dl)                                                           |
+| chol     | serum cholesterol (mg/dl)                                                          |
+| albumin  | serum albumin (g/dl)                                                               |
+| copper   | urine copper (ug/day)                                                              |
+| alk.phos | alkaline phosphotase (U/liter)                                                     |
+| ast      | aspartate aminotransferase, once called SGOT (U/ml)                                |
+| trig     | triglycerides (mg/dl)                                                              |
+| platelet | platelet count                                                                     |
+| protime  | standardised blood clotting time                                                   |
+| stage    | histologic stage of disease (needs biopsy)                                         |
 
 ```{r}
-pbc_rf <- rfsrc(Surv(years, status) ~ ., data = pbc,
- nsplit = 10,
- na.action = "na.impute")
+#pbc_rf <- rfsrc(Surv(years, status) ~ ., data = pbc,
+ #nsplit = 10,
+ #na.action = "na.impute")
 
 ```
 
-
-
-
-\textbf{Hepatitis}
+\textbf{Hepatitis Data}
 
 ```{r}
-hepatitis <- read_csv("data/hepatitis.csv")[, 1:3]
+hepatitis <- read_csv("GitHub/PHP2650Project/data/hepatitis.csv")[, 1:3]
 
 hepatitis[hepatitis$censor == "loss to follow-up",]$censor <- "censored"
 
@@ -98,16 +119,12 @@ group = as.factor(ifelse(group == "prednisolone", 1, 2)))
 #km <- survfit(T ~ group, data = hepatitis)
 ```
 
-
 ```{r}
-hep_rf <- rfsrc(Surv(time, censor) ~ ., data = hepatitis,
- na.action = "na.impute")
+#hep_rf <- rfsrc(Surv(time, censor) ~ ., data = hepatitis,
+ #na.action = "na.impute")
 
-get.cindex(time = hepatitis$time, censoring = hepatitis$censor, predicted = hep_rf$predicted.oob)
+#get.cindex(time = hepatitis$time, censoring = hepatitis$censor, predicted = hep_rf$predicted.oob)
 
-yhat <- get.mv.predicted(hep_rf, oob = TRUE)
+# yhat <- get.mv.predicted(hep_rf, oob = TRUE)
 
 ```
-
-
-
