@@ -1,5 +1,6 @@
 ---
 output: md_document
+author: "Nancy Liu & Breanna Richards"
 always_allow_html: yes
 ---
 
