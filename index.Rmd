@@ -20,6 +20,9 @@ library(gganimate)
 library(gifski)
 library(survival)
 library(randomForestSRC)
+library(readr)
+library(tidyverse)
+library(tidyr)
 ```
 
 # Predicting Survival and Controlling for Biased with Random Survival Forests and Condtional Inference Forests Using Right-Censored Data
@@ -55,6 +58,15 @@ Primary sclerosing cholangitis is an autoimmune disease leading to destruction o
 This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
 ```{r}
+pbc_vars <- data.frame(
+  Variable = c("id", "time", "status", "trt", "age",
+                "sex", "ascites", "hepato", "spiders",
+                "edema", "bili", "chol", "albumin",
+                "copper", "alk.phos", "ast", "trig",
+                "platelet", "protime", "stage"),
+  Description = c("case number", "number of days between registration and the earlier of death",
+                  "status at endpoint, 0/1/2 for censored, transplant, dead", "1/2/NA for D-penicillmain, placebo, not randomised", "in years", "")
+)
 # example
 pbc
 ```
@@ -66,4 +78,36 @@ pbc_rf <- rfsrc(Surv(years, status) ~ ., data = pbc,
  na.action = "na.impute")
 
 ```
+
+
+
+
+\textbf{Hepatitis}
+
+```{r}
+hepatitis <- read_csv("data/hepatitis.csv")[, 1:3]
+
+hepatitis[hepatitis$censor == "loss to follow-up",]$censor <- "censored"
+
+hepatitis <- hepatitis %>%
+mutate(censor = ifelse(censor == "censored", 0, 1),
+group = as.factor(ifelse(group == "prednisolone", 1, 2)))
+
+#hepatitis$T <- Surv(time = hepatitis$time, event = hepatitis$censor)
+
+#km <- survfit(T ~ group, data = hepatitis)
+```
+
+
+```{r}
+hep_rf <- rfsrc(Surv(time, censor) ~ ., data = hepatitis,
+ na.action = "na.impute")
+
+get.cindex(time = hepatitis$time, censoring = hepatitis$censor, predicted = hep_rf$predicted.oob)
+
+yhat <- get.mv.predicted(hep_rf, oob = TRUE)
+
+```
+
+
 
