@@ -68,10 +68,6 @@ pbc_vars <- data.frame(
 # example
 ```
 
-```{r}
-
-#kable(pbc_vars)
-```
 
 | Variable | Description                                                                        |
 |-----------------------|-------------------------------------------------|
@@ -103,7 +99,17 @@ pbc_vars <- data.frame(
 
 ```
 
-\textbf{Hepatitis Data}
+
+### Employee Turnover Data
+
+A dataset found on Kaggle containing the employee attrition information of 1,129 employees and information about time to turnover, their gender, age, industry, profession, employee pipeline information, the presence of a coach on probation, the gender of their supervisor, and wage information.
+
+```{r}
+turnover <- read_csv("GitHub/PHP2650Project/data/turnover.csv")
+```
+
+
+### Hepatitis Data
 
 ```{r}
 hepatitis <- read_csv("GitHub/PHP2650Project/data/hepatitis.csv")[, 1:3]
