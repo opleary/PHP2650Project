@@ -29,8 +29,8 @@ contains many covariates collected during the clinical trial.
 
 <table>
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 68%" />
+<col style="width: 33%" />
+<col style="width: 66%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -130,5 +130,96 @@ of 1,129 employees and information about time to turnover, their gender,
 age, industry, profession, employee pipeline information, the presence
 of a coach on probation, the gender of their supervisor, and wage
 information.
+
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 84%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>stag</td>
+<td>Experience (time)</td>
+</tr>
+<tr class="even">
+<td>event</td>
+<td>Employee turnover</td>
+</tr>
+<tr class="odd">
+<td>gender</td>
+<td>Employee’s gender, female (f), or male (m)</td>
+</tr>
+<tr class="even">
+<td>age</td>
+<td>Employee’s age (year)</td>
+</tr>
+<tr class="odd">
+<td>industry</td>
+<td>Employee’s Industry</td>
+</tr>
+<tr class="even">
+<td>profession</td>
+<td>Employee’s profession</td>
+</tr>
+<tr class="odd">
+<td>traffic</td>
+<td>From what pipeline employee came to the company. 1. contacted the
+company directly (advert). 2. contacted the company directly on the
+recommendation of a friend that’s not an employee of the company
+(recNErab). 3. contacted the company directly on the recommendation of a
+friend that IS an employee of the company (referal). 4. applied for a
+vacany on the job site (youjs) 5. recruiting agency brought you to the
+employer (KA) 6. invited by an employer known before employment
+(friends). 7. employer contacted on the recommendation of a person who
+knows the employee (rabrecNErab). 8. employer reached you through your
+resume on the job site (empjs).</td>
+</tr>
+<tr class="even">
+<td>coach</td>
+<td>presence of a coach (training) on probation</td>
+</tr>
+<tr class="odd">
+<td>head_gender</td>
+<td>head (supervisor) gender (m/f)</td>
+</tr>
+<tr class="even">
+<td>greywage</td>
+<td>The salary does not seem to the tax authorities. Greywage in Russia
+or Ukraine means that the employer (company) pay just a tiny bit amount
+of salary above the white-wage (white-wage means minimum wage)
+(white/gray)</td>
+</tr>
+<tr class="odd">
+<td>way</td>
+<td>Employee’s way of transportation (bus/car/foot)</td>
+</tr>
+<tr class="even">
+<td>extraversion</td>
+<td>Extraversion score</td>
+</tr>
+<tr class="odd">
+<td>independ</td>
+<td>Independend score</td>
+</tr>
+<tr class="even">
+<td>selfcontrol</td>
+<td>Self-control score</td>
+</tr>
+<tr class="odd">
+<td>anxiety</td>
+<td>Anxiety Score</td>
+</tr>
+<tr class="even">
+<td>novator</td>
+<td>Novator Score</td>
+</tr>
+</tbody>
+</table>
 
 ### Hepatitis Data
