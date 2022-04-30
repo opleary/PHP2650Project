@@ -14,6 +14,8 @@ Survival
 
 ## Results
 
+### PBC Data
+
 Primary sclerosing cholangitis is an autoimmune disease leading to
 destruction of the small bile ducts in the liver. Progression is slow
 but inexorable, eventually leading to cirrhosis and liver
@@ -27,8 +29,8 @@ contains many covariates collected during the clinical trial.
 
 <table>
 <colgroup>
-<col style="width: 30%" />
-<col style="width: 69%" />
+<col style="width: 31%" />
+<col style="width: 68%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -120,3 +122,13 @@ diuretic therapy</td>
 </tr>
 </tbody>
 </table>
+
+### Employee Turnover Data
+
+A dataset found on Kaggle containing the employee attrition information
+of 1,129 employees and information about time to turnover, their gender,
+age, industry, profession, employee pipeline information, the presence
+of a coach on probation, the gender of their supervisor, and wage
+information.
+
+### Hepatitis Data
