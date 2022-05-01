@@ -10,9 +10,7 @@ Survival
 
 ## Conditional Inference Forests
 
-## Methods
-
-## Results
+## Applications
 
 ### PBC Data
 
@@ -29,8 +27,8 @@ contains many covariates collected during the clinical trial.
 
 <table>
 <colgroup>
-<col style="width: 33%" />
-<col style="width: 66%" />
+<col style="width: 34%" />
+<col style="width: 65%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -133,8 +131,8 @@ information.
 
 <table>
 <colgroup>
-<col style="width: 15%" />
-<col style="width: 84%" />
+<col style="width: 20%" />
+<col style="width: 79%" />
 </colgroup>
 <thead>
 <tr class="header">
