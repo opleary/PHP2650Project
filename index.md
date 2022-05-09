@@ -255,3 +255,5 @@ information.
 </tr>
 </tbody>
 </table>
+
+{% include lib/mathjax.html %}
