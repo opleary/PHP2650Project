@@ -42,6 +42,7 @@ happened at time = t.
 
 <img src="img/survival_func.png" width="198" />
 
+<img src="https://render.githubusercontent.com/render/math?math=S(t) = P(T > t)">
 *S*(*t*) = *P*(*T*&gt;*t*)
 
 S(t) is non-increasing and ranges between 0 and 1. The hazard function
