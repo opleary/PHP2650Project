@@ -1,4 +1,4 @@
-# Predicting Survival and Controlling for Biased with Random Survival Forests and Condtional Inference Forests Using Right-Censored Data
+# Predicting Survival and Controlling for Bias with Random Survival Forests and Conditional Inference Forests
 
 ## What is Survival Analysis?
 
@@ -23,9 +23,35 @@ don’t know if or when these subjects will experience the event, we just
 know that they have not experienced it during the study period. This is
 called **censoring**, more specifically, right-censoring. Right
 censoring is just one of multiple forms of censoring that survival data
-strives to adjust for. Dropout is only a form of right censoring.
+strives to adjust for and the form that we will focus on in this
+comprehensive review. Dropout is also a form of right censoring.
 
-<img src="img/right_cens_img.png" width="506" />
+<img src="img/right_cens_img.png" width="551" />
+
+It’s imperative that we still consider these censored observations in
+our study instead of removing them so that we don’t bias our results
+towards only those individuals that experienced the event of interest
+within the observational time frame. Thus, in survival analysis, not
+only do we include time from baseline at event of interest, but we also
+include a binary variable indicating whether an individual experienced
+the event or was censored instead.
+
+In standard survival analysis, the **survival function**, S(t) is what
+defines the probability that the event of interest has **not** yet
+happened at time = t.
+
+*S*(*t*) = *P*(*T*&gt;*t*)
+
+S(t) is non-increasing and ranges between 0 and 1. The hazard function
+on the other hand is defined as the instantaneous risk of an individual
+experiencing the event of interest within a small time frame.
+
+$$
+h(t) = lim\_{\\delta t \\rightarrow 0} \\frac{Pr(t \\le T \\le t + \\delta t | T> t}{\\delta t}
+$$
+
+Both survival functions and hazard functions are alternatives to
+probability density functions and better suited for survival data.
 
 ## Review of Random Forests
 
