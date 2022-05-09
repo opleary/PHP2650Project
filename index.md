@@ -21,9 +21,9 @@ the end of study. Thus, not every subject will experience the event of
 interest within the observational period’s time frame. In this case, we
 don’t know if or when these subjects will experience the event, we just
 know that they have not experienced it during the study period. This is
-called censoring, more specifically, right-censoring. Right censoring is
-just one of multiple forms of censoring that survival data strives to
-adjust for. Dropout is only a form of right censoring.
+called **censoring**, more specifically, right-censoring. Right
+censoring is just one of multiple forms of censoring that survival data
+strives to adjust for. Dropout is only a form of right censoring.
 
 <img src="img/right-censor_img.png" width="464" />
 
