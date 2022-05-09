@@ -186,3 +186,5 @@ group = as.factor(ifelse(group == "prednisolone", 1, 2)))
 # yhat <- get.mv.predicted(hep_rf, oob = TRUE)
 
 ```
+
+{% include lib/mathjax.html %}
