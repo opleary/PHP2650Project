@@ -40,18 +40,17 @@ In standard survival analysis, the **survival function**, S(t) is what
 defines the probability that the event of interest has **not** yet
 happened at time = t.
 
-<img src="img/survival_func.png" width="198" />
-
-<img src="https://render.githubusercontent.com/render/math?math=S(t) = P(T > t)">
-*S*(*t*) = *P*(*T*&gt;*t*)
+&lt;div align=“center”&gt;&lt;img
+src=“[https://render.githubusercontent.com/render/math?math=\\Large](https://render.githubusercontent.com/render/math?math=\Large)
+S(t) = P(T &gt; t)”&gt;&lt;/div>
 
 S(t) is non-increasing and ranges between 0 and 1. The hazard function
 on the other hand is defined as the instantaneous risk of an individual
 experiencing the event of interest within a small time frame.
 
-$$
-h(t) = lim\_{\\delta t \\rightarrow 0} \\frac{Pr(t \\le T \\le t + \\delta t | T> t)}{\\delta t}
-$$
+&lt;div align=“center”&gt;&lt;img
+src=“[https://render.githubusercontent.com/render/math?math=\\Large](https://render.githubusercontent.com/render/math?math=\Large)
+h(t) = lim\_{t } ”&gt;&lt;/div>
 
 Both survival functions and hazard functions are alternatives to
 probability density functions and better suited for survival data.
