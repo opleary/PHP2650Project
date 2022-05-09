@@ -46,9 +46,7 @@ S(t) is non-increasing and ranges between 0 and 1. The hazard function
 on the other hand is defined as the instantaneous risk of an individual
 experiencing the event of interest within a small time frame.
 
-$$
-h(t) = lim\_{\\delta t \\rightarrow 0} \\frac{Pr(t \\le T \\le t + \\delta t | T> t}{\\delta t}
-$$
+$$h(t) = lim\_{\\delta t \\rightarrow 0} \\frac{Pr(t \\le T \\le t + \\delta t | T> t}{\\delta t}$$
 
 Both survival functions and hazard functions are alternatives to
 probability density functions and better suited for survival data.
