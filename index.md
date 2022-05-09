@@ -24,7 +24,10 @@ know that they have not experienced it during the study period. This is
 called **censoring**, more specifically, right-censoring. Right
 censoring is just one of multiple forms of censoring that survival data
 strives to adjust for and the form that we will focus on in this
-comprehensive review. Dropout is also a form of right censoring.
+comprehensive review. Dropout is also a form of right censoring. The
+event of interest can happen during the specified time frame, outside of
+the time frame, or not at all but we don’t know which scenario applies
+to the individuals that leave the study early.
 
 <img src="img/right_cens_img.png" width="551" />
 
