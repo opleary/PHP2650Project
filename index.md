@@ -25,7 +25,7 @@ called **censoring**, more specifically, right-censoring. Right
 censoring is just one of multiple forms of censoring that survival data
 strives to adjust for. Dropout is only a form of right censoring.
 
-<img src="img/right_cens_img.png" width="480" />
+<img src="img/right_cens_img.png" width="506" />
 
 ## Review of Random Forests
 
@@ -50,8 +50,8 @@ contains many covariates collected during the clinical trial.
 
 <table>
 <colgroup>
-<col style="width: 36%" />
-<col style="width: 63%" />
+<col style="width: 22%" />
+<col style="width: 77%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -153,8 +153,8 @@ information.
 
 <table>
 <colgroup>
-<col style="width: 26%" />
-<col style="width: 73%" />
+<col style="width: 2%" />
+<col style="width: 97%" />
 </colgroup>
 <thead>
 <tr class="header">
