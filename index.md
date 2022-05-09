@@ -2,7 +2,28 @@
 
 ## What is Survival Analysis?
 
-Survival
+The main goal of survival analysis is to analyze and estimate the
+expected amount of time until an event of interest occurs for a subject
+or groups of subjects. Originally, survival analysis was developed for
+the primary use of measuring the lifespans of certain populations.
+However, over time its utilities have extended to a wide array of
+applications even outside of the domain of healthcare. Thus, while
+biological death continues to be the main outcome under the scrutiny of
+survival analysis, other outcomes of interest may include time to
+mechanical failure, time to repeat offense of a released inmate, time to
+the split of a financial stock and more! Time in survival analysis is
+relative and all subjects of interest are likened to a common starting
+point at baseline (t = 0) with a 100% probability of not experiencing
+the event of interest.
+
+Subjects are observed from baseline to some often pre-specified time at
+the end of study. Thus, not every subject will experience the event of
+interest within the observational period’s time frame. In this case, we
+don’t know if or when these subjects will experience the event, we just
+know that they have not experienced it during the study period. This is
+called censoring, more specifically, right-censoring. Right censoring is
+just one of multiple forms of censoring that survival data strives to
+adjust for. Dropout is only a form of right censoring.
 
 ## Review of Random Forests
 
@@ -27,8 +48,8 @@ contains many covariates collected during the clinical trial.
 
 <table>
 <colgroup>
-<col style="width: 34%" />
-<col style="width: 65%" />
+<col style="width: 35%" />
+<col style="width: 64%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -131,8 +152,8 @@ information.
 
 <table>
 <colgroup>
-<col style="width: 20%" />
-<col style="width: 79%" />
+<col style="width: 23%" />
+<col style="width: 76%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -219,5 +240,3 @@ of salary above the white-wage (white-wage means minimum wage)
 </tr>
 </tbody>
 </table>
-
-### Hepatitis Data
