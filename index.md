@@ -40,6 +40,8 @@ In standard survival analysis, the **survival function**, S(t) is what
 defines the probability that the event of interest has **not** yet
 happened at time = t.
 
+<img src="img/survival_func.png" width="198" />
+
 *S*(*t*) = *P*(*T*&gt;*t*)
 
 S(t) is non-increasing and ranges between 0 and 1. The hazard function
@@ -74,8 +76,8 @@ contains many covariates collected during the clinical trial.
 
 <table>
 <colgroup>
-<col style="width: 22%" />
-<col style="width: 77%" />
+<col style="width: 16%" />
+<col style="width: 83%" />
 </colgroup>
 <thead>
 <tr class="header">
