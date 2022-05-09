@@ -33,7 +33,7 @@ The main goal of survival analysis is to analyze and estimate the expected amoun
 
 Subjects are observed from baseline to some often pre-specified time at the end of study. Thus, not every subject will experience the event of interest within the observational period's time frame. In this case, we don't know if or when these subjects will experience the event, we just know that they have not experienced it during the study period. This is called **censoring**, more specifically, right-censoring. Right censoring is just one of multiple forms of censoring that survival data strives to adjust for. Dropout is only a form of right censoring.
 
-![](img/right-censor_img.png){width="464"}
+![](img/right_cens_img.png){width="480"}
 
 ## Review of Random Forests
 
@@ -84,9 +84,9 @@ This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. 
 A dataset found on Kaggle containing the employee attrition information of 1,129 employees and information about time to turnover, their gender, age, industry, profession, employee pipeline information, the presence of a coach on probation, the gender of their supervisor, and wage information.
 
 ```{r}
-turnover <- read_csv("GitHub/PHP2650Project/data/turnover.csv")
+turnover <- read_csv("data/turnover.csv")
 #ncol(turnover)
-head(turnover)
+#head(turnover)
 #table(turnover$way)
 #colnames(turnover)
 
@@ -112,7 +112,7 @@ head(turnover)
 | novator      | Novator Score                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 ```{r}
-hepatitis <- read_csv("GitHub/PHP2650Project/data/hepatitis.csv")[, 1:3]
+hepatitis <- read_csv("data/hepatitis.csv")[, 1:3]
 
 hepatitis[hepatitis$censor == "loss to follow-up",]$censor <- "censored"
 

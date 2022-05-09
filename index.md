@@ -25,7 +25,7 @@ called **censoring**, more specifically, right-censoring. Right
 censoring is just one of multiple forms of censoring that survival data
 strives to adjust for. Dropout is only a form of right censoring.
 
-<img src="img/right-censor_img.png" width="464" />
+<img src="img/right_cens_img.png" width="480" />
 
 ## Review of Random Forests
 
@@ -98,8 +98,7 @@ contains many covariates collected during the clinical trial.
 </tr>
 <tr class="even">
 <td>edema</td>
-<td>0 no edema, 0.5 untreated or successfully treated 1 edema despite
-diuretic therapy</td>
+<td>0 no edema, 0.5 untreated or successfully treated 1 edema despite diuretic therapy</td>
 </tr>
 <tr class="odd">
 <td>bili</td>
@@ -190,16 +189,7 @@ information.
 </tr>
 <tr class="odd">
 <td>traffic</td>
-<td>From what pipeline employee came to the company. 1. contacted the
-company directly (advert). 2. contacted the company directly on the
-recommendation of a friend that’s not an employee of the company
-(recNErab). 3. contacted the company directly on the recommendation of a
-friend that IS an employee of the company (referal). 4. applied for a
-vacany on the job site (youjs) 5. recruiting agency brought you to the
-employer (KA) 6. invited by an employer known before employment
-(friends). 7. employer contacted on the recommendation of a person who
-knows the employee (rabrecNErab). 8. employer reached you through your
-resume on the job site (empjs).</td>
+<td>From what pipeline employee came to the company. 1. contacted the company directly (advert). 2. contacted the company directly on the recommendation of a friend that’s not an employee of the company (recNErab). 3. contacted the company directly on the recommendation of a friend that IS an employee of the company (referal). 4. applied for a vacany on the job site (youjs) 5. recruiting agency brought you to the employer (KA) 6. invited by an employer known before employment (friends). 7. employer contacted on the recommendation of a person who knows the employee (rabrecNErab). 8. employer reached you through your resume on the job site (empjs).</td>
 </tr>
 <tr class="even">
 <td>coach</td>
@@ -211,10 +201,7 @@ resume on the job site (empjs).</td>
 </tr>
 <tr class="even">
 <td>greywage</td>
-<td>The salary does not seem to the tax authorities. Greywage in Russia
-or Ukraine means that the employer (company) pay just a tiny bit amount
-of salary above the white-wage (white-wage means minimum wage)
-(white/gray)</td>
+<td>The salary does not seem to the tax authorities. Greywage in Russia or Ukraine means that the employer (company) pay just a tiny bit amount of salary above the white-wage (white-wage means minimum wage) (white/gray)</td>
 </tr>
 <tr class="odd">
 <td>way</td>
