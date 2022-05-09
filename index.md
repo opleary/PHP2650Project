@@ -40,9 +40,9 @@ In standard survival analysis, the **survival function**, S(t) is what
 defines the probability that the event of interest has **not** yet
 happened at time = t.
 
-&lt;div align=“center”&gt;&lt;img
-src=“[https://render.githubusercontent.com/render/math?math=\\Large](https://render.githubusercontent.com/render/math?math=\Large)
-S(t) = P(T &gt; t)”&gt;&lt;/div>
+&lt;div align="center"&gt;&lt;img
+src="[https://render.githubusercontent.com/render/math?math=\\Large](https://render.githubusercontent.com/render/math?math=\Large)
+S(t) = P(T &gt; t)"&gt;&lt;/div>
 
 S(t) is non-increasing and ranges between 0 and 1. The hazard function
 on the other hand is defined as the instantaneous risk of an individual
