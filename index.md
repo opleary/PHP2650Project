@@ -49,7 +49,7 @@ on the other hand is defined as the instantaneous risk of an individual
 experiencing the event of interest within a small time frame.
 
 $$
-h(t) = lim\_{\\delta t \\rightarrow 0} \\frac{Pr(t \\le T \\le t + \\delta t | T> t}{\\delta t}
+h(t) = lim\_{\\delta t \\rightarrow 0} \\frac{Pr(t \\le T \\le t + \\delta t | T> t)}{\\delta t}
 $$
 
 Both survival functions and hazard functions are alternatives to
@@ -78,8 +78,8 @@ contains many covariates collected during the clinical trial.
 
 <table>
 <colgroup>
-<col style="width: 10%" />
-<col style="width: 89%" />
+<col style="width: 14%" />
+<col style="width: 85%" />
 </colgroup>
 <thead>
 <tr class="header">
