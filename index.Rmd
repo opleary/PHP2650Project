@@ -45,7 +45,6 @@ In standard survival analysis, the **survival function**, S(t) is what defines t
 
 ```
 
-
 S(t) is non-increasing and ranges between 0 and 1. The hazard function on the other hand is defined as the instantaneous risk of an individual experiencing the event of interest within a small time frame.
 
 ```{r}
@@ -54,8 +53,11 @@ S(t) is non-increasing and ranges between 0 and 1. The hazard function on the ot
 
 ```
 
+Both survival functions and hazard functions are alternatives to probability density functions and are better suited for survival data.
 
-Both survival functions and hazard functions are alternatives to probability density functions and better suited for survival data.
+Survival regression involves not only information about censorship and time to event, but also additional predictor variables of interest like the sex, age, race, etc. of an individual. Cox proportional hazards models is a popular and widely utilized modeling technique for survival data because it considers the effects of covariates on the outcome of interest as well as examines the relationships between these variables and the survival distribution. While this model is praised for its flexibility and simplicity, it is also often criticized for its restrictive proportional hazards assumption.
+
+The proportional hazards assumption states that the relative hazard remains constant over time across the different strata/covariate levels in the data. For example...
 
 ## Review of Random Forests
 
@@ -71,49 +73,49 @@ Primary sclerosing cholangitis is an autoimmune disease leading to destruction o
 
 This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
-+-------------+------------------------------------------------------------------------------------+
-| Variable    | Description                                                                        |
-+=============+====================================================================================+
-| id          | case number                                                                        |
-+-------------+------------------------------------------------------------------------------------+
-| time        | number of days between registration and the earlier of death                       |
-+-------------+------------------------------------------------------------------------------------+
-| status      | status at endpoint, 0/1/2 for censored, transplant, dead                           |
-+-------------+------------------------------------------------------------------------------------+
-| trt         | 1/2/NA for D-penicillmain, placebo, not randomised                                 |
-+-------------+------------------------------------------------------------------------------------+
-| age         | in years                                                                           |
-+-------------+------------------------------------------------------------------------------------+
-| sex         | m/f                                                                                |
-+-------------+------------------------------------------------------------------------------------+
-| ascites     | presence of ascites                                                                |
-+-------------+------------------------------------------------------------------------------------+
-| hepato      | presence of hepatomegaly or enlarged liver                                         |
-+-------------+------------------------------------------------------------------------------------+
-| spiders     | blood vessel malformations in the skin                                             |
-+-------------+------------------------------------------------------------------------------------+
-| edema       | 0 no edema, 0.5 untreated or successfully treated 1 edema despite diuretic therapy |
-+-------------+------------------------------------------------------------------------------------+
-| bili        | serum bilirunbin (mg/dl)                                                           |
-+-------------+------------------------------------------------------------------------------------+
-| chol        | serum cholesterol (mg/dl)                                                          |
-+-------------+------------------------------------------------------------------------------------+
-| albumin     | serum albumin (g/dl)                                                               |
-+-------------+------------------------------------------------------------------------------------+
-| copper      | urine copper (ug/day)                                                              |
-+-------------+------------------------------------------------------------------------------------+
-| alk.phos    | alkaline phosphotase (U/liter)                                                     |
-+-------------+------------------------------------------------------------------------------------+
-| ast         | aspartate aminotransferase, once called SGOT (U/ml)                                |
-+-------------+------------------------------------------------------------------------------------+
-| trig        | triglycerides (mg/dl)                                                              |
-+-------------+------------------------------------------------------------------------------------+
-| platelet    | platelet count                                                                     |
-+-------------+------------------------------------------------------------------------------------+
-| protime     | standardised blood clotting time                                                   |
-+-------------+------------------------------------------------------------------------------------+
-| stage       | histologic stage of disease (needs biopsy)                                         |
-+-------------+------------------------------------------------------------------------------------+
++------------+------------------------------------------------------------------------------------+
+| Variable   | Description                                                                        |
++============+====================================================================================+
+| id         | case number                                                                        |
++------------+------------------------------------------------------------------------------------+
+| time       | number of days between registration and the earlier of death                       |
++------------+------------------------------------------------------------------------------------+
+| status     | status at endpoint, 0/1/2 for censored, transplant, dead                           |
++------------+------------------------------------------------------------------------------------+
+| trt        | 1/2/NA for D-penicillmain, placebo, not randomised                                 |
++------------+------------------------------------------------------------------------------------+
+| age        | in years                                                                           |
++------------+------------------------------------------------------------------------------------+
+| sex        | m/f                                                                                |
++------------+------------------------------------------------------------------------------------+
+| ascites    | presence of ascites                                                                |
++------------+------------------------------------------------------------------------------------+
+| hepato     | presence of hepatomegaly or enlarged liver                                         |
++------------+------------------------------------------------------------------------------------+
+| spiders    | blood vessel malformations in the skin                                             |
++------------+------------------------------------------------------------------------------------+
+| edema      | 0 no edema, 0.5 untreated or successfully treated 1 edema despite diuretic therapy |
++------------+------------------------------------------------------------------------------------+
+| bili       | serum bilirunbin (mg/dl)                                                           |
++------------+------------------------------------------------------------------------------------+
+| chol       | serum cholesterol (mg/dl)                                                          |
++------------+------------------------------------------------------------------------------------+
+| albumin    | serum albumin (g/dl)                                                               |
++------------+------------------------------------------------------------------------------------+
+| copper     | urine copper (ug/day)                                                              |
++------------+------------------------------------------------------------------------------------+
+| alk.phos   | alkaline phosphotase (U/liter)                                                     |
++------------+------------------------------------------------------------------------------------+
+| ast        | aspartate aminotransferase, once called SGOT (U/ml)                                |
++------------+------------------------------------------------------------------------------------+
+| trig       | triglycerides (mg/dl)                                                              |
++------------+------------------------------------------------------------------------------------+
+| platelet   | platelet count                                                                     |
++------------+------------------------------------------------------------------------------------+
+| protime    | standardised blood clotting time                                                   |
++------------+------------------------------------------------------------------------------------+
+| stage      | histologic stage of disease (needs biopsy)                                         |
++------------+------------------------------------------------------------------------------------+
 
 ```{r}
 #pbc_rf <- rfsrc(Surv(years, status) ~ ., data = pbc,

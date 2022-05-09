@@ -45,7 +45,21 @@ on the other hand is defined as the instantaneous risk of an individual
 experiencing the event of interest within a small time frame.
 
 Both survival functions and hazard functions are alternatives to
-probability density functions and better suited for survival data.
+probability density functions and are better suited for survival data.
+
+Survival regression involves not only information about censorship and
+time to event, but also additional predictor variables of interest like
+the sex, age, race, etc. of an individual. Cox proportional hazards
+models is a popular and widely utilized modeling technique for survival
+data because it considers the effects of covariates on the outcome of
+interest as well as examines the relationships between these variables
+and the survival distribution. While this model is praised for its
+flexibility and simplicity, it is also often criticized for its
+restrictive proportional hazards assumption.
+
+The proportional hazards assumption states that the relative hazard
+remains constant over time across the different strata/covariate levels
+in the data. For example…
 
 ## Review of Random Forests
 
@@ -70,8 +84,8 @@ contains many covariates collected during the clinical trial.
 
 <table>
 <colgroup>
-<col style="width: 14%" />
-<col style="width: 85%" />
+<col style="width: 13%" />
+<col style="width: 86%" />
 </colgroup>
 <thead>
 <tr class="header">
