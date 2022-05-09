@@ -39,8 +39,6 @@ It's imperative that we still consider these censored observations in our study 
 
 In standard survival analysis, the **survival function**, S(t) is what defines the probability that the event of interest has **not** yet happened at time = t.
 
-![](img/survival_func.png){width="198"}
-
 $$
 S(t) = P(T > t)
 $$
