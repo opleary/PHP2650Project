@@ -46,7 +46,6 @@ In standard survival analysis, the **survival function**, S(t) is what defines t
 ```
 
 
-
 S(t) is non-increasing and ranges between 0 and 1. The hazard function on the other hand is defined as the instantaneous risk of an individual experiencing the event of interest within a small time frame.
 
 ```{r}
