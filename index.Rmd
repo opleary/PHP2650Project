@@ -33,7 +33,7 @@ The main goal of survival analysis is to analyze and estimate the expected amoun
 
 Subjects are observed from baseline to some often pre-specified time at the end of study. Thus, not every subject will experience the event of interest within the observational period's time frame. In this case, we don't know if or when these subjects will experience the event, we just know that they have not experienced it during the study period. This is called **censoring**, more specifically, right-censoring. Right censoring is just one of multiple forms of censoring that survival data strives to adjust for and the form that we will focus on in this comprehensive review. Dropout is also a form of right censoring. The event of interest can happen during the specified time frame, outside of the time frame, or not at all but we don't know which scenario applies to the individuals that leave the study early.
 
-![](img/right_cens_img.png){width="551"}
+![Right censoring occurs when a subject enters the study before experiencing the event of interest at time = 0 and leaves the study without experiencing the event either by not staying the full observational time, or staying the full time without having the event occur.](img/right_cens_img.png){width="592"}
 
 It's imperative that we still consider these censored observations in our study instead of removing them so that we don't bias our results towards only those individuals that experienced the event of interest within the observational time frame. Thus, in survival analysis, not only do we include time from baseline at event of interest, but we also include a binary variable indicating whether an individual experienced the event or was censored instead.
 
@@ -59,7 +59,7 @@ Survival regression involves not only information about censorship and time to e
 
 The proportional hazards assumption states that the relative hazard remains constant over time across the different strata/covariate levels in the data. For example...
 
-![](img/PH_assumption_good_check.png)
+![](img/PH_assumption_good.png){width="1518"}
 
 ## Review of Random Forests
 
@@ -76,7 +76,7 @@ Primary sclerosing cholangitis is an autoimmune disease leading to destruction o
 This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
 | Variable | Description                                                                        |
-|----------|------------------------------------------------------------------------------------|
+|-----------------|-------------------------------------------------------|
 | id       | case number                                                                        |
 | time     | number of days between registration and the earlier of death                       |
 | status   | status at endpoint, 0/1/2 for censored, transplant, dead                           |
@@ -119,7 +119,7 @@ turnover <- read_csv("data/turnover.csv")
 ```
 
 | Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|---------------|---------------------------------------------------------|
 | stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
