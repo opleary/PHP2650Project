@@ -59,6 +59,8 @@ Survival regression involves not only information about censorship and time to e
 
 The proportional hazards assumption states that the relative hazard remains constant over time across the different strata/covariate levels in the data. For example...
 
+![](img/PH_assumption_good_check.png)
+
 ## Review of Random Forests
 
 ## Random Survival Forests
@@ -74,7 +76,7 @@ Primary sclerosing cholangitis is an autoimmune disease leading to destruction o
 This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
 | Variable | Description                                                                        |
-|----------|------------------------------------------------------------------------------------|
+|---------------|---------------------------------------------------------|
 | id       | case number                                                                        |
 | time     | number of days between registration and the earlier of death                       |
 | status   | status at endpoint, 0/1/2 for censored, transplant, dead                           |
@@ -117,7 +119,7 @@ turnover <- read_csv("data/turnover.csv")
 ```
 
 | Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|-----------|-------------------------------------------------------------|
 | stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
