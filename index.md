@@ -64,6 +64,8 @@ The proportional hazards assumption states that the relative hazard
 remains constant over time across the different strata/covariate levels
 in the data. For example…
 
+![](img/PH_assumption_good_check.png)
+
 ## Review of Random Forests
 
 ## Random Survival Forests
@@ -87,8 +89,8 @@ contains many covariates collected during the clinical trial.
 
 <table>
 <colgroup>
-<col style="width: 13%" />
-<col style="width: 86%" />
+<col style="width: 10%" />
+<col style="width: 89%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -135,7 +137,8 @@ contains many covariates collected during the clinical trial.
 </tr>
 <tr class="even">
 <td>edema</td>
-<td>0 no edema, 0.5 untreated or successfully treated 1 edema despite diuretic therapy</td>
+<td>0 no edema, 0.5 untreated or successfully treated 1 edema despite
+diuretic therapy</td>
 </tr>
 <tr class="odd">
 <td>bili</td>
@@ -226,7 +229,16 @@ information.
 </tr>
 <tr class="odd">
 <td>traffic</td>
-<td>From what pipeline employee came to the company. 1. contacted the company directly (advert). 2. contacted the company directly on the recommendation of a friend that’s not an employee of the company (recNErab). 3. contacted the company directly on the recommendation of a friend that IS an employee of the company (referal). 4. applied for a vacany on the job site (youjs) 5. recruiting agency brought you to the employer (KA) 6. invited by an employer known before employment (friends). 7. employer contacted on the recommendation of a person who knows the employee (rabrecNErab). 8. employer reached you through your resume on the job site (empjs).</td>
+<td>From what pipeline employee came to the company. 1. contacted the
+company directly (advert). 2. contacted the company directly on the
+recommendation of a friend that’s not an employee of the company
+(recNErab). 3. contacted the company directly on the recommendation of a
+friend that IS an employee of the company (referal). 4. applied for a
+vacany on the job site (youjs) 5. recruiting agency brought you to the
+employer (KA) 6. invited by an employer known before employment
+(friends). 7. employer contacted on the recommendation of a person who
+knows the employee (rabrecNErab). 8. employer reached you through your
+resume on the job site (empjs).</td>
 </tr>
 <tr class="even">
 <td>coach</td>
@@ -238,7 +250,10 @@ information.
 </tr>
 <tr class="even">
 <td>greywage</td>
-<td>The salary does not seem to the tax authorities. Greywage in Russia or Ukraine means that the employer (company) pay just a tiny bit amount of salary above the white-wage (white-wage means minimum wage) (white/gray)</td>
+<td>The salary does not seem to the tax authorities. Greywage in Russia
+or Ukraine means that the employer (company) pay just a tiny bit amount
+of salary above the white-wage (white-wage means minimum wage)
+(white/gray)</td>
 </tr>
 <tr class="odd">
 <td>way</td>
