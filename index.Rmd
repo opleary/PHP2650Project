@@ -76,6 +76,8 @@ This is a strong assumption and is often viewed as impractical as it is more oft
 
 ## Random Survival Forests
 
+Used to analyze time to event survival data.
+
 ## Conditional Inference Forests
 
 While random survival forests
