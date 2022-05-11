@@ -6,10 +6,10 @@ always_allow_html: yes
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(include = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
 library(tidyverse)
 library(lubridate)
-library(ical)
 library(kableExtra)
 library(janitor)
 library(reshape2)
@@ -57,9 +57,11 @@ Both survival functions and hazard functions are alternatives to probability den
 
 Survival regression involves not only information about censorship and time to event, but also additional predictor variables of interest like the sex, age, race, etc. of an individual. Cox proportional hazards models is a popular and widely utilized modeling technique for survival data because it considers the effects of covariates on the outcome of interest as well as examines the relationships between these variables and the survival distribution. While this model is praised for its flexibility and simplicity, it is also often criticized for its restrictive proportional hazards assumption.
 
-The proportional hazards assumption states that the relative hazard remains constant over time across the different strata/covariate levels in the data. For example...
+The proportional hazards assumption states that the relative hazard remains constant over time across the different strata/covariate levels in the data. The most popular graphical technique for evaluating the PH assumption involves comparing estimated **log-log survival curves** over different strata of the variables being investigated. A log-log survival curve is a transformation of an estimated survival curve that results from taking the natural log of an estimated survival probability twice. Generally, if the log-log survival curves are approximately parallel for each level of the covariates then the proportional hazard assumption is met.
 
 ![](img/PH_assumption_good.png){width="1518"}
+
+In the case of continuous covariates, this assumption can also be checked using statistical tests and graphical methods based on the scaled Schoenfeld residuals. The Schoenfeld residuals are calculated for all covariates for each individual experiencing an event at a given time. Those are the *differences* between that individual's covariate values at the event time and the corresponding risk-weighted average of covariate values among all individuals at risk. The Schoenfeld residuals are then scaled inversely with respect to their covariances/variances. We can think of this as down-weighting Schoenfeld residuals whose values are uncertain because of high variance.
 
 ## Review of Random Forests
 
@@ -76,7 +78,7 @@ Primary sclerosing cholangitis is an autoimmune disease leading to destruction o
 This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
 | Variable | Description                                                                        |
-|-----------------|-------------------------------------------------------|
+|----------|------------------------------------------------------------------------------------|
 | id       | case number                                                                        |
 | time     | number of days between registration and the earlier of death                       |
 | status   | status at endpoint, 0/1/2 for censored, transplant, dead                           |
@@ -98,10 +100,78 @@ This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. 
 | protime  | standardised blood clotting time                                                   |
 | stage    | histologic stage of disease (needs biopsy)                                         |
 
+**Model Selection**
+
 ```{r}
-#pbc_rf <- rfsrc(Surv(years, status) ~ ., data = pbc,
- #nsplit = 10,
- #na.action = "na.impute")
+
+pbc_use <- pbc %>%
+  mutate(status = as.integer(ifelse(status == 2, 1, 0))) %>%
+  select(-id)
+
+pbc_use$trt <- as.factor(pbc_use$trt)
+
+pbc_use$ascites <- as.factor(pbc_use$ascites)
+
+pbc_use$hepato <- as.factor(pbc_use$hepato)
+
+pbc_use$spiders <- as.factor(pbc_use$spiders)
+```
+
+```{r}
+
+
+pbc.cox2 <- coxph(Surv(time, status) ~ . - alk.phos, data = pbc_use)
+pbc.cox3 <- coxph(Surv(time, status) ~ . - alk.phos -
+                    hepato, data = pbc_use)
+pbc.cox4 <- coxph(Surv(time, status) ~ . - alk.phos -
+                    hepato - ascites, data = pbc_use)
+pbc.cox5 <- coxph(Surv(time, status) ~ . - alk.phos -
+                    hepato - ascites - spiders, data = pbc_use)
+pbc.cox6 <- coxph(Surv(time, status) ~ . - alk.phos -
+                    hepato - ascites - spiders -
+                    trt, data = pbc_use)
+pbc.cox7 <- coxph(Surv(time, status) ~ . - alk.phos -
+                    hepato - ascites - spiders -
+                    trt - trig, data = pbc_use)
+pbc.cox8 <- coxph(Surv(time, status) ~ . - alk.phos -
+                    hepato - ascites - spiders -
+                    trt - trig - platelet, data = pbc_use)
+pbc.cox9 <- coxph(Surv(time, status) ~ . - alk.phos -
+                    hepato - ascites - spiders -
+                    trt - trig - platelet - sex, data = pbc_use)
+pbc.cox10 <- coxph(Surv(time, status) ~ . - alk.phos -
+                    hepato - ascites - spiders -
+                    trt - trig - platelet - sex -
+                     chol, data = pbc_use)
+
+pbc_use <- pbc_use %>%
+  select(-c(alk.phos, hepato, ascites, spiders,
+                    trt, trig, platelet, sex, chol))
+
+```
+
+```{r, results='hide', echo = TRUE}
+
+# test two-way interactions
+pbc.full <- coxph(Surv(time, status) ~ (.)^2, data =  pbc_use)
+step(pbc.full, direction = "backward")
+
+
+```
+
+```{r, echo = TRUE}
+
+pbc_cox <- coxph(Surv(time, status) ~ age + edema + bili + albumin + 
+  copper + ast + protime + stage + age:edema + age:copper + 
+  bili:ast, 
+  data = pbc_use)
+
+
+```
+
+```{r}
+
+pbc_rf <- randomForestSRC::rfsrc(Surv(time, status) ~ ., data = pbc_use)
 
 ```
 
@@ -109,7 +179,7 @@ This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. 
 
 A dataset found on Kaggle containing the employee attrition information of 1,129 employees and information about time to turnover, their gender, age, industry, profession, employee pipeline information, the presence of a coach on probation, the gender of their supervisor, and wage information.
 
-```{r}
+```{r, results='hide'}
 turnover <- read_csv("data/turnover.csv")
 #ncol(turnover)
 #head(turnover)
@@ -119,7 +189,7 @@ turnover <- read_csv("data/turnover.csv")
 ```
 
 | Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|---------------|---------------------------------------------------------|
+|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |

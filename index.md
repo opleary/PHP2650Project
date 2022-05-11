@@ -29,7 +29,15 @@ event of interest can happen during the specified time frame, outside of
 the time frame, or not at all but we don’t know which scenario applies
 to the individuals that leave the study early.
 
-<img src="img/right_cens_img.png" width="551" />
+<figure>
+<img src="img/right_cens_img.png" width="592"
+alt="Right censoring occurs when a subject enters the study before experiencing the event of interest at time = 0 and leaves the study without experiencing the event either by not staying the full observational time, or staying the full time without having the event occur." />
+<figcaption aria-hidden="true">Right censoring occurs when a subject
+enters the study before experiencing the event of interest at time = 0
+and leaves the study without experiencing the event either by not
+staying the full observational time, or staying the full time without
+having the event occur.</figcaption>
+</figure>
 
 It’s imperative that we still consider these censored observations in
 our study instead of removing them so that we don’t bias our results
@@ -62,9 +70,27 @@ restrictive proportional hazards assumption.
 
 The proportional hazards assumption states that the relative hazard
 remains constant over time across the different strata/covariate levels
-in the data. For example…
+in the data. The most popular graphical technique for evaluating the PH
+assumption involves comparing estimated **log-log survival curves** over
+different strata of the variables being investigated. A log-log survival
+curve is a transformation of an estimated survival curve that results
+from taking the natural log of an estimated survival probability twice.
+Generally, if the log-log survival curves are approximately parallel for
+each level of the covariates then the proportional hazard assumption is
+met.
 
-![](img/PH_assumption_good_check.png)
+<img src="img/PH_assumption_good.png" width="1518" />
+
+In the case of continuous covariates, this assumption can also be
+checked using statistical tests and graphical methods based on the
+scaled Schoenfeld residuals. The Schoenfeld residuals are calculated for
+all covariates for each individual experiencing an event at a given
+time. Those are the *differences* between that individual’s covariate
+values at the event time and the corresponding risk-weighted average of
+covariate values among all individuals at risk. The Schoenfeld residuals
+are then scaled inversely with respect to their covariances/variances.
+We can think of this as down-weighting Schoenfeld residuals whose values
+are uncertain because of high variance.
 
 ## Review of Random Forests
 
@@ -182,6 +208,17 @@ diuretic therapy</td>
 </tr>
 </tbody>
 </table>
+
+**Model Selection**
+
+    # test two-way interactions
+    pbc.full <- coxph(Surv(time, status) ~ (.)^2, data =  pbc_use)
+    step(pbc.full, direction = "backward")
+
+    pbc_cox <- coxph(Surv(time, status) ~ age + edema + bili + albumin + 
+      copper + ast + protime + stage + age:edema + age:copper + 
+      bili:ast, 
+      data = pbc_use)
 
 ### Employee Turnover Data
 
