@@ -108,7 +108,7 @@ $$
 H (t | \mathbf{x}_i) = \hat H_h(t), \ \text{ if } \mathbf{x}_i\in h.
 $$
 
-The ensemble CHF is found by averaging over $B$ survival trees. 
+The ensemble CHF is found by averaging over <img src="https://render.githubusercontent.com/render/math?math=B"> survival trees. 
 
 ## Conditional Inference Forests
 
