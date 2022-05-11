@@ -78,6 +78,38 @@ This is a strong assumption and is often viewed as impractical as it is more oft
 
 Used to analyze time to event survival data.
 
+
+Used to analyze time to event survival data.
+
+
+Random survival forests use splitting criterion based on survival time and censoring status. Survival trees are binary trees which recursively split tree nodes so that the dissimilarity between child nodes is maximized. Eventually the dissimilar cases are separated and each node becomes more homogenous. The predictive outcome is defined as the total number of deaths, which is derived from the ensemble cumulative hazard function (CHF).
+
+The algorithm:
+
+1. Draw $B$ bootstrap samples from the data
+
+2. Grow a survival tree for each bootstrap sample. For each node of the tree, consider $p$ random variables to split on. The node is split with the candidate variable which maximizes the survival difference between child nodes.
+
+3. Grow the tree as long to full size and stop when the terminal node has no less than $d_0 > 0$ unique deaths. 
+
+4. Average over $B$ survival trees to obtain the ensemble CHF.
+
+5. Calculate the prediction error for the ensemble CHF using OOB error.
+
+We determine a terminal node $h\in T$ when there are no less than  $d_0 > 0$ unique deaths. Let us define $d_{l,h}$ and $Y_{l,h}$ as the number of deaths and individuals who are at risk at time $t_{l,h}$. Then the CHF estimate for a terminal node $h$ is defined as 
+
+$$
+\hat{H}_h(t) = \sum_{t_{l,h} \le t} \frac{d_{l,h}}{Y_{l,h}}
+$$
+
+Each individual $i$ has a $d$ dimensional covariate $\mathbf{x}_i$. The binary structure of survival trees allows $\mathbf{x}_i$ to be classified into a unique terminal node $h$. Thus the CHF for individual $i$ is 
+
+$$
+H (t | \mathbf{x}_i) = \hat H_h(t), \ \text{ if } \mathbf{x}_i\in h.
+$$
+
+The ensemble CHF is found by averaging over $B$ survival trees. 
+
 ## Conditional Inference Forests
 
 While random survival forests
