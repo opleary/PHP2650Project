@@ -97,6 +97,8 @@ assumption. In summary, the proportional hazard assumption is supported
 by a non-significant relationship between residuals and time, and
 refuted by a significant relationship.
 
+(insert image)
+
 ## Review of Random Forests
 
 ## Random Survival Forests
@@ -253,17 +255,7 @@ model as a whole.
     ## bili:ast    6.4185  1 0.011
     ## GLOBAL     20.1396 11 0.043
 
-    ## $`3`
-
-![](index_files/figure-markdown_strict/unnamed-chunk-8-1.png)
-
-    ## $`7`
-
-![](index_files/figure-markdown_strict/unnamed-chunk-8-2.png)
-
-    ## $`11`
-
-![](index_files/figure-markdown_strict/unnamed-chunk-8-3.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-8-1.png)![](index_files/figure-markdown_strict/unnamed-chunk-8-2.png)![](index_files/figure-markdown_strict/unnamed-chunk-8-3.png)
 
 The output from the test tells us that the test is statistically
 significant for bili, protime, and the interaction between bili and ast

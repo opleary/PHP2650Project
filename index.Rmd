@@ -64,6 +64,8 @@ The proportional hazards assumption states that the relative hazard remains cons
 
 In the case of continuous covariates, this assumption can also be checked using statistical tests and graphical methods based on the scaled Schoenfeld residuals. The Schoenfeld residuals are calculated for all covariates for each individual experiencing an event at a given time. Those are the *differences* between that individual's covariate values at the event time and the corresponding risk-weighted average of covariate values among all individuals at risk. The Schoenfeld residuals are then scaled inversely with respect to their covariances/variances. We can think of this as down-weighting Schoenfeld residuals whose values are uncertain because of high variance. If the assumption is valid, the *Schoenfeld residuals* are independent of time. A plot that shows a non-random pattern against time is evidence of violation of the PH assumption. In summary, the proportional hazard assumption is supported by a non-significant relationship between residuals and time, and refuted by a significant relationship.
 
+(insert image)
+
 ## Review of Random Forests
 
 ## Random Survival Forests
@@ -183,9 +185,13 @@ test.ph
 
 ```{r}
 
-ggcoxzph(test.ph)[3]
-ggcoxzph(test.ph)[7]
-ggcoxzph(test.ph)[11]
+schoenplot1 <- ggcoxzph(test.ph)[3]
+schoenplot2 <- ggcoxzph(test.ph)[7]
+schoenplot3 <- ggcoxzph(test.ph)[11]
+
+schoenplot1$`3`
+schoenplot2$`7`
+schoenplot3$`11`
 
 
 ```
