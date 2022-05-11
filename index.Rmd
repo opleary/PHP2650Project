@@ -23,6 +23,7 @@ library(randomForestSRC)
 library(readr)
 library(tidyverse)
 library(tidyr)
+library(survminer)
 ```
 
 # Predicting Survival and Controlling for Bias with Random Survival Forests and Conditional Inference Forests
@@ -33,7 +34,7 @@ The main goal of survival analysis is to analyze and estimate the expected amoun
 
 Subjects are observed from baseline to some often pre-specified time at the end of study. Thus, not every subject will experience the event of interest within the observational period's time frame. In this case, we don't know if or when these subjects will experience the event, we just know that they have not experienced it during the study period. This is called **censoring**, more specifically, right-censoring. Right censoring is just one of multiple forms of censoring that survival data strives to adjust for and the form that we will focus on in this comprehensive review. Dropout is also a form of right censoring. The event of interest can happen during the specified time frame, outside of the time frame, or not at all but we don't know which scenario applies to the individuals that leave the study early.
 
-![Right censoring occurs when a subject enters the study before experiencing the event of interest at time = 0 and leaves the study without experiencing the event either by not staying the full observational time, or staying the full time without having the event occur.](img/right_cens_img.png){width="592"}
+![*Right censoring occurs when a subject enters the study before experiencing the event of interest at time = 0 and leaves the study without experiencing the event either by not staying the full observational time, or staying the full time without having the event occur.*](img/right_cens_img.png){width="592"}
 
 It's imperative that we still consider these censored observations in our study instead of removing them so that we don't bias our results towards only those individuals that experienced the event of interest within the observational time frame. Thus, in survival analysis, not only do we include time from baseline at event of interest, but we also include a binary variable indicating whether an individual experienced the event or was censored instead.
 
@@ -59,9 +60,9 @@ Survival regression involves not only information about censorship and time to e
 
 The proportional hazards assumption states that the relative hazard remains constant over time across the different strata/covariate levels in the data. The most popular graphical technique for evaluating the PH assumption involves comparing estimated **log-log survival curves** over different strata of the variables being investigated. A log-log survival curve is a transformation of an estimated survival curve that results from taking the natural log of an estimated survival probability twice. Generally, if the log-log survival curves are approximately parallel for each level of the covariates then the proportional hazard assumption is met.
 
-![](img/PH_assumption_good.png){width="1518"}
+![](img/PH_assumption_good.png){width="608"}
 
-In the case of continuous covariates, this assumption can also be checked using statistical tests and graphical methods based on the scaled Schoenfeld residuals. The Schoenfeld residuals are calculated for all covariates for each individual experiencing an event at a given time. Those are the *differences* between that individual's covariate values at the event time and the corresponding risk-weighted average of covariate values among all individuals at risk. The Schoenfeld residuals are then scaled inversely with respect to their covariances/variances. We can think of this as down-weighting Schoenfeld residuals whose values are uncertain because of high variance.
+In the case of continuous covariates, this assumption can also be checked using statistical tests and graphical methods based on the scaled Schoenfeld residuals. The Schoenfeld residuals are calculated for all covariates for each individual experiencing an event at a given time. Those are the *differences* between that individual's covariate values at the event time and the corresponding risk-weighted average of covariate values among all individuals at risk. The Schoenfeld residuals are then scaled inversely with respect to their covariances/variances. We can think of this as down-weighting Schoenfeld residuals whose values are uncertain because of high variance. If the assumption is valid, the *Schoenfeld residuals* are independent of time. A plot that shows a non-random pattern against time is evidence of violation of the PH assumption. In summary, the proportional hazard assumption is supported by a non-significant relationship between residuals and time, and refuted by a significant relationship.
 
 ## Review of Random Forests
 
@@ -78,7 +79,7 @@ Primary sclerosing cholangitis is an autoimmune disease leading to destruction o
 This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
 | Variable | Description                                                                        |
-|-------------------|-----------------------------------------------------|
+|--------------------|----------------------------------------------------|
 | id       | case number                                                                        |
 | time     | number of days between registration and the earlier of death                       |
 | status   | status at endpoint, 0/1/2 for censored, transplant, dead                           |
@@ -101,6 +102,8 @@ This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. 
 | stage    | histologic stage of disease (needs biopsy)                                         |
 
 **Variable Selection**
+
+In order to choose the variables that we want to use in our models, we will first run a cox proportional
 
 ```{r}
 
@@ -169,12 +172,25 @@ pbc_cox <- coxph(Surv(time, status) ~ age + edema + bili + albumin +
 
 We can test the proportional-hazards assumption using the `cox.zph` function.
 
+For each covariate, the function correlates the corresponding set of scaled Schoenfeld residuals with time to test for independence between residuals and time. Additionally, it performs a global test for the model as a whole.
+
 ```{r, echo = TRUE}
 
 test.ph <- cox.zph(pbc_cox)
 test.ph
 
 ```
+
+```{r}
+
+ggcoxzph(test.ph)[3]
+ggcoxzph(test.ph)[7]
+ggcoxzph(test.ph)[11]
+
+
+```
+
+The output from the test tells us that the test is statistically significant for bili, protime, and the interaction between bili and ast at a significance level of 0.05. It's also globablly statistically significant with a p-value of 0.04. Thus, the PH assumption is violated.
 
 **Random Forest Implementation**
 
@@ -207,7 +223,7 @@ turnover <- read_csv("data/turnover.csv")
 ```
 
 | Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|------------------|------------------------------------------------------|
+|-------------------|-----------------------------------------------------|
 | stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |

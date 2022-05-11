@@ -32,11 +32,11 @@ to the individuals that leave the study early.
 <figure>
 <img src="img/right_cens_img.png" width="592"
 alt="Right censoring occurs when a subject enters the study before experiencing the event of interest at time = 0 and leaves the study without experiencing the event either by not staying the full observational time, or staying the full time without having the event occur." />
-<figcaption aria-hidden="true">Right censoring occurs when a subject
+<figcaption aria-hidden="true"><em>Right censoring occurs when a subject
 enters the study before experiencing the event of interest at time = 0
 and leaves the study without experiencing the event either by not
 staying the full observational time, or staying the full time without
-having the event occur.</figcaption>
+having the event occur.</em></figcaption>
 </figure>
 
 It’s imperative that we still consider these censored observations in
@@ -79,7 +79,7 @@ Generally, if the log-log survival curves are approximately parallel for
 each level of the covariates then the proportional hazard assumption is
 met.
 
-<img src="img/PH_assumption_good.png" width="1518" />
+<img src="img/PH_assumption_good.png" width="608" />
 
 In the case of continuous covariates, this assumption can also be
 checked using statistical tests and graphical methods based on the
@@ -90,7 +90,12 @@ values at the event time and the corresponding risk-weighted average of
 covariate values among all individuals at risk. The Schoenfeld residuals
 are then scaled inversely with respect to their covariances/variances.
 We can think of this as down-weighting Schoenfeld residuals whose values
-are uncertain because of high variance.
+are uncertain because of high variance. If the assumption is valid, the
+*Schoenfeld residuals* are independent of time. A plot that shows a
+non-random pattern against time is evidence of violation of the PH
+assumption. In summary, the proportional hazard assumption is supported
+by a non-significant relationship between residuals and time, and
+refuted by a significant relationship.
 
 ## Review of Random Forests
 
@@ -115,8 +120,8 @@ contains many covariates collected during the clinical trial.
 
 <table>
 <colgroup>
-<col style="width: 26%" />
-<col style="width: 73%" />
+<col style="width: 27%" />
+<col style="width: 72%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -211,6 +216,9 @@ diuretic therapy</td>
 
 **Variable Selection**
 
+In order to choose the variables that we want to use in our models, we
+will first run a cox proportional
+
     # test two-way interactions
     pbc.full <- coxph(Surv(time, status) ~ (.)^2, data =  pbc_use)
     step(pbc.full, direction = "backward")
@@ -222,6 +230,11 @@ diuretic therapy</td>
 
 We can test the proportional-hazards assumption using the `cox.zph`
 function.
+
+For each covariate, the function correlates the corresponding set of
+scaled Schoenfeld residuals with time to test for independence between
+residuals and time. Additionally, it performs a global test for the
+model as a whole.
 
     test.ph <- cox.zph(pbc_cox)
     test.ph
@@ -240,6 +253,23 @@ function.
     ## bili:ast    6.4185  1 0.011
     ## GLOBAL     20.1396 11 0.043
 
+    ## $`3`
+
+![](index_files/figure-markdown_strict/unnamed-chunk-8-1.png)
+
+    ## $`7`
+
+![](index_files/figure-markdown_strict/unnamed-chunk-8-2.png)
+
+    ## $`11`
+
+![](index_files/figure-markdown_strict/unnamed-chunk-8-3.png)
+
+The output from the test tells us that the test is statistically
+significant for bili, protime, and the interaction between bili and ast
+at a significance level of 0.05. It’s also globablly statistically
+significant with a p-value of 0.04. Thus, the PH assumption is violated.
+
 **Random Forest Implementation**
 
 **Conditional Inference Forest Implementation**
@@ -254,8 +284,8 @@ information.
 
 <table>
 <colgroup>
-<col style="width: 25%" />
-<col style="width: 75%" />
+<col style="width: 26%" />
+<col style="width: 73%" />
 </colgroup>
 <thead>
 <tr class="header">
