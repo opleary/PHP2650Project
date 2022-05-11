@@ -78,7 +78,7 @@ Primary sclerosing cholangitis is an autoimmune disease leading to destruction o
 This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
 | Variable | Description                                                                        |
-|----------|------------------------------------------------------------------------------------|
+|-------------------|-----------------------------------------------------|
 | id       | case number                                                                        |
 | time     | number of days between registration and the earlier of death                       |
 | status   | status at endpoint, 0/1/2 for censored, transplant, dead                           |
@@ -100,7 +100,7 @@ This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. 
 | protime  | standardised blood clotting time                                                   |
 | stage    | histologic stage of disease (needs biopsy)                                         |
 
-**Model Selection**
+**Variable Selection**
 
 ```{r}
 
@@ -165,13 +165,31 @@ pbc_cox <- coxph(Surv(time, status) ~ age + edema + bili + albumin +
   copper + ast + protime + stage + age:edema + age:copper + 
   bili:ast, 
   data = pbc_use)
+```
 
+We can test the proportional-hazards assumption using the `cox.zph` function.
+
+```{r, echo = TRUE}
+
+test.ph <- cox.zph(pbc_cox)
+test.ph
 
 ```
+
+**Random Forest Implementation**
 
 ```{r}
 
 pbc_rf <- randomForestSRC::rfsrc(Surv(time, status) ~ ., data = pbc_use)
+
+```
+
+**Conditional Inference Forest Implementation**
+
+```{r}
+
+
+#pbc_cif <- 
 
 ```
 
@@ -189,7 +207,7 @@ turnover <- read_csv("data/turnover.csv")
 ```
 
 | Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|------------------|------------------------------------------------------|
 | stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -230,5 +248,9 @@ group = as.factor(ifelse(group == "prednisolone", 1, 2)))
 # yhat <- get.mv.predicted(hep_rf, oob = TRUE)
 
 ```
+
+**Random Forest Implementation**
+
+**Conditional Inference Forest Implementation**
 
 {% include lib/mathjax.html %}

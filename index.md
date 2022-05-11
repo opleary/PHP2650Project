@@ -115,8 +115,8 @@ contains many covariates collected during the clinical trial.
 
 <table>
 <colgroup>
-<col style="width: 10%" />
-<col style="width: 89%" />
+<col style="width: 26%" />
+<col style="width: 73%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -209,7 +209,7 @@ diuretic therapy</td>
 </tbody>
 </table>
 
-**Model Selection**
+**Variable Selection**
 
     # test two-way interactions
     pbc.full <- coxph(Surv(time, status) ~ (.)^2, data =  pbc_use)
@@ -219,6 +219,30 @@ diuretic therapy</td>
       copper + ast + protime + stage + age:edema + age:copper + 
       bili:ast, 
       data = pbc_use)
+
+We can test the proportional-hazards assumption using the `cox.zph`
+function.
+
+    test.ph <- cox.zph(pbc_cox)
+    test.ph
+
+    ##              chisq df     p
+    ## age         0.3869  1 0.534
+    ## edema       1.8393  1 0.175
+    ## bili        4.6535  1 0.031
+    ## albumin     0.1930  1 0.660
+    ## copper      0.0297  1 0.863
+    ## ast         0.5231  1 0.470
+    ## protime     3.9768  1 0.046
+    ## stage       2.8331  1 0.092
+    ## age:edema   3.2337  1 0.072
+    ## age:copper  0.0880  1 0.767
+    ## bili:ast    6.4185  1 0.011
+    ## GLOBAL     20.1396 11 0.043
+
+**Random Forest Implementation**
+
+**Conditional Inference Forest Implementation**
 
 ### Employee Turnover Data
 
@@ -230,8 +254,8 @@ information.
 
 <table>
 <colgroup>
-<col style="width: 2%" />
-<col style="width: 97%" />
+<col style="width: 25%" />
+<col style="width: 75%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -318,5 +342,9 @@ of salary above the white-wage (white-wage means minimum wage)
 </tr>
 </tbody>
 </table>
+
+**Random Forest Implementation**
+
+**Conditional Inference Forest Implementation**
 
 {% include lib/mathjax.html %}
