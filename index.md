@@ -112,6 +112,8 @@ attractive non-parameteric alternative to these models.
 
 ## Random Survival Forests
 
+Used to analyze time to event survival data.
+
 ## Conditional Inference Forests
 
 While random survival forests
