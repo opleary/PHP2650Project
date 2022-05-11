@@ -68,7 +68,9 @@ and the survival distribution. While this model is praised for its
 flexibility and simplicity, it is also often criticized for its
 restrictive proportional hazards assumption.
 
-The proportional hazards assumption states that the relative hazard
+**The Proportional Hazards Assumption**
+
+The **proportional hazards assumption** states that the relative hazard
 remains constant over time across the different strata/covariate levels
 in the data. The most popular graphical technique for evaluating the PH
 assumption involves comparing estimated **log-log survival curves** over
@@ -99,11 +101,20 @@ refuted by a significant relationship.
 
 (insert image)
 
+This is a strong assumption and is often viewed as impractical as it is
+more often than not violated. There are a number of extensions that aim
+to deal with data that violate this assumption, but they often rely on
+restrictive functions or limit the ability to estimate the effects of
+covariates on survival. **Random survival forests** provide an
+attractive non-parameteric alternative to these models.
+
 ## Review of Random Forests
 
 ## Random Survival Forests
 
 ## Conditional Inference Forests
+
+While random survival forests
 
 ## Applications
 
@@ -122,8 +133,8 @@ contains many covariates collected during the clinical trial.
 
 <table>
 <colgroup>
-<col style="width: 27%" />
-<col style="width: 72%" />
+<col style="width: 30%" />
+<col style="width: 69%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -138,7 +149,8 @@ contains many covariates collected during the clinical trial.
 </tr>
 <tr class="even">
 <td>time</td>
-<td>number of days between registration and the earlier of death</td>
+<td>number of days between registration and the earlier of death,
+transplant, or end of observational period</td>
 </tr>
 <tr class="odd">
 <td>status</td>
@@ -146,7 +158,7 @@ contains many covariates collected during the clinical trial.
 </tr>
 <tr class="even">
 <td>trt</td>
-<td>1/2/NA for D-penicillmain, placebo, not randomised</td>
+<td>1/2/NA for D-penicillmain, placebo, not randomized</td>
 </tr>
 <tr class="odd">
 <td>age</td>
@@ -219,11 +231,32 @@ diuretic therapy</td>
 **Variable Selection**
 
 In order to choose the variables that we want to use in our models, we
-will first run a cox proportional
+will first run a cox proportional hazards model with all of the possible
+main effects in our data. We will then go through a backwards
+elimination process, removing the variables with the highest p-values
+over a significance level of 0.05 one by one until all of the main
+effects are statistically significant. Then, we’ll test for all two-way
+interaction terms and perform backwards elimination until all
+two-interactions left in the model are statistically significant.
+
+Note that the status variable will be simplified to two levels.
+Individuals will have a value of 1 if they experienced death, and 0
+otherwise, making **death our event of interest**.
+
+    # test main effects
+    pbc.main <- coxph(Surv(time, status) ~ ., data =  pbc_use)
+    step(pbc.main, direction = "backward")
 
     # test two-way interactions
     pbc.full <- coxph(Surv(time, status) ~ (.)^2, data =  pbc_use)
     step(pbc.full, direction = "backward")
+
+Going through backwards elimination leaves us with a model with age,
+edema status (edema), serum bilirunbin (bili), serum albumin (albumin),
+urine copper (copper), aspartate aminotransferase (ast), standardised
+blood clotting time (protime), histologic stage of disease (stage) and
+the interactions between age and edema status, age and urine copper, and
+serum bilirunbin and aspartate aminotransferase.
 
     pbc_cox <- coxph(Surv(time, status) ~ age + edema + bili + albumin + 
       copper + ast + protime + stage + age:edema + age:copper + 
@@ -255,16 +288,41 @@ model as a whole.
     ## bili:ast    6.4185  1 0.011
     ## GLOBAL     20.1396 11 0.043
 
-![](index_files/figure-markdown_strict/unnamed-chunk-8-1.png)![](index_files/figure-markdown_strict/unnamed-chunk-8-2.png)![](index_files/figure-markdown_strict/unnamed-chunk-8-3.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-9-1.png)![](index_files/figure-markdown_strict/unnamed-chunk-9-2.png)![](index_files/figure-markdown_strict/unnamed-chunk-9-3.png)
 
 The output from the test tells us that the test is statistically
 significant for bili, protime, and the interaction between bili and ast
-at a significance level of 0.05. It’s also globablly statistically
+at a significance level of 0.05. It’s also globally statistically
 significant with a p-value of 0.04. Thus, the PH assumption is violated.
 
-**Random Forest Implementation**
+Using random survival forests and conditional inference forests are
+useful alternatives in this case.
+
+We’ll start by splitting our data into a 75/25 training-testing set. Our
+training and testing sets have 313 and 105 observations respectively.
+*note small sample sizes?*
+
+**Random Survival Forest Implementation**
 
 **Conditional Inference Forest Implementation**
+
+    # run conditional inference forest
+    # note to self - should at least tune mtry 3-8
+
+    pbc_cif <- cforest(Surv(time, status) ~ age + edema + bili + albumin + 
+      copper + ast + protime + stage + age:edema + age:copper + 
+      bili:ast, 
+      data = train_pbc)
+
+    # predict on test data
+    pred.cif <- predict(pbc_cif,  newdata = test_pbc[,-c(1:2)])
+
+**Variable Importance**
+
+    ## 
+    ## Variable importance for survival forests; this feature is _experimental_
+
+![](index_files/figure-markdown_strict/unnamed-chunk-14-1.png)
 
 ### Employee Turnover Data
 
@@ -276,8 +334,8 @@ information.
 
 <table>
 <colgroup>
-<col style="width: 26%" />
-<col style="width: 73%" />
+<col style="width: 30%" />
+<col style="width: 69%" />
 </colgroup>
 <thead>
 <tr class="header">

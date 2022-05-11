@@ -24,6 +24,8 @@ library(readr)
 library(tidyverse)
 library(tidyr)
 library(survminer)
+library(party)
+library(caret)
 ```
 
 # Predicting Survival and Controlling for Bias with Random Survival Forests and Conditional Inference Forests
@@ -58,7 +60,9 @@ Both survival functions and hazard functions are alternatives to probability den
 
 Survival regression involves not only information about censorship and time to event, but also additional predictor variables of interest like the sex, age, race, etc. of an individual. Cox proportional hazards models is a popular and widely utilized modeling technique for survival data because it considers the effects of covariates on the outcome of interest as well as examines the relationships between these variables and the survival distribution. While this model is praised for its flexibility and simplicity, it is also often criticized for its restrictive proportional hazards assumption.
 
-The proportional hazards assumption states that the relative hazard remains constant over time across the different strata/covariate levels in the data. The most popular graphical technique for evaluating the PH assumption involves comparing estimated **log-log survival curves** over different strata of the variables being investigated. A log-log survival curve is a transformation of an estimated survival curve that results from taking the natural log of an estimated survival probability twice. Generally, if the log-log survival curves are approximately parallel for each level of the covariates then the proportional hazard assumption is met.
+**The Proportional Hazards Assumption**
+
+The **proportional hazards assumption** states that the relative hazard remains constant over time across the different strata/covariate levels in the data. The most popular graphical technique for evaluating the PH assumption involves comparing estimated **log-log survival curves** over different strata of the variables being investigated. A log-log survival curve is a transformation of an estimated survival curve that results from taking the natural log of an estimated survival probability twice. Generally, if the log-log survival curves are approximately parallel for each level of the covariates then the proportional hazard assumption is met.
 
 ![](img/PH_assumption_good.png){width="608"}
 
@@ -66,11 +70,15 @@ In the case of continuous covariates, this assumption can also be checked using 
 
 (insert image)
 
+This is a strong assumption and is often viewed as impractical as it is more often than not violated. There are a number of extensions that aim to deal with data that violate this assumption, but they often rely on restrictive functions or limit the ability to estimate the effects of covariates on survival. **Random survival forests** provide an attractive non-parameteric alternative to these models.
+
 ## Review of Random Forests
 
 ## Random Survival Forests
 
 ## Conditional Inference Forests
+
+While random survival forests
 
 ## Applications
 
@@ -80,32 +88,34 @@ Primary sclerosing cholangitis is an autoimmune disease leading to destruction o
 
 This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
-| Variable | Description                                                                        |
-|--------------------|----------------------------------------------------|
-| id       | case number                                                                        |
-| time     | number of days between registration and the earlier of death                       |
-| status   | status at endpoint, 0/1/2 for censored, transplant, dead                           |
-| trt      | 1/2/NA for D-penicillmain, placebo, not randomised                                 |
-| age      | in years                                                                           |
-| sex      | m/f                                                                                |
-| ascites  | presence of ascites                                                                |
-| hepato   | presence of hepatomegaly or enlarged liver                                         |
-| spiders  | blood vessel malformations in the skin                                             |
-| edema    | 0 no edema, 0.5 untreated or successfully treated 1 edema despite diuretic therapy |
-| bili     | serum bilirunbin (mg/dl)                                                           |
-| chol     | serum cholesterol (mg/dl)                                                          |
-| albumin  | serum albumin (g/dl)                                                               |
-| copper   | urine copper (ug/day)                                                              |
-| alk.phos | alkaline phosphotase (U/liter)                                                     |
-| ast      | aspartate aminotransferase, once called SGOT (U/ml)                                |
-| trig     | triglycerides (mg/dl)                                                              |
-| platelet | platelet count                                                                     |
-| protime  | standardised blood clotting time                                                   |
-| stage    | histologic stage of disease (needs biopsy)                                         |
+| Variable | Description                                                                                              |
+|----------------------|-------------------------------------------------|
+| id       | case number                                                                                              |
+| time     | number of days between registration and the earlier of death, transplant, or end of observational period |
+| status   | status at endpoint, 0/1/2 for censored, transplant, dead                                                 |
+| trt      | 1/2/NA for D-penicillmain, placebo, not randomized                                                       |
+| age      | in years                                                                                                 |
+| sex      | m/f                                                                                                      |
+| ascites  | presence of ascites                                                                                      |
+| hepato   | presence of hepatomegaly or enlarged liver                                                               |
+| spiders  | blood vessel malformations in the skin                                                                   |
+| edema    | 0 no edema, 0.5 untreated or successfully treated 1 edema despite diuretic therapy                       |
+| bili     | serum bilirunbin (mg/dl)                                                                                 |
+| chol     | serum cholesterol (mg/dl)                                                                                |
+| albumin  | serum albumin (g/dl)                                                                                     |
+| copper   | urine copper (ug/day)                                                                                    |
+| alk.phos | alkaline phosphotase (U/liter)                                                                           |
+| ast      | aspartate aminotransferase, once called SGOT (U/ml)                                                      |
+| trig     | triglycerides (mg/dl)                                                                                    |
+| platelet | platelet count                                                                                           |
+| protime  | standardised blood clotting time                                                                         |
+| stage    | histologic stage of disease (needs biopsy)                                                               |
 
 **Variable Selection**
 
-In order to choose the variables that we want to use in our models, we will first run a cox proportional
+In order to choose the variables that we want to use in our models, we will first run a cox proportional hazards model with all of the possible main effects in our data. We will then go through a backwards elimination process, removing the variables with the highest p-values over a significance level of 0.05 one by one until all of the main effects are statistically significant. Then, we'll test for all two-way interaction terms and perform backwards elimination until all two-interactions left in the model are statistically significant.
+
+Note that the status variable will be simplified to two levels. Individuals will have a value of 1 if they experienced death, and 0 otherwise, making **death our event of interest**.
 
 ```{r}
 
@@ -120,10 +130,18 @@ pbc_use$ascites <- as.factor(pbc_use$ascites)
 pbc_use$hepato <- as.factor(pbc_use$hepato)
 
 pbc_use$spiders <- as.factor(pbc_use$spiders)
+
+```
+
+```{r, echo = TRUE, eval = FALSE}
+
+# test main effects
+pbc.main <- coxph(Surv(time, status) ~ ., data =  pbc_use)
+step(pbc.main, direction = "backward")
+
 ```
 
 ```{r}
-
 
 pbc.cox2 <- coxph(Surv(time, status) ~ . - alk.phos, data = pbc_use)
 pbc.cox3 <- coxph(Surv(time, status) ~ . - alk.phos -
@@ -161,8 +179,9 @@ pbc_use <- pbc_use %>%
 pbc.full <- coxph(Surv(time, status) ~ (.)^2, data =  pbc_use)
 step(pbc.full, direction = "backward")
 
-
 ```
+
+Going through backwards elimination leaves us with a model with age, edema status (edema), serum bilirunbin (bili), serum albumin (albumin), urine copper (copper), aspartate aminotransferase (ast), standardised blood clotting time (protime), histologic stage of disease (stage) and the interactions between age and edema status, age and urine copper, and serum bilirunbin and aspartate aminotransferase.
 
 ```{r, echo = TRUE}
 
@@ -170,6 +189,7 @@ pbc_cox <- coxph(Surv(time, status) ~ age + edema + bili + albumin +
   copper + ast + protime + stage + age:edema + age:copper + 
   bili:ast, 
   data = pbc_use)
+
 ```
 
 We can test the proportional-hazards assumption using the `cox.zph` function.
@@ -196,22 +216,73 @@ schoenplot3$`11`
 
 ```
 
-The output from the test tells us that the test is statistically significant for bili, protime, and the interaction between bili and ast at a significance level of 0.05. It's also globablly statistically significant with a p-value of 0.04. Thus, the PH assumption is violated.
+The output from the test tells us that the test is statistically significant for bili, protime, and the interaction between bili and ast at a significance level of 0.05. It's also globally statistically significant with a p-value of 0.04. Thus, the PH assumption is violated.
 
-**Random Forest Implementation**
+Using random survival forests and conditional inference forests are useful alternatives in this case.
+
+We'll start by splitting our data into a 75/25 training-testing set. Our training and testing sets have 313 and 105 observations respectively.  *note small sample sizes?*
+
+```{r}
+set.seed(1)
+train_ind_pbc <- sample(1:nrow(pbc_use), nrow(pbc_use)*0.75)
+train_pbc <- pbc_use[train_ind_pbc,]
+test_pbc <- pbc_use[-train_ind_pbc,]
+```
+
+
+**Random Survival Forest Implementation**
 
 ```{r}
 
-pbc_rf <- randomForestSRC::rfsrc(Surv(time, status) ~ ., data = pbc_use)
+pbc_rf <- rfsrc(Surv(time, status) ~ age + edema + bili + albumin + 
+  copper + ast + protime + stage + age:edema + age:copper + 
+  bili:ast, data = train_pbc)
 
 ```
 
+
 **Conditional Inference Forest Implementation**
+
+```{r, echo = TRUE}
+
+# run conditional inference forest
+# note to self - should at least tune mtry 3-8
+
+pbc_cif <- cforest(Surv(time, status) ~ age + edema + bili + albumin + 
+  copper + ast + protime + stage + age:edema + age:copper + 
+  bili:ast, 
+  data = train_pbc)
+
+```
+
+
+
+
+```{r, echo=TRUE}
+
+# predict on test data
+pred.cif <- predict(pbc_cif,  newdata = test_pbc[,-c(1:2)])
+
+
+```
+
+
+
+**Variable Importance**
 
 ```{r}
 
+cif_imp_pbc <- data.frame(importance = varimp(pbc_cif)  %>% sort(decreasing = T))
 
-#pbc_cif <- 
+cif_imp_pbc$vars <- rownames(cif_imp_pbc)
+
+ggplot(cif_imp_pbc, aes(x = reorder(vars, -importance, decreasing = TRUE), 
+                        y = importance, 
+                        fill = vars)) +
+  geom_col() +
+  coord_flip() +
+  labs(x = "variables", title = "CIF Variable Importance") + theme_bw() +
+  theme(legend.position = "none")
 
 ```
 
@@ -229,7 +300,7 @@ turnover <- read_csv("data/turnover.csv")
 ```
 
 | Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|-------------------|-----------------------------------------------------|
+|----------------------|--------------------------------------------------|
 | stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -248,6 +319,7 @@ turnover <- read_csv("data/turnover.csv")
 | novator      | Novator Score                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 ```{r}
+
 hepatitis <- read_csv("data/hepatitis.csv")[, 1:3]
 
 hepatitis[hepatitis$censor == "loss to follow-up",]$censor <- "censored"
