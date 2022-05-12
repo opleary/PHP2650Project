@@ -28,6 +28,8 @@ library(party)
 library(pec)
 library(caret)
 library(Metrics)
+library(partykit)
+library(riskRegression)
 ```
 
 # Predicting Survival and Controlling for Bias with Random Survival Forests and Conditional Inference Forests
@@ -80,37 +82,35 @@ This is a strong assumption and is often viewed as impractical as it is more oft
 
 Used to analyze time to event survival data.
 
-
 Used to analyze time to event survival data.
-
 
 Random survival forests use splitting criterion based on survival time and censoring status. Survival trees are binary trees which recursively split tree nodes so that the dissimilarity between child nodes is maximized. Eventually the dissimilar cases are separated and each node becomes more homogenous. The predictive outcome is defined as the total number of deaths, which is derived from the ensemble cumulative hazard function (CHF).
 
 The algorithm:
 
-1. Draw $B$ bootstrap samples from the data
+1.  Draw $B$ bootstrap samples from the data
 
-2. Grow a survival tree for each bootstrap sample. For each node of the tree, consider $p$ random variables to split on. The node is split with the candidate variable which maximizes the survival difference between child nodes.
+2.  Grow a survival tree for each bootstrap sample. For each node of the tree, consider $p$ random variables to split on. The node is split with the candidate variable which maximizes the survival difference between child nodes.
 
-3. Grow the tree as long to full size and stop when the terminal node has no less than $d_0 > 0$ unique deaths. 
+3.  Grow the tree as long to full size and stop when the terminal node has no less than $d_0 > 0$ unique deaths.
 
-4. Average over $B$ survival trees to obtain the ensemble CHF.
+4.  Average over $B$ survival trees to obtain the ensemble CHF.
 
-5. Calculate the prediction error for the ensemble CHF using OOB error.
+5.  Calculate the prediction error for the ensemble CHF using OOB error.
 
-We determine a terminal node $h\in T$ when there are no less than  $d_0 > 0$ unique deaths. Let us define $d_{l,h}$ and $Y_{l,h}$ as the number of deaths and individuals who are at risk at time $t_{l,h}$. Then the CHF estimate for a terminal node $h$ is defined as 
+We determine a terminal node $h\in T$ when there are no less than $d_0 > 0$ unique deaths. Let us define $d_{l,h}$ and $Y_{l,h}$ as the number of deaths and individuals who are at risk at time $t_{l,h}$. Then the CHF estimate for a terminal node $h$ is defined as
 
 $$
 \hat{H}_h(t) = \sum_{t_{l,h} \le t} \frac{d_{l,h}}{Y_{l,h}}
 $$
 
-Each individual $i$ has a $d$ dimensional covariate $\mathbf{x}_i$. The binary structure of survival trees allows $\mathbf{x}_i$ to be classified into a unique terminal node $h$. Thus the CHF for individual $i$ is 
+Each individual $i$ has a $d$ dimensional covariate $\mathbf{x}_i$. The binary structure of survival trees allows $\mathbf{x}_i$ to be classified into a unique terminal node $h$. Thus the CHF for individual $i$ is
 
 $$
 H (t | \mathbf{x}_i) = \hat H_h(t), \ \text{ if } \mathbf{x}_i\in h.
 $$
 
-The ensemble CHF is found by averaging over <img src="https://render.githubusercontent.com/render/math?math=B"> survival trees. 
+The ensemble CHF is found by averaging over <img src="https://render.githubusercontent.com/render/math?math=B"/> survival trees.
 
 ## Conditional Inference Forests
 
@@ -125,7 +125,7 @@ Primary sclerosing cholangitis is an autoimmune disease leading to destruction o
 This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
 | Variable | Description                                                                                              |
-|-----------------------|-------------------------------------------------|
+|----------------|--------------------------------------------------------|
 | id       | case number                                                                                              |
 | time     | number of days between registration and the earlier of death, transplant, or end of observational period |
 | status   | status at endpoint, 0/1/2 for censored, transplant, dead                                                 |
@@ -277,7 +277,6 @@ pbc_rf <- rfsrc(Surv(time, status) ~ age + edema + bili + albumin +
 
 ```
 
-
 **Conditional Inference Forest Implementation**
 
 ```{r, echo = TRUE}
@@ -293,7 +292,6 @@ pbc_cif <- cforest(Surv(time, status) ~ age + edema + bili + albumin +
 control = cforest_unbiased(ntree = 500, mtry=5))
 ```
 
-
 ```{r, results='hide'}
 
 # mean absolute error on training set (survival times)
@@ -304,8 +302,6 @@ pred_train <- cbind(train_pbc, pred_time = predict(pbc_cif, train_pbc[, -c(1:2)]
 
 mae(pred_train$time, pred_train$pred_time)
 ```
-
-
 
 ```{r}
 
@@ -319,7 +315,6 @@ predict(pbc_cif, test_pbc[, -c(1:2)], OOB = TRUE)
 nrow(test_pbc)
 
 ```
-
 
 ```{r}
 
@@ -341,9 +336,6 @@ plotPredictSurvProb(pbc_cif, newdata = na.omit(train_pbc[, -c(1:2)]),
 
 
 ```
-
-
-
 
 ```{r}
 
@@ -384,16 +376,13 @@ ggplot(cif_imp_pbc, aes(x = reorder(vars, -importance, decreasing = TRUE),
 A dataset found on Kaggle containing the employee attrition information of 1,129 employees and information about time to turnover, their gender, age, industry, profession, employee pipeline information, the presence of a coach on probation, the gender of their supervisor, and wage information.
 
 ```{r, results='hide'}
+
 turnover <- read_csv("data/turnover.csv")
-#ncol(turnover)
-#head(turnover)
-#table(turnover$way)
-#colnames(turnover)
 
 ```
 
 | Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|----------------------|-------------------------------------------------|
+|---------------|---------------------------------------------------------|
 | stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -413,31 +402,179 @@ turnover <- read_csv("data/turnover.csv")
 
 ```{r}
 
-hepatitis <- read_csv("data/hepatitis.csv")[, 1:3]
-
-hepatitis[hepatitis$censor == "loss to follow-up",]$censor <- "censored"
-
-hepatitis <- hepatitis %>%
-mutate(censor = ifelse(censor == "censored", 0, 1),
-group = as.factor(ifelse(group == "prednisolone", 1, 2)))
-
-#hepatitis$T <- Surv(time = hepatitis$time, event = hepatitis$censor)
-
-#km <- survfit(T ~ group, data = hepatitis)
-```
-
-```{r}
-#hep_rf <- rfsrc(Surv(time, censor) ~ ., data = hepatitis,
- #na.action = "na.impute")
 
 #get.cindex(time = hepatitis$time, censoring = hepatitis$censor, predicted = hep_rf$predicted.oob)
 
 # yhat <- get.mv.predicted(hep_rf, oob = TRUE)
+
+
+```
+
+Variable Selection
+
+We'll follow the same variable selection procedure that we did for the PBC data.
+
+```{r}
+turn_use <- turnover
+turn_use$event = as.integer(turn_use$event)
+turn_use$gender = as.factor(turn_use$gender)
+turn_use$industry = as.factor(turn_use$industry)
+turn_use$profession = as.factor(turn_use$profession)
+turn_use$traffic = as.factor(turn_use$traffic)
+turn_use$coach = as.factor(turn_use$coach)
+turn_use$head_gender = as.factor(turn_use$head_gender)
+turn_use$greywage = as.factor(turn_use$greywage)
+turn_use$way = as.factor(turn_use$way)
+```
+
+```{r, echo = TRUE, eval = FALSE}
+
+# test main effects
+turn.main <- coxph(Surv(stag, event) ~ ., data =  turn_use)
+step(turn.main, direction = "backward")
+
+```
+
+```{r}
+
+turn_use <- turn_use %>%
+  select(c(stag, event, age, industry, profession, traffic, greywage, way, selfcontrol, anxiety))
+
+```
+
+```{r, results='hide', eval = FALSE, echo = TRUE}
+
+# test two-way interactions
+turn.full <- coxph(Surv(stag, event) ~ (.)^2, data =  turn_use)
+step(turn.full, direction = "backward")
+
+```
+
+Going through backwards elimination leaves us with a model with age, employee's industry (industry), employee's profession (profession), employee's pipeline origin (traffic), wage standard (greywage), employee's way of transportation (way), self-control score (selfcontrol), anxiety score (anxiety), and the interactions between age and way of transportation and way of transportation and self-control score.
+
+```{r, echo = TRUE}
+
+turn_cox <- coxph(Surv(stag, event) ~ age + industry + profession + traffic + 
+        greywage + way + selfcontrol + anxiety + age:way + way:selfcontrol,
+       data =  turn_use)
+
+```
+
+We can test the proportional-hazards assumption for this model using the `cox.zph` function.
+
+```{r, echo = TRUE}
+
+test.ph_turn <- cox.zph(turn_cox)
+test.ph_turn
+
+```
+
+```{r}
+
+schoenplot1_turn <- ggcoxzph(test.ph_turn)[3]
+
+schoenplot1_turn$`3`
+
+
+
+```
+
+The output from the test tells us that the test is statistically significant for profession at a significance level of 0.05. It's also globally statistically significant with a p-value of 0.007. Thus, the PH assumption is violated and random survival forests and conditional inference forests can be useful alternatives with this data as well.
+
+We'll split our data into a 75/25 training-testing set. Our training and testing sets have 846 and 283 observations respectively.
+
+```{r}
+
+set.seed(1)
+train_ind_turn <- sample(1:nrow(turn_use), nrow(turn_use)*0.75)
+train_turn <- turn_use[train_ind_turn,]
+test_turn <- turn_use[-train_ind_turn,]
 
 ```
 
 **Random Forest Implementation**
 
 **Conditional Inference Forest Implementation**
+
+We'll run a conditional inference forest model
+
+```{r}
+
+# run conditional inference forest
+param_test <- function(mtry_value) {
+  
+turn_cif <- party::cforest(Surv(stag, event) ~ age + industry + profession + traffic + 
+        greywage + way + selfcontrol + anxiety + age:way + way:selfcontrol,
+       data =  train_turn,
+ # cforest_unbiased = unbiased variable importance estimates
+control = cforest_unbiased(ntree = 500, mtry= mtry_value))
+
+
+pred_train_turn <- cbind(train_turn, pred_time =predict(turn_cif)) %>%
+  select(stag, event, pred_time) 
+
+pred_test_turn <- cbind(test_turn, pred_time =predict(turn_cif, newdata = test_turn[, -c(1:2)])) %>%
+  select(stag, event, pred_time) 
+
+mae_train <- mae(pred_train_turn$stag, pred_train_turn$pred_time)
+mae_test <- mae(pred_test_turn$stag, pred_test_turn$pred_time)
+
+return(c(mae_train, mae_test))
+}
+
+```
+
+```{r}
+
+set.seed(1)
+maes_turn <- lapply(2:8, param_test)
+```
+
+```{r}
+#riskRegression::Score(turn_cox,
+ #     formula = Surv(stag, event) ~ 1,
+  #    data = train_turn, 
+   #   summary = "ibs",
+    #  times = sort(unique(test_turn$stag)))
+ # the median survival time for a censored response is returned
+
+#treeresponse(turn_cif)
+```
+
+```{r}
+
+#turn_mae_tbl <- data.frame(mtry = 2:8, MAE = maes_turn)
+#kable(turn_mae_tbl) %>%
+ # kable_styling()
+
+```
+
+| mtry | Training Mean Absolute Error |
+|------|------------------------------|
+| 2    | 33.33                        |
+| 3    | 33.92                        |
+| 4    | 34.50                        |
+| 5    | 35.06                        |
+| 6    | 35.58                        |
+| 7    | 35.85                        |
+| 8    | 35.52                        |
+
+```{r, echo=TRUE, eval=FALSE}
+
+turn_cif <- party::cforest(Surv(stag, event) ~ age + industry + profession + traffic + 
+        greywage + way + selfcontrol + anxiety + age:way + way:selfcontrol,
+       data =  train_turn,
+
+  # cforest_unbiased = unbiased variable importance estimates
+control = cforest_unbiased(ntree = 500, mtry= 2)
+
+)
+
+
+```
+
+```{r, results='hide'}
+
+```
 
 {% include lib/mathjax.html %}
