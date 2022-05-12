@@ -25,7 +25,9 @@ library(tidyverse)
 library(tidyr)
 library(survminer)
 library(party)
+library(pec)
 library(caret)
+library(Metrics)
 ```
 
 # Predicting Survival and Controlling for Bias with Random Survival Forests and Conditional Inference Forests
@@ -123,7 +125,7 @@ Primary sclerosing cholangitis is an autoimmune disease leading to destruction o
 This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
 | Variable | Description                                                                                              |
-|----------------------|-------------------------------------------------|
+|-----------------------|-------------------------------------------------|
 | id       | case number                                                                                              |
 | time     | number of days between registration and the earlier of death, transplant, or end of observational period |
 | status   | status at endpoint, 0/1/2 for censored, transplant, dead                                                 |
@@ -142,7 +144,7 @@ This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. 
 | ast      | aspartate aminotransferase, once called SGOT (U/ml)                                                      |
 | trig     | triglycerides (mg/dl)                                                                                    |
 | platelet | platelet count                                                                                           |
-| protime  | standardised blood clotting time                                                                         |
+| protime  | standardized blood clotting time                                                                         |
 | stage    | histologic stage of disease (needs biopsy)                                                               |
 
 **Variable Selection**
@@ -254,15 +256,16 @@ The output from the test tells us that the test is statistically significant for
 
 Using random survival forests and conditional inference forests are useful alternatives in this case.
 
-We'll start by splitting our data into a 75/25 training-testing set. Our training and testing sets have 313 and 105 observations respectively.  *note small sample sizes?*
+We'll start by splitting our data into a 75/25 training-testing set. Our training and testing sets have 313 and 105 observations respectively. *note small sample sizes?*
 
 ```{r}
+
 set.seed(1)
 train_ind_pbc <- sample(1:nrow(pbc_use), nrow(pbc_use)*0.75)
 train_pbc <- pbc_use[train_ind_pbc,]
 test_pbc <- pbc_use[-train_ind_pbc,]
-```
 
+```
 
 **Random Survival Forest Implementation**
 
@@ -284,13 +287,71 @@ pbc_rf <- rfsrc(Surv(time, status) ~ age + edema + bili + albumin +
 
 pbc_cif <- cforest(Surv(time, status) ~ age + edema + bili + albumin + 
   copper + ast + protime + stage + age:edema + age:copper + 
-  bili:ast, 
+  bili:ast,
+  data = train_pbc,
+  # cforest_unbiased = unbiased variable importance estiamtes
+control = cforest_unbiased(ntree = 500, mtry=5))
+```
+
+
+```{r, results='hide'}
+
+# mean absolute error on training set (survival times)
+
+pred_train <- cbind(train_pbc, pred_time = predict(pbc_cif, train_pbc[, -c(1:2)], OOB = TRUE)) %>%
+  filter(pred_time != Inf) %>%
+  select(time, status, pred_time) 
+
+mae(pred_train$time, pred_train$pred_time)
+```
+
+
+
+```{r}
+
+pred_test <- cbind(test_pbc, pred_time =
+predict(pbc_cif, test_pbc[, -c(1:2)], OOB = TRUE)) %>%
+  filter(pred_time != Inf) %>%
+  select(time, status, pred_time)
+
+predict(pbc_cif, test_pbc[, -c(1:2)], OOB = TRUE)
+
+nrow(test_pbc)
+
+```
+
+
+```{r}
+
+pbc_cif <- pecCforest(Surv(time, status) ~ age + edema + bili + albumin + 
+  copper + ast + protime + stage + age:edema + age:copper + 
+  bili:ast,
   data = train_pbc)
+
+
+
+treeresponse(pbc_cif$forest, newdata = test_pbc[, -c(1:2)])
+```
+
+```{r}
+
+plotPredictSurvProb(pbc_cif, newdata = na.omit(train_pbc[, -c(1:2)]),
+ lty = 3)
+
+
 
 ```
 
 
 
+
+```{r}
+
+test_surv_probs <- diag(as.matrix(as.data.frame(predictSurvProb(pbc_cif, test_pbc[, -c(1:2)], times = test_pbc$time))))
+
+cbind(test_pbc, test_surv_probs)
+train_pbc
+```
 
 ```{r, echo=TRUE}
 
@@ -299,8 +360,6 @@ pred.cif <- predict(pbc_cif,  newdata = test_pbc[,-c(1:2)])
 
 
 ```
-
-
 
 **Variable Importance**
 
@@ -334,7 +393,7 @@ turnover <- read_csv("data/turnover.csv")
 ```
 
 | Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|----------------------|--------------------------------------------------|
+|----------------------|-------------------------------------------------|
 | stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
