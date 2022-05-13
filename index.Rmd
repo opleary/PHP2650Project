@@ -136,6 +136,10 @@ The second dataset was found on Kaggle, an online community platform for data sc
 
 Unlike the PBC dataset, this data consists of many categorical variables with most of them having more than two-levels (many split-points).
 
+**Evaluating the Models: Variable Importance**
+
+For each model, we will assess the ranked **variable importance**. We'll do this using the `varImp` function from the `caret` package in R. This function tracks the changes in metric statistics for each predictor and accumulates the reduction in the statistic when each predictor's feature is added to the model. The reduction is the measure of variable importance. For trees/forests, the prediction accuracy on the out of bag sample is recorded. The same is done after permuting each predictor variable. The difference between the two accuracies are averaged over all trees, and normalized by the standard error. We'll aim to compare how each of the two models rank the importance of the different covariates.
+
 **Evaluating the Models: Brier Scores**
 
 In certain applications, it is of interest to compare the predictive accuracy of different survival regression strategies for building a risk prediction model. There are several metrics that can be used to assess the resulting probabilistic risk predictions. We're going to focus on one of the most popular metrics, the **Brier score**. The brier score for an individual is defined as the squared difference between observed survival status (1 = alive at time t and 0 = dead at time t) and a model based prediction of surviving up to time t. The survival status at time t will be right censored for some data. For time to event outcome, this measure can be estimated pointwise over time. We will concentrate on comparing the performance of our models using **prediction error curves** that are obtained by combining time-dependent estimates of the population average Brier score.
@@ -165,7 +169,7 @@ Primary sclerosing cholangitis is an autoimmune disease leading to destruction o
 This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
 | Variable | Description                                                                                              |
-|--------------------|----------------------------------------------------|
+|----------------------|-------------------------------------------------|
 | id       | case number                                                                                              |
 | time     | number of days between registration and the earlier of death, transplant, or end of observational period |
 | status   | status at endpoint, 0/1/2 for censored, transplant, dead                                                 |
@@ -331,65 +335,63 @@ pbc_cif <- pecCforest(Surv(time, status) ~ age + edema + bili + albumin +
 
 ```
 
-```{r}
-#surv_prob <- treeresponse(pbc_cif$forest)
-
-#predictSurvProb(pbc_cif, newdata = test_pbc[, -c(1:2)], times = test_pbc$time)
-
-
-#plotPredictSurvProb(pbc_cif, newdata = test_pbc[, -c(1:2)])
-
-```
-
-```{r, results='hide'}
-
-# mean absolute error on training set (survival times)
-
-#pred_train <- cbind(train_pbc, pred_time = predict(pbc_cif, train_pbc[, -c(1:2)], OOB = TRUE)) %>%
- # filter(pred_time != Inf) %>%
-  #select(time, status, pred_time) 
-
-#mae(pred_train$time, pred_train$pred_time)
-```
+We can plot the predicted survival curves for 3 random individuals in our data and compare the predicted median survival time ( the time where the probability of survival = 0.5) to what is observed.
 
 ```{r}
 
-#pred_test <- cbind(test_pbc, pred_time =
-#predict(pbc_cif, test_pbc[, -c(1:2)], OOB = TRUE)) %>%
- # filter(pred_time != Inf) %>%
-#  select(time, status, pred_time)
+set.seed(3)
+rand_inds_pbc <- sample(1:nrow(pbc_use), 3)
 
-#predict(pbc_cif, newdata = test_pbc[, -c(1:2)], OOB = TRUE)
+cif.predict3_pbc <- treeresponse(pbc_cif$forest, 
+                                 newdata = pbc_use[rand_inds_pbc,] )
 
 
+
+```
+
+```{r, eval =FALSE}
+
+cif.predict3_pbc$`261`
+cif.predict3_pbc$`186`
+cif.predict3_pbc$`140`
+
+
+#fit <- survfit(Surv(stag, event) ~ age + industry + profession + traffic + 
+ #       greywage + way + selfcontrol + anxiety, 
+#        data = turn_use)
 
 ```
 
 ```{r}
 
+plot(cif.predict3_pbc$`261`, col = "blue",
+     main = "PBC Predicted Survival Curves for 3 Individuals",
+     xlab = "time",
+     ylab = "Survival Probability")
+lines(cif.predict3_pbc$`186`, col = "green", add = T)
+lines(cif.predict3_pbc$`140`, col = "orange", add = T)
+legend(x = "topright",          # Position
+       legend = c("261", "186", "140"),  # Legend texts
+       title = "id",           
+       col = c("blue", "green", "orange"),          
+       lwd = 2)   
 
-#treeresponse(pbc_cif$forest, newdata = test_pbc[, -c(1:2)])
+
 ```
 
-```{r}
+| id  | time | event | median survival |
+|-----|------|-------|-----------------|
+| 261 | 1677 | 0     | 2288            |
+| 186 | 1576 | 1     | 1576            |
+| 140 | 3059 | 0     | 4191            |
 
-#plotPredictSurvProb(pbc_cif, newdata = na.omit(train_pbc[, -c(1:2)]),
- #lty = 3)
-
-
-
-```
-
-
-
+The observation that experiences death dies at the exact time that the model predict that patient has a 50% chance of survival. The two other observations, which are censored, have more time beyond the scope of their observational periods before they have a 50% chance of surviving.
 
 **Comparing the Models**
 
-*Variable Importance*
+[Variable Importance]{.underline}
 
 ![CIF Variable Importance PBC Data. Bili, age, and stage are among the top 3.](img/cif.var_imp_pbc.png)
-
-
 
 ```{r, eval = FALSE}
 
@@ -417,9 +419,7 @@ ggplot(pbc.var_imp_cif, aes(x = reorder(vars, -Overall, decreasing = TRUE),
 
 ```
 
-
-
-*Prediction Error Curves*
+[Prediction Error Curves]{.underline}
 
 We can compare the prediction error curves for the random survival forest and the conditional inference forest models.
 
@@ -443,8 +443,6 @@ plot(fit_comp_pbc, predErr = "BootCvErr")
 
 ```
 
-
-
 ### Employee Turnover Data
 
 A dataset found on Kaggle containing the employee attrition information of 1,129 employees and information about time to turnover, their gender, age, industry, profession, employee pipeline information, the presence of a coach on probation, the gender of their supervisor, and wage information.
@@ -456,7 +454,7 @@ turnover <- read_csv("data/turnover.csv")
 ```
 
 | Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|-------------------|-----------------------------------------------------|
+|----------------------|--------------------------------------------------|
 | stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -473,16 +471,6 @@ turnover <- read_csv("data/turnover.csv")
 | selfcontrol  | Self-control score                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | anxiety      | Anxiety Score                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | novator      | Novator Score                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-
-```{r}
-
-
-#get.cindex(time = hepatitis$time, censoring = hepatitis$censor, predicted = hep_rf$predicted.oob)
-
-# yhat <- get.mv.predicted(hep_rf, oob = TRUE)
-
-
-```
 
 **Variable Selection**
 
@@ -555,8 +543,6 @@ schoenplot1_turn$`3`
 
 The output from the test tells us that the test is statistically significant for profession at a significance level of 0.05. It's also globally statistically significant with a p-value of 0.007. Thus, the PH assumption is violated and random survival forests and conditional inference forests can be useful alternatives with this data as well.
 
-
-
 **Random Forest Implementation**
 
 **Conditional Inference Forest Implementation**
@@ -569,29 +555,63 @@ turn_cif <- pecCforest(Surv(stag, event) ~ age + industry + profession + traffic
         greywage + way + selfcontrol + anxiety + age:way + way:selfcontrol,
        data =  turn_use)
 
-```
-
-```{r, eval=FALSE}
-
-#turn_cif <- party::cforest(Surv(stag, event) ~ age + industry + profession + traffic + 
- #       greywage + way + selfcontrol + anxiety + age:way + way:selfcontrol,
-  #     data =  train_turn,
-
-  # cforest_unbiased = unbiased variable importance estimates
-# control = cforest_unbiased(ntree = 500, mtry= 2)
-
-#)
 
 
 ```
 
+We can plot the predicted survival curves for 3 random individuals in our data and compare the predicted median survival time ( the time where the probability of survival = 0.5) to what is observed.
+
+```{r}
+
+set.seed(1)
+rand_inds_turn <- sample(1:nrow(turn_use), 3)
+
+cif.predict3_turn <- treeresponse(turn_cif$forest, newdata = turn_use[rand_inds_turn, ])
+
+```
+
+```{r, eval =FALSE}
+
+cif.predict3_turn$`1`
+cif.predict3_turn$`2`
+cif.predict3_turn$`3`
 
 
+#fit <- survfit(Surv(stag, event) ~ age + industry + profession + traffic + 
+ #       greywage + way + selfcontrol + anxiety, 
+#        data = turn_use)
 
+
+```
+
+```{r}
+
+plot(cif.predict3_turn$`1`, col = "blue",
+     main = "Turnover Predicted Survival Curves for 3 Individuals",
+     xlab = "time",
+     ylab = "Survival Probability")
+lines(cif.predict3_turn$`2`, col = "green", add = T)
+lines(cif.predict3_turn$`3`, col = "orange", add = T)
+legend(x = "topright",          # Position
+       legend = c("1", "2", "3"),  # Legend texts
+       title = "id",           
+       col = c("blue", "green", "orange"),          
+       lwd = 2)    
+
+
+```
+
+| id  | time  | event | median survival |
+|-----|-------|-------|-----------------|
+| 1   | 57.53 | 0     | 61.8            |
+| 2   | 1.41  | 1     | 24              |
+| 3   | 38.8  | 1     | 45.9            |
+
+We see that for the two individuals that experience turnover within the observational period, they turnover before their predicted median survival time. This is especially true for the second individual who only has a time of 1.41 before terminating their employment with their organization. Still, we see a trend in the median survival times, accurate to the order observed in time to event of the 3 individuals.
 
 **Comparing the Models**
 
-*Variable Importance*
+[Variable Importance]{.underline}
 
 First, we'll compare the variables that the random survival forest model and the conditional inference model found to be most important in the training process on the employee turnover data.
 
@@ -621,11 +641,9 @@ ggplot(turn.var_imp_cif, aes(x = reorder(vars, -Overall, decreasing = TRUE),
 
 ```
 
-
 ![CIF Variable Importance Employee Turnover Data. Industry, age, and traffic are among the top 3.](img/cif.var_imp_turn.png)
 
-
-*Prediction Error Curves* 
+[Prediction Error Curves]{.underline}
 
 We can compare the prediction error curves of the two models. Recall that these estimates are based on the average brier scores computed at different time points.
 
@@ -640,21 +658,16 @@ fit_comp_turn <- pec(list("cforest" = turn_cif), data = turn_use,
               )
 ```
 
-
 ```{r}
 
 fit_comp_turn
+
 ```
-
-
-
 
 ```{r}
 
 plot(fit_comp_turn, predErr = "BootCvErr")
 
 ```
-
-
 
 {% include lib/mathjax.html %}

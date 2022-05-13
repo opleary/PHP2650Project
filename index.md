@@ -55,6 +55,8 @@ S(t) is non-increasing and ranges between 0 and 1. The hazard function
 on the other hand is defined as the instantaneous risk of an individual
 experiencing the event of interest within a small time frame.
 
+<img src="https://render.githubusercontent.com/render/math?math=\Large h(t) = lim_{\delta t \rightarrow 0} \frac{Pr(t \le T \le t + \delta t | T&gt; t)}{\delta t}"/>
+
 Both survival functions and hazard functions are alternatives to
 probability density functions and are better suited for survival data.
 
@@ -81,7 +83,14 @@ Generally, if the log-log survival curves are approximately parallel for
 each level of the covariates then the proportional hazard assumption is
 met.
 
-<img src="img/PH_assumption_good.png" width="608" />
+<figure>
+<img src="img/PH_assumption_good.png" width="608"
+alt="The proportional hazards assumption states that the survival curves for different strata in the data are proportional over time and can be assessed by gauging the parallel nature of log-log survival curves." />
+<figcaption aria-hidden="true"><em>The proportional hazards assumption
+states that the survival curves for different strata in the data are
+proportional over time and can be assessed by gauging the parallel
+nature of log-log survival curves.</em></figcaption>
+</figure>
 
 In the case of continuous covariates, this assumption can also be
 checked using statistical tests and graphical methods based on the
@@ -114,41 +123,139 @@ attractive non-parameteric alternative to these models.
 
 Used to analyze time to event survival data.
 
+Used to analyze time to event survival data.
 
-Random survival forests use splitting criterion based on survival time and censoring status. Survival trees are binary trees which recursively split tree nodes so that the dissimilarity between child nodes is maximized. Eventually the dissimilar cases are separated and each node becomes more homogenous. The predictive outcome is defined as the total number of deaths, which is derived from the ensemble cumulative hazard function (CHF).
+Random survival forests use splitting criterion based on survival time
+and censoring status. Survival trees are binary trees which recursively
+split tree nodes so that the dissimilarity between child nodes is
+maximized. Eventually the dissimilar cases are separated and each node
+becomes more homogenous. The predictive outcome is defined as the total
+number of deaths, which is derived from the ensemble cumulative hazard
+function (CHF).
 
 The algorithm:
 
-1. Draw $B$ bootstrap samples from the data
+1.  Draw *B* bootstrap samples from the data
 
-2. Grow a survival tree for each bootstrap sample. For each node of the tree, consider $p$ random variables to split on. The node is split with the candidate variable which maximizes the survival difference between child nodes.
+2.  Grow a survival tree for each bootstrap sample. For each node of the
+    tree, consider *p* random variables to split on. The node is split
+    with the candidate variable which maximizes the survival difference
+    between child nodes.
 
-3. Grow the tree as long to full size and stop when the terminal node has no less than $d_0 > 0$ unique deaths. 
+3.  Grow the tree as long to full size and stop when the terminal node
+    has no less than *d*<sub>0</sub> &gt; 0 unique deaths.
 
-4. Average over $B$ survival trees to obtain the ensemble CHF.
+4.  Average over *B* survival trees to obtain the ensemble CHF.
 
-5. Calculate the prediction error for the ensemble CHF using OOB error.
+5.  Calculate the prediction error for the ensemble CHF using OOB error.
 
-We determine a terminal node $h\in T$ when there are no less than  $d_0 > 0$ unique deaths. Let us define $d_{l,h}$ and $Y_{l,h}$ as the number of deaths and individuals who are at risk at time $t_{l,h}$. Then the CHF estimate for a terminal node $h$ is defined as 
+We determine a terminal node *h* ∈ *T* when there are no less than
+*d*<sub>0</sub> &gt; 0 unique deaths. Let us define
+*d*<sub>*l*, *h*</sub> and *Y*<sub>*l*, *h*</sub> as the number of
+deaths and individuals who are at risk at time *t*<sub>*l*, *h*</sub>.
+Then the CHF estimate for a terminal node *h* is defined as
 
 $$
-\hat{H}_h(t) = \sum_{t_{l,h} \le t} \frac{d_{l,h}}{Y_{l,h}}
+\\hat{H}\_h(t) = \\sum\_{t\_{l,h} \\le t} \\frac{d\_{l,h}}{Y\_{l,h}}
 $$
 
-Each individual $i$ has a $d$ dimensional covariate $\mathbf{x}_i$. The binary structure of survival trees allows $\mathbf{x}_i$ to be classified into a unique terminal node $h$. Thus the CHF for individual $i$ is 
+Each individual *i* has a *d* dimensional covariate **x**<sub>*i*</sub>.
+The binary structure of survival trees allows **x**<sub>*i*</sub> to be
+classified into a unique terminal node *h*. Thus the CHF for individual
+*i* is
 
-$$
-H (t | \mathbf{x}_i) = \hat H_h(t), \ \text{ if } \mathbf{x}_i\in h.
-$$
+*H*(*t*|**x**<sub>*i*</sub>) = *Ĥ*<sub>*h*</sub>(*t*),  if **x**<sub>*i*</sub> ∈ *h*.
 
-The ensemble CHF is found by averaging over <img src="https://render.githubusercontent.com/render/math?math=B"> survival trees. 
-
+The ensemble CHF is found by averaging over
+<img src="https://render.githubusercontent.com/render/math?math=B"/>
+survival trees.
 
 ## Conditional Inference Forests
 
 While random survival forests
 
 ## Applications
+
+We will run a random survival forest model and a conditional inference
+forest model on two real survival datasets.
+
+1.  <u>PBC Data</u>
+
+The first dataset, the PBC dataset hails from the `survival` package in
+R and summarizes the survival data of primary biliary cirrhosis (PBC)
+patients from a randomized trial conducted between 1974 and 1984.
+
+Most of the covariates in the PBC data are either continuous or have two
+levels (few split-points).
+
+1.  <u>Employee Data</u>
+
+The second dataset was found on Kaggle, an online community platform for
+data scientists and machine learning enthusiasts allowing for the
+public-use of a vast array of practical datasets. This dataset contains
+the employee attrition information of 1,129 employees.
+
+Unlike the PBC dataset, this data consists of many categorical variables
+with most of them having more than two-levels (many split-points).
+
+**Evaluating the Models: Variable Importance**
+
+For each model, we will assess the ranked **variable importance**. We’ll
+do this using the `varImp` function from the `caret` package in R. This
+function tracks the changes in metric statistics for each predictor and
+accumulates the reduction in the statistic when each predictor’s feature
+is added to the model. The reduction is the measure of variable
+importance. For trees/forests, the prediction accuracy on the out of bag
+sample is recorded. The same is done after permuting each predictor
+variable. The difference between the two accuracies are averaged over
+all trees, and normalized by the standard error. We’ll aim to compare
+how each of the two models rank the importance of the different
+covariates.
+
+**Evaluating the Models: Brier Scores**
+
+In certain applications, it is of interest to compare the predictive
+accuracy of different survival regression strategies for building a risk
+prediction model. There are several metrics that can be used to assess
+the resulting probabilistic risk predictions. We’re going to focus on
+one of the most popular metrics, the **Brier score**. The brier score
+for an individual is defined as the squared difference between observed
+survival status (1 = alive at time t and 0 = dead at time t) and a model
+based prediction of surviving up to time t. The survival status at time
+t will be right censored for some data. For time to event outcome, this
+measure can be estimated pointwise over time. We will concentrate on
+comparing the performance of our models using **prediction error
+curves** that are obtained by combining time-dependent estimates of the
+population average Brier score.
+
+Using a test sample of size
+<img src="https://render.githubusercontent.com/render/math?math=N_{test}"/>
+, Brier scores at time t are defined as:
+
+$$
+BS(t) = \\frac{1}{N\_{test}}\\sum\_{l=1}^{N\_{test}} \\{\[0 - \\hat{S}(t|x)\]^2 \\frac{I(t\_l \\le t, \\delta\_l = 1)}{\\hat{G}(t\_l|x)} + \[1 - \\hat{S}(t|x)\]^2 \\frac{I(t\_l &gt; t)}{\\hat{G}(t|x)} \\}
+$$
+
+where
+<img src="https://render.githubusercontent.com/render/math?math=\hat{G} (t|x) \approx "/>
+P(C &gt; t | X = x) is the Kaplan-Meier estimate of the conditional
+survival function of the censoring times.
+
+The integrated Brier scores are given by:
+
+*I**B**S* = ∫<sub>0</sub><sup>*m**a**x*(*t*)</sup>*B**S*(*t*)*d**t*
+
+To avoid the problem of overfitting that arises from using the same data
+to train and test the model, we used the Bootstrap cross-validated
+estimates of the integrated Brier scores. The prediction errors are
+evaluated in each bootstrap sample.
+
+The prediction errors for each of our models will be implemented in the
+`pec` package in R. We set
+<img src="https://render.githubusercontent.com/render/math?math=B "/> =
+50 and implement bootstrap cross-validation to get our estimates for the
+integrated brier scores. The models are assessed on the data samples
+that are NOT in the bootstrap sample (OOB data).
 
 ### PBC Data
 
@@ -251,7 +358,7 @@ diuretic therapy</td>
 </tr>
 <tr class="odd">
 <td>protime</td>
-<td>standardised blood clotting time</td>
+<td>standardized blood clotting time</td>
 </tr>
 <tr class="even">
 <td>stage</td>
@@ -332,29 +439,71 @@ useful alternatives in this case.
 
 We’ll start by splitting our data into a 75/25 training-testing set. Our
 training and testing sets have 313 and 105 observations respectively.
-*note small sample sizes?*
 
 **Random Survival Forest Implementation**
 
 **Conditional Inference Forest Implementation**
 
     # run conditional inference forest
-    # note to self - should at least tune mtry 3-8
 
-    pbc_cif <- cforest(Surv(time, status) ~ age + edema + bili + albumin + 
+    pbc_cif <- pecCforest(Surv(time, status) ~ age + edema + bili + albumin + 
       copper + ast + protime + stage + age:edema + age:copper + 
-      bili:ast, 
-      data = train_pbc)
+      bili:ast,
+      data = pbc_use)
 
-    # predict on test data
-    pred.cif <- predict(pbc_cif,  newdata = test_pbc[,-c(1:2)])
+We can plot the predicted survival curves for 3 random individuals in
+our data and compare the predicted median survival time ( the time where
+the probability of survival = 0.5) to what is observed.
 
-**Variable Importance**
+![](index_files/figure-markdown_strict/unnamed-chunk-15-1.png)
 
-    ## 
-    ## Variable importance for survival forests; this feature is _experimental_
+<table>
+<thead>
+<tr class="header">
+<th>id</th>
+<th>time</th>
+<th>event</th>
+<th>median survival</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>261</td>
+<td>1677</td>
+<td>0</td>
+<td>2288</td>
+</tr>
+<tr class="even">
+<td>186</td>
+<td>1576</td>
+<td>1</td>
+<td>1576</td>
+</tr>
+<tr class="odd">
+<td>140</td>
+<td>3059</td>
+<td>0</td>
+<td>4191</td>
+</tr>
+</tbody>
+</table>
 
-![](index_files/figure-markdown_strict/unnamed-chunk-14-1.png)
+The observation that experiences death dies at the exact time that the
+model predict that patient has a 50% chance of survival. The two other
+observations, which are censored, have more time beyond the scope of
+their observational periods before they have a 50% chance of surviving.
+
+**Comparing the Models**
+
+<u>Variable Importance</u>
+
+![CIF Variable Importance PBC Data. Bili, age, and stage are among the
+top 3.](img/cif.var_imp_pbc.png)
+
+<u>Prediction Error Curves</u>
+
+We can compare the prediction error curves for the random survival
+forest and the conditional inference forest models.
 
 ### Employee Turnover Data
 
@@ -455,8 +604,166 @@ of salary above the white-wage (white-wage means minimum wage)
 </tbody>
 </table>
 
+**Variable Selection**
+
+We’ll follow the same variable selection procedure that we did for the
+PBC data.
+
+    # test main effects
+    turn.main <- coxph(Surv(stag, event) ~ ., data =  turn_use)
+    step(turn.main, direction = "backward")
+
+    # test two-way interactions
+    turn.full <- coxph(Surv(stag, event) ~ (.)^2, data =  turn_use)
+    step(turn.full, direction = "backward")
+
+Going through backwards elimination leaves us with a model with age,
+employee’s industry (industry), employee’s profession (profession),
+employee’s pipeline origin (traffic), wage standard (greywage),
+employee’s way of transportation (way), self-control score
+(selfcontrol), anxiety score (anxiety), and the interactions between age
+and way of transportation and way of transportation and self-control
+score.
+
+    turn_cox <- coxph(Surv(stag, event) ~ age + industry + profession + traffic + 
+            greywage + way + selfcontrol + anxiety + age:way + way:selfcontrol,
+           data =  turn_use)
+
+We can test the proportional-hazards assumption for this model using the
+`cox.zph` function.
+
+    test.ph_turn <- cox.zph(turn_cox)
+    test.ph_turn
+
+    ##                   chisq df       p
+    ## age              1.9060  1 0.16741
+    ## industry        21.6544 15 0.11719
+    ## profession      40.4758 14 0.00021
+    ## traffic         11.9480  7 0.10228
+    ## greywage         1.2658  1 0.26055
+    ## way              1.0839  2 0.58160
+    ## selfcontrol      0.0687  1 0.79319
+    ## anxiety          1.0692  1 0.30112
+    ## age:way          2.5780  2 0.27554
+    ## way:selfcontrol  0.6640  2 0.71750
+    ## GLOBAL          73.0448 46 0.00677
+
+![](index_files/figure-markdown_strict/unnamed-chunk-26-1.png)
+
+The output from the test tells us that the test is statistically
+significant for profession at a significance level of 0.05. It’s also
+globally statistically significant with a p-value of 0.007. Thus, the PH
+assumption is violated and random survival forests and conditional
+inference forests can be useful alternatives with this data as well.
+
 **Random Forest Implementation**
 
 **Conditional Inference Forest Implementation**
+
+We’ll run a conditional inference forest model next with the variables
+and interactions that we identified in variable selection.
+
+    turn_cif <- pecCforest(Surv(stag, event) ~ age + industry + profession + traffic + 
+            greywage + way + selfcontrol + anxiety + age:way + way:selfcontrol,
+           data =  turn_use)
+
+We can plot the predicted survival curves for 3 random individuals in
+our data and compare the predicted median survival time ( the time where
+the probability of survival = 0.5) to what is observed.
+
+![](index_files/figure-markdown_strict/unnamed-chunk-30-1.png)
+
+<table>
+<thead>
+<tr class="header">
+<th>id</th>
+<th>time</th>
+<th>event</th>
+<th>median survival</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>57.53</td>
+<td>0</td>
+<td>61.8</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>1.41</td>
+<td>1</td>
+<td>24</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>38.8</td>
+<td>1</td>
+<td>45.9</td>
+</tr>
+</tbody>
+</table>
+
+We see that for the two individuals that experience turnover within the
+observational period, they turnover before their predicted median
+survival time. This is especially true for the second individual who
+only has a time of 1.41 before terminating their employment with their
+organization. Still, we see a trend in the median survival times,
+accurate to the order observed in time to event of the 3 individuals.
+
+**Comparing the Models**
+
+<u>Variable Importance</u>
+
+First, we’ll compare the variables that the random survival forest model
+and the conditional inference model found to be most important in the
+training process on the employee turnover data.
+
+![CIF Variable Importance Employee Turnover Data. Industry, age, and
+traffic are among the top 3.](img/cif.var_imp_turn.png)
+
+<u>Prediction Error Curves</u>
+
+We can compare the prediction error curves of the two models. Recall
+that these estimates are based on the average brier scores computed at
+different time points.
+
+    ## 
+    ## Prediction error curves
+    ## 
+    ## Prediction models:
+    ## 
+    ## cforest 
+    ## cforest 
+    ## 
+    ## Right-censored response of a survival model
+    ## 
+    ## No.Observations: 1129 
+    ## 
+    ## Pattern:
+    ##                 Freq
+    ##  event          571 
+    ##  right.censored 558 
+    ## 
+    ## IPCW: cox model
+    ## 
+    ## Method for estimating the prediction error:
+    ## 
+    ## Bootstrap cross-validation
+    ## 
+    ## Type: resampling
+    ## Bootstrap sample size:  1129 
+    ## No. bootstrap samples:  50 
+    ## Sample size:  1129 
+    ## 
+    ## Cumulative prediction error, aka Integrated Brier score  (IBS)
+    ##  aka Cumulative rank probability score
+    ## 
+    ## Range of integration: 0 and time=179.4 :
+    ## 
+    ## cforest :
+    ## [1] 0.19
+
+![](index_files/figure-markdown_strict/unnamed-chunk-34-1.png)
 
 {% include lib/mathjax.html %}
