@@ -30,6 +30,8 @@ library(caret)
 library(Metrics)
 library(partykit)
 library(riskRegression)
+library(ggfortify)
+library(imbalance)
 ```
 
 # Predicting Survival and Controlling for Bias with Random Survival Forests and Conditional Inference Forests
@@ -45,6 +47,10 @@ Subjects are observed from baseline to some often pre-specified time at the end 
 It's imperative that we still consider these censored observations in our study instead of removing them so that we don't bias our results towards only those individuals that experienced the event of interest within the observational time frame. Thus, in survival analysis, not only do we include time from baseline at event of interest, but we also include a binary variable indicating whether an individual experienced the event or was censored instead.
 
 In standard survival analysis, the **survival function**, S(t) is what defines the probability that the event of interest has **not** yet happened at time = t.
+
+::: {align="center"}
+<img src="https://render.githubusercontent.com/render/math?math=\Large S(t) = P(T &gt; t)"/>
+:::
 
 ```{r}
 
@@ -136,6 +142,10 @@ The second dataset was found on Kaggle, an online community platform for data sc
 
 Unlike the PBC dataset, this data consists of many categorical variables with most of them having more than two-levels (many split-points).
 
+**Model Tuning**
+
+In the case of the random survival forest model, we will tune for two parameter values, number of variables to possibly split at each node (mtry) and minimum size of terminal node (nodesize). We will choose the combination on each data set that yields the lowest out-of-bag error.
+
 **Evaluating the Models: Variable Importance**
 
 For each model, we will assess the ranked **variable importance**. We'll do this using the `varImp` function from the `caret` package in R. This function tracks the changes in metric statistics for each predictor and accumulates the reduction in the statistic when each predictor's feature is added to the model. The reduction is the measure of variable importance. For trees/forests, the prediction accuracy on the out of bag sample is recorded. The same is done after permuting each predictor variable. The difference between the two accuracies are averaged over all trees, and normalized by the standard error. We'll aim to compare how each of the two models rank the importance of the different covariates.
@@ -154,9 +164,9 @@ where <img src="https://render.githubusercontent.com/render/math?math=\hat{G} (t
 
 The integrated Brier scores are given by:
 
-$$
-IBS = \int_0 ^{max(t)} BS(t)dt
-$$
+::: {align="center"}
+<img src="https://render.githubusercontent.com/render/math?math=IBS = \int_0^{max(t)} BS(t)dt"/>
+:::
 
 To avoid the problem of overfitting that arises from using the same data to train and test the model, we used the Bootstrap cross-validated estimates of the integrated Brier scores. The prediction errors are evaluated in each bootstrap sample.
 
@@ -169,7 +179,7 @@ Primary sclerosing cholangitis is an autoimmune disease leading to destruction o
 This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
 | Variable | Description                                                                                              |
-|----------------------|-------------------------------------------------|
+|--------------------------|----------------------------------------------|
 | id       | case number                                                                                              |
 | time     | number of days between registration and the earlier of death, transplant, or end of observational period |
 | status   | status at endpoint, 0/1/2 for censored, transplant, dead                                                 |
@@ -203,6 +213,7 @@ pbc_use <- pbc %>%
   mutate(status = as.integer(ifelse(status == 2, 1, 0))) %>%
   select(-id)
 
+
 pbc_use$trt <- as.factor(pbc_use$trt)
 
 pbc_use$ascites <- as.factor(pbc_use$ascites)
@@ -210,6 +221,10 @@ pbc_use$ascites <- as.factor(pbc_use$ascites)
 pbc_use$hepato <- as.factor(pbc_use$hepato)
 
 pbc_use$spiders <- as.factor(pbc_use$spiders)
+
+pbc_use$copper <- as.numeric(pbc_use$copper)
+
+pbc_use$stage <- as.numeric(pbc_use$stage)
 
 ```
 
@@ -222,6 +237,7 @@ step(pbc.main, direction = "backward")
 ```
 
 ```{r}
+
 
 pbc.cox2 <- coxph(Surv(time, status) ~ . - alk.phos, data = pbc_use)
 pbc.cox3 <- coxph(Surv(time, status) ~ . - alk.phos -
@@ -246,10 +262,10 @@ pbc.cox10 <- coxph(Surv(time, status) ~ . - alk.phos -
                     hepato - ascites - spiders -
                     trt - trig - platelet - sex -
                      chol, data = pbc_use)
-
 pbc_use <- pbc_use %>%
   select(-c(alk.phos, hepato, ascites, spiders,
                     trt, trig, platelet, sex, chol))
+
 
 ```
 
@@ -262,6 +278,30 @@ step(pbc.full, direction = "backward")
 ```
 
 Going through backwards elimination leaves us with a model with age, edema status (edema), serum bilirunbin (bili), serum albumin (albumin), urine copper (copper), aspartate aminotransferase (ast), standardised blood clotting time (protime), histologic stage of disease (stage) and the interactions between age and edema status, age and urine copper, and serum bilirunbin and aspartate aminotransferase.
+
+```{r}
+
+
+aareg_pbc <- aareg(Surv(time, status) ~ age + edema + bili + albumin + 
+  copper + ast + protime + stage + age:edema + age:copper + 
+  bili:ast, 
+  data = pbc_use)
+
+pbc_use <- pbc_use %>%
+  filter(time %in% aareg_pbc$times) %>%
+  mutate(status = as.factor(status))
+
+
+pbc_use <- oversample(na.omit(pbc_use),
+           classAttr = "status",
+           ratio = 1) %>%
+  mutate(status = as.integer(as.character(status)))
+
+
+
+
+ 
+```
 
 ```{r, echo = TRUE}
 
@@ -285,39 +325,67 @@ test.ph
 
 ```{r}
 
-schoenplot1 <- ggcoxzph(test.ph)[3]
-schoenplot2 <- ggcoxzph(test.ph)[7]
-schoenplot3 <- ggcoxzph(test.ph)[11]
+schoenplot1 <- ggcoxzph(test.ph)[1]
+schoenplot2 <- ggcoxzph(test.ph)[3]
+schoenplot3 <- ggcoxzph(test.ph)[7]
+schoenplot4 <- ggcoxzph(test.ph)[8]
+schoenplot5 <- ggcoxzph(test.ph)[11]
 
-schoenplot1$`3`
-schoenplot2$`7`
-schoenplot3$`11`
+schoenplot1$`1`
+schoenplot2$`3`
+schoenplot3$`7`
+schoenplot4$`8`
+schoenplot5$`11`
+
 
 
 ```
 
-The output from the test tells us that the test is statistically significant for bili, protime, and the interaction between bili and ast at a significance level of 0.05. It's also globally statistically significant with a p-value of 0.04. Thus, the PH assumption is violated.
+The output from the test tells us that the test is statistically significant for age, bili, protime, stage, and the interaction between bili and ast at a significance level of 0.05. It's also globally statistically significant with a p-value of 2e-09. Thus, the PH assumption is violated.
 
 Using random survival forests and conditional inference forests are useful alternatives in this case.
 
-We'll start by splitting our data into a 75/25 training-testing set. Our training and testing sets have 313 and 105 observations respectively.
+**Random Survival Forest Implementation**
+
+In hyperparameter tuning, we found that an mtry value of 1 and a nodesize of 4 produced the lowest out-of-bag error (0.106).
 
 ```{r}
 
 set.seed(1)
-train_ind_pbc <- sample(1:nrow(pbc_use), nrow(pbc_use)*0.75)
-train_pbc <- pbc_use[train_ind_pbc,]
-test_pbc <- pbc_use[-train_ind_pbc,]
+# We can find the optimal mtry and nodesize using OOB
+tuning <- tune(formula = Surv(time, status) ~ age + edema + bili + albumin + copper +
+       ast + protime + stage + age:edema + age:copper + bili:ast, 
+     data = pbc_use,
+     mtryStart = ncol(pbc_use) / 2,
+     nodesizeTry = c(c(1:9), seq(10, 100, by = 5)),
+     ntreeTry =500,
+     doBest = TRUE)
+
+res <- as.data.frame(tuning$results)
+# print optimal nodesize and mtry
+tuning$optimal # wtf lmao
+node_size <- c(seq(5, 100, by = 5))
 
 ```
 
-**Random Survival Forest Implementation**
+```{r parampbc, fig.cap="PBC OOB Error on Parameter Values"}
 
-```{r}
+ggplot(res) +
+  geom_line(aes(x = nodesize, y = err, colour = factor(mtry))) +
+  labs(col = "mtry")
 
+
+```
+
+```{r, echo = TRUE}
+set.seed(1)
+# random forest
 pbc_rf <- rfsrc(Surv(time, status) ~ age + edema + bili + albumin + 
   copper + ast + protime + stage + age:edema + age:copper + 
-  bili:ast, data = pbc_use)
+  bili:ast, 
+  mtry = 1,
+  nodesize = 4,
+  data = pbc_use)
 
 ```
 
@@ -325,6 +393,7 @@ pbc_rf <- rfsrc(Surv(time, status) ~ age + edema + bili + albumin +
 
 ```{r, echo = TRUE}
 
+set.seed(1)
 # run conditional inference forest
 
 pbc_cif <- pecCforest(Surv(time, status) ~ age + edema + bili + albumin + 
@@ -335,59 +404,117 @@ pbc_cif <- pecCforest(Surv(time, status) ~ age + edema + bili + albumin +
 
 ```
 
-We can plot the predicted survival curves for 3 random individuals in our data and compare the predicted median survival time ( the time where the probability of survival = 0.5) to what is observed.
+**Comparing the Models**
+
+We can plot the predicted survival curves for 4 random individuals in our data (2 censored and 2 non-censored) and compare the predicted median survival times (the time where the probability of survival = 0.5) of both of the models to what is observed.
 
 ```{r}
 
-set.seed(3)
-rand_inds_pbc <- sample(1:nrow(pbc_use), 3)
+set.seed(1)
+rand_inds_pbc_event <- sample(nrow(pbc_use[pbc_use$status == 1,]), 2)
+rand_inds_pbc_cens <- sample(nrow(pbc_use[pbc_use$status == 0,]), 2)
+rand_data_pbc <- rbind(pbc_use[pbc_use$status == 1,][rand_inds_pbc_event, ],
+                       pbc_use[pbc_use$status == 0,][rand_inds_pbc_cens, ])
 
 cif.predict3_pbc <- treeresponse(pbc_cif$forest, 
-                                 newdata = pbc_use[rand_inds_pbc,] )
+                                 newdata = rand_data_pbc)
 
+
+
+```
+
+```{r}
+set.seed(1)
+# Obtain predicted values for RSF
+pbc_pred <- predict(pbc_rf, rand_data_pbc)
+
+# obtain time values
+Time <- pbc_rf$time.interest
 
 
 ```
 
 ```{r, eval =FALSE}
 
-cif.predict3_pbc$`261`
-cif.predict3_pbc$`186`
-cif.predict3_pbc$`140`
+
+cif.predict3_pbc$`69`
+cif.predict3_pbc$`40`
+cif.predict3_pbc$`14`
+cif.predict3_pbc$`153`
 
 
-#fit <- survfit(Surv(stag, event) ~ age + industry + profession + traffic + 
- #       greywage + way + selfcontrol + anxiety, 
-#        data = turn_use)
+```
+
+```{r, eval=FALSE}
+
+
+##########
+# Finding the Median Survival Probability
+# obtain the index for which the survival probability = 0.5
+t_id1 <- which.min(abs(round(pbc_pred$survival[1,], 2) -.5))
+t_id2 <- which.min(abs(round(pbc_pred$survival[2,], 2) - .5))
+t_id3 <- which.min(abs(round(pbc_pred$survival[3,], 2) - .5))
+t_id4 <- which.min(abs(round(pbc_pred$survival[4,], 2) - .5))
+# obtain the times at which survival probability = 0.5 occurs
+Time[t_id1] # 2105
+Time[t_id2] # 1487
+Time[t_id3] # 3584
+Time[t_id4] # 3584
 
 ```
 
 ```{r}
 
-plot(cif.predict3_pbc$`261`, col = "blue",
-     main = "PBC Predicted Survival Curves for 3 Individuals",
+par(mfrow = c(2,2))
+# Compare the two methods by plotting
+plot(cif.predict3_pbc$`69`, col = "blue",
+     main = "PBC Pred. Survival Individual 69",
+     sub = "Event Experienced",
      xlab = "time",
      ylab = "Survival Probability")
-lines(cif.predict3_pbc$`186`, col = "green", add = T)
-lines(cif.predict3_pbc$`140`, col = "orange", add = T)
-legend(x = "topright",          # Position
-       legend = c("261", "186", "140"),  # Legend texts
-       title = "id",           
-       col = c("blue", "green", "orange"),          
-       lwd = 2)   
+lines(Time, pbc_pred$survival[1,])
+legend(4000, -0.46,          # Position
+       legend = c("CIF", "RSF"),  # Legend texts
+       title = "Method",           
+       col = c("blue", "black"),          
+       lwd = 2,
+       xpd = "NA",
+       cex = 0.8)   
+
+plot(cif.predict3_pbc$`40`, col = "blue",
+     main = "PBC Pred. Survival Individual 40",
+     sub = "Event Experienced",
+     xlab = "time",
+     ylab = "Survival Probability")
+lines(Time, pbc_pred$survival[2,])
+  
+
+plot(cif.predict3_pbc$`14`, col = "blue",
+     main = "PBC Pred. Survival Individual 140",
+     sub = "Censored",
+     xlab = "time",
+     ylab = "Survival Probability")
+lines(Time, pbc_pred$survival[3,])
+  
+
+plot(cif.predict3_pbc$`153`, col = "blue",
+     main = "PBC Pred. Survival Individual 153",
+     sub = "Censored",
+     xlab = "time",
+     ylab = "Survival Probability")
+lines(Time, pbc_pred$survival[3,])
 
 
 ```
 
-| id  | time | event | median survival |
-|-----|------|-------|-----------------|
-| 261 | 1677 | 0     | 2288            |
-| 186 | 1576 | 1     | 1576            |
-| 140 | 3059 | 0     | 4191            |
+| id  | time | event | CIF median survival | RSF median survival |
+|-----|------|-------|---------------------|---------------------|
+| 69  | 3395 | 1     | 1741                | 2015                |
+| 40  | 1487 | 1     | 1536                | 1487                |
+| 140 | 3445 | 0     | 3584                | 3584                |
+| 153 | 2224 | 0     | 2583                | 3584                |
 
-The observation that experiences death dies at the exact time that the model predict that patient has a 50% chance of survival. The two other observations, which are censored, have more time beyond the scope of their observational periods before they have a 50% chance of surviving.
-
-**Comparing the Models**
+The observations that experiences death dies at the exact time that the model predict that patient has a 50% chance of survival. The two other observations, which are censored, have more time beyond the scope of their observational periods before they have a 50% chance of surviving.
 
 [Variable Importance]{.underline}
 
@@ -398,7 +525,7 @@ The observation that experiences death dies at the exact time that the model pre
 pbc_cif_var <- party::cforest(Surv(time, status) ~ age + edema + bili + albumin + 
   copper + ast + protime + stage + age:edema + age:copper + 
   bili:ast,
-  data = pbc_use)
+  data = test_data)
 
 
 pbc.var_imp_cif <- data.frame(importance = varImp(pbc_cif_var)) %>%
@@ -425,7 +552,7 @@ We can compare the prediction error curves for the random survival forest and th
 
 ```{r, eval=FALSE}
 
-fit_comp_pbc <- pec(list("cforest" = pbc_cif),  
+fit_comp_pbc <- pec(list("cforest" = pbc_cif, "rsf" = pbc_rf),  
                     data = pbc_use,
                     formula = Surv(time, status) ~ age + edema + bili + albumin + copper + ast + protime + stage + age:edema + age:copper + bili:ast,  
                     splitMethod = "BootCv",
@@ -454,7 +581,7 @@ turnover <- read_csv("data/turnover.csv")
 ```
 
 | Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|----------------------|--------------------------------------------------|
+|-------------------------|----------------------------------------------|
 | stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
