@@ -380,9 +380,18 @@ pbc_cif <- pecCforest(Surv(time, status) ~ age + edema + bili + albumin +
 
 ```
 
-**Variable Importance**
 
-```{r}
+
+
+**Comparing the Models**
+
+*Variable Importance*
+
+![CIF Variable Importance PBC Data. Bili, age, and stage are among the top 3.](img/cif.var_imp_pbc.png)
+
+
+
+```{r, eval = FALSE}
 
 pbc_cif_var <- party::cforest(Surv(time, status) ~ age + edema + bili + albumin + 
   copper + ast + protime + stage + age:edema + age:copper + 
@@ -402,25 +411,26 @@ ggplot(pbc.var_imp_cif, aes(x = reorder(vars, -Overall, decreasing = TRUE),
   geom_col() +
   coord_flip() +
   labs(x = "variables", 
-       title = "CIF Variable Importance",
-       y = "Importance") + theme_bw() +
+       y = "CIF Variable Importance") + theme_bw() +
   theme(legend.position = "none")
 
 
 ```
 
-**Comparing the Models**
 
-We can compare the prediction error curves.
+
+*Prediction Error Curves*
+
+We can compare the prediction error curves for the random survival forest and the conditional inference forest models.
 
 ```{r, eval=FALSE}
 
-fit_comp_pbc <- pec(list("cforest" = pbc_cif), traindata = predictors_no_NA,  data=test_pbc, 
-              formula=Surv(time, status) ~ age + edema + bili + albumin + 
-  copper + ast + protime + stage + age:edema + age:copper + 
-  bili:ast,  
-              splitMethod = "BootCv",
-  B = 5
+fit_comp_pbc <- pec(list("cforest" = pbc_cif),  
+                    data = pbc_use,
+                    formula = Surv(time, status) ~ age + edema + bili + albumin + copper + ast + protime + stage + age:edema + age:copper + bili:ast,  
+                    splitMethod = "BootCv",
+                    reference = FALSE,
+                    B = 50
               )
 
 ```
@@ -432,6 +442,8 @@ fit_comp_pbc
 plot(fit_comp_pbc, predErr = "BootCvErr")
 
 ```
+
+
 
 ### Employee Turnover Data
 
@@ -577,13 +589,11 @@ turn_cif <- pecCforest(Surv(stag, event) ~ age + industry + profession + traffic
 
 
 
-
-
-
 **Comparing the Models**
 
 *Variable Importance*
 
+First, we'll compare the variables that the random survival forest model and the conditional inference model found to be most important in the training process on the employee turnover data.
 
 ```{r, eval=FALSE}
 
@@ -607,17 +617,17 @@ ggplot(turn.var_imp_cif, aes(x = reorder(vars, -Overall, decreasing = TRUE),
        y = "Importance") + theme_bw() +
   theme(legend.position = "none")
 
-# 
-   #    title = "CIF Variable Importance Employee Turnover Data",
+
 
 ```
 
-![CIF Variable Importance Employee Turnover Data. Industry, age, and traffic are among the top 3.](img/var_imp_turn.png)
+
+![CIF Variable Importance Employee Turnover Data. Industry, age, and traffic are among the top 3.](img/cif.var_imp_turn.png)
 
 
 *Prediction Error Curves* 
 
-We can compare the prediction error curves.
+We can compare the prediction error curves of the two models. Recall that these estimates are based on the average brier scores computed at different time points.
 
 ```{r, results='hide'}
 
@@ -630,12 +640,21 @@ fit_comp_turn <- pec(list("cforest" = turn_cif), data = turn_use,
               )
 ```
 
+
 ```{r}
 
 fit_comp_turn
+```
+
+
+
+
+```{r}
 
 plot(fit_comp_turn, predErr = "BootCvErr")
 
 ```
+
+
 
 {% include lib/mathjax.html %}
