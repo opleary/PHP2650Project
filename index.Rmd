@@ -54,6 +54,10 @@ In standard survival analysis, the **survival function**, S(t) is what defines t
 
 S(t) is non-increasing and ranges between 0 and 1. The hazard function on the other hand is defined as the instantaneous risk of an individual experiencing the event of interest within a small time frame.
 
+::: {align="center"}
+<img src="https://render.githubusercontent.com/render/math?math=\Large h(t) = lim_{\delta t \rightarrow 0} \frac{Pr(t \le T \le t + \delta t | T&gt; t)}{\delta t}"/>
+:::
+
 ```{r}
 
 ## <div align="center"><img src="https://render.githubusercontent.com/render/math?math=\Large h(t) = lim_{\delta t \rightarrow 0} \frac{Pr(t \le T \le t + \delta t | T> t)}{\delta t}"></div>
@@ -68,7 +72,7 @@ Survival regression involves not only information about censorship and time to e
 
 The **proportional hazards assumption** states that the relative hazard remains constant over time across the different strata/covariate levels in the data. The most popular graphical technique for evaluating the PH assumption involves comparing estimated **log-log survival curves** over different strata of the variables being investigated. A log-log survival curve is a transformation of an estimated survival curve that results from taking the natural log of an estimated survival probability twice. Generally, if the log-log survival curves are approximately parallel for each level of the covariates then the proportional hazard assumption is met.
 
-![](img/PH_assumption_good.png){width="608"}
+![*The proportional hazards assumption states that the survival curves for different strata in the data are proportional over time and can be assessed by gauging the parallel nature of log-log survival curves.*](img/PH_assumption_good.png){width="608"}
 
 In the case of continuous covariates, this assumption can also be checked using statistical tests and graphical methods based on the scaled Schoenfeld residuals. The Schoenfeld residuals are calculated for all covariates for each individual experiencing an event at a given time. Those are the *differences* between that individual's covariate values at the event time and the corresponding risk-weighted average of covariate values among all individuals at risk. The Schoenfeld residuals are then scaled inversely with respect to their covariances/variances. We can think of this as down-weighting Schoenfeld residuals whose values are uncertain because of high variance. If the assumption is valid, the *Schoenfeld residuals* are independent of time. A plot that shows a non-random pattern against time is evidence of violation of the PH assumption. In summary, the proportional hazard assumption is supported by a non-significant relationship between residuals and time, and refuted by a significant relationship.
 
@@ -120,19 +124,21 @@ While random survival forests
 
 We will run a random survival forest model and a conditional inference forest model on two real survival datasets.
 
-1.  PBC Data
+1.  [PBC Data]{.underline}
 
 The first dataset, the PBC dataset hails from the `survival` package in R and summarizes the survival data of primary biliary cirrhosis (PBC) patients from a randomized trial conducted between 1974 and 1984.
 
 Most of the covariates in the PBC data are either continuous or have two levels (few split-points).
 
-2.  Employee Data
+2.  [Employee Data]{.underline}
 
 The second dataset was found on Kaggle, an online community platform for data scientists and machine learning enthusiasts allowing for the public-use of a vast array of practical datasets. This dataset contains the employee attrition information of 1,129 employees.
 
 Unlike the PBC dataset, this data consists of many categorical variables with most of them having more than two-levels (many split-points).
 
-**Evaluating the Models: Brier Scores** In certain applications, it is of interest to compare the predictive accuracies of different survival regression strategies for building a risk prediction model. There are several metrics that can be used to assess the resulting probabilistic risk predictions. We're going to focus on one of the most popular metrics, the **Brier score**. The brier score for an individual is defined as the squared difference between observed survival status (1 = alive at time t and 0 = dead at time t) and a model based prediction of surviving up to time t. The survival status at time t will be right censored for some data. For time to event outcome, this measure can be estimated pointwise over time. We will concentrate on comparing the performance of our models using **prediction error curves** that are obtained by combining time-dependent estimates of the population average Brier score.
+**Evaluating the Models: Brier Scores**
+
+In certain applications, it is of interest to compare the predictive accuracy of different survival regression strategies for building a risk prediction model. There are several metrics that can be used to assess the resulting probabilistic risk predictions. We're going to focus on one of the most popular metrics, the **Brier score**. The brier score for an individual is defined as the squared difference between observed survival status (1 = alive at time t and 0 = dead at time t) and a model based prediction of surviving up to time t. The survival status at time t will be right censored for some data. For time to event outcome, this measure can be estimated pointwise over time. We will concentrate on comparing the performance of our models using **prediction error curves** that are obtained by combining time-dependent estimates of the population average Brier score.
 
 Using a test sample of size <img src="https://render.githubusercontent.com/render/math?math=N_{test}"/> , Brier scores at time t are defined as:
 
@@ -140,7 +146,17 @@ $$
 BS(t) = \frac{1}{N_{test}}\sum_{l=1}^{N_{test}} \{[0 - \hat{S}(t|x)]^2 \frac{I(t_l \le t, \delta_l = 1)}{\hat{G}(t_l|x)} + [1 - \hat{S}(t|x)]^2 \frac{I(t_l > t)}{\hat{G}(t|x)} \}
 $$
 
+where <img src="https://render.githubusercontent.com/render/math?math=\hat{G} (t|x) \approx "/> P(C \> t \| X = x) is the Kaplan-Meier estimate of the conditional survival function of the censoring times.
+
+The integrated Brier scores are given by:
+
+$$
+IBS = \int_0 ^{max(t)} BS(t)dt
+$$
+
 To avoid the problem of overfitting that arises from using the same data to train and test the model, we used the Bootstrap cross-validated estimates of the integrated Brier scores. The prediction errors are evaluated in each bootstrap sample.
+
+The prediction errors for each of our models will be implemented in the `pec` package in R. We set <img src="https://render.githubusercontent.com/render/math?math=B "/> = 50 and implement bootstrap cross-validation to get our estimates for the integrated brier scores. The models are assessed on the data samples that are NOT in the bootstrap sample (OOB data).
 
 ### PBC Data
 
@@ -149,7 +165,7 @@ Primary sclerosing cholangitis is an autoimmune disease leading to destruction o
 This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
 | Variable | Description                                                                                              |
-|-------------|-----------------------------------------------------------|
+|--------------------|----------------------------------------------------|
 | id       | case number                                                                                              |
 | time     | number of days between registration and the earlier of death, transplant, or end of observational period |
 | status   | status at endpoint, 0/1/2 for censored, transplant, dead                                                 |
@@ -280,12 +296,14 @@ The output from the test tells us that the test is statistically significant for
 
 Using random survival forests and conditional inference forests are useful alternatives in this case.
 
+We'll start by splitting our data into a 75/25 training-testing set. Our training and testing sets have 313 and 105 observations respectively.
+
 ```{r}
-# don't need training and testing
-#set.seed(1)
-#train_ind_pbc <- sample(1:nrow(pbc_use), nrow(pbc_use)*0.75)
-#train_pbc <- pbc_use[train_ind_pbc,]
-#test_pbc <- pbc_use[-train_ind_pbc,]
+
+set.seed(1)
+train_ind_pbc <- sample(1:nrow(pbc_use), nrow(pbc_use)*0.75)
+train_pbc <- pbc_use[train_ind_pbc,]
+test_pbc <- pbc_use[-train_ind_pbc,]
 
 ```
 
@@ -309,6 +327,7 @@ pbc_cif <- pecCforest(Surv(time, status) ~ age + edema + bili + albumin +
   copper + ast + protime + stage + age:edema + age:copper + 
   bili:ast,
   data = pbc_use)
+
 
 ```
 
@@ -361,21 +380,6 @@ pbc_cif <- pecCforest(Surv(time, status) ~ age + edema + bili + albumin +
 
 ```
 
-```{r}
-
-#test_surv_probs <- diag(as.matrix(as.data.frame(predictSurvProb(pbc_cif, test_pbc[, -c(1:2)], times = test_pbc$time))))
-
-
-```
-
-```{r}
-
-# predict on test data
-#pred.cif <- predict(pbc_cif,  newdata = test_pbc[,-c(1:2)])
-
-
-```
-
 **Variable Importance**
 
 ```{r}
@@ -402,6 +406,31 @@ ggplot(pbc.var_imp_cif, aes(x = reorder(vars, -Overall, decreasing = TRUE),
        y = "Importance") + theme_bw() +
   theme(legend.position = "none")
 
+
+```
+
+**Comparing the Models**
+
+We can compare the prediction error curves.
+
+```{r, eval=FALSE}
+
+fit_comp_pbc <- pec(list("cforest" = pbc_cif), traindata = predictors_no_NA,  data=test_pbc, 
+              formula=Surv(time, status) ~ age + edema + bili + albumin + 
+  copper + ast + protime + stage + age:edema + age:copper + 
+  bili:ast,  
+              splitMethod = "BootCv",
+  B = 5
+              )
+
+```
+
+```{r, eval=FALSE}
+
+fit_comp_pbc
+
+plot(fit_comp_pbc, predErr = "BootCvErr")
+
 ```
 
 ### Employee Turnover Data
@@ -415,7 +444,7 @@ turnover <- read_csv("data/turnover.csv")
 ```
 
 | Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|-----------|-------------------------------------------------------------|
+|-------------------|-----------------------------------------------------|
 | stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -514,100 +543,99 @@ schoenplot1_turn$`3`
 
 The output from the test tells us that the test is statistically significant for profession at a significance level of 0.05. It's also globally statistically significant with a p-value of 0.007. Thus, the PH assumption is violated and random survival forests and conditional inference forests can be useful alternatives with this data as well.
 
-```{r}
 
-set.seed(1)
-train_ind_turn <- sample(1:nrow(turn_use), nrow(turn_use)*0.75)
-train_turn <- turn_use[train_ind_turn,]
-test_turn <- turn_use[-train_ind_turn,]
-
-```
 
 **Random Forest Implementation**
 
 **Conditional Inference Forest Implementation**
 
-We'll run a conditional inference forest model.
+We'll run a conditional inference forest model next with the variables and interactions that we identified in variable selection.
 
 ```{r, echo=TRUE}
 
 turn_cif <- pecCforest(Surv(stag, event) ~ age + industry + profession + traffic + 
         greywage + way + selfcontrol + anxiety + age:way + way:selfcontrol,
-       data =  train_turn)
+       data =  turn_use)
 
 ```
 
 ```{r, eval=FALSE}
 
-# run conditional inference forest
-param_test <- function(mtry_value) {
-  
-turn_cif <- pecCforest(Surv(stag, event) ~ age + industry + profession + traffic + 
-        greywage + way + selfcontrol + anxiety + age:way + way:selfcontrol,
-       data =  train_turn,
- # cforest_unbiased = unbiased variable importance estimates
-control = cforest_unbiased(ntree = 500, mtry= mtry_value))
+#turn_cif <- party::cforest(Surv(stag, event) ~ age + industry + profession + traffic + 
+ #       greywage + way + selfcontrol + anxiety + age:way + way:selfcontrol,
+  #     data =  train_turn,
 
+  # cforest_unbiased = unbiased variable importance estimates
+# control = cforest_unbiased(ntree = 500, mtry= 2)
 
-pred_train_turn <- cbind(train_turn, pred_time =predict(turn_cif)) %>%
-  select(stag, event, pred_time) 
-
-pred_test_turn <- cbind(test_turn, pred_time =predict(turn_cif, newdata = test_turn[, -c(1:2)])) %>%
-  select(stag, event, pred_time) 
-
-mae_train <- mae(pred_train_turn$stag, pred_train_turn$pred_time)
-mae_test <- mae(pred_test_turn$stag, pred_test_turn$pred_time)
-
-return(c(mae_train, mae_test))
-}
-
-```
-
-```{r}
-#riskRegression::Score(turn_cox,
- #     formula = Surv(stag, event) ~ 1,
-  #    data = train_turn, 
-   #   summary = "ibs",
-    #  times = sort(unique(test_turn$stag)))
- # the median survival time for a censored response is returned
-
-#treeresponse(turn_cif)
-
-#predictSurvProb(turn_cif, newdata = test_turn[, -c(1:2)], times = test_turn$stag)
+#)
 
 
 ```
+
+
+
+
+
+
+
 
 **Comparing the Models**
 
-We can compare the prediction error curves
+*Variable Importance*
 
-```{r}
-
-fitpec <- pec(list("cforest" = turn_cif), data=train_turn, 
-              formula=Surv(stag,event)~age + industry + profession + traffic + 
-        greywage + way + selfcontrol + anxiety + age:way + way:selfcontrol,  
-              splitMethod = "BootCv" 
-              )
-
-
-plot(fitpec, predErr = "BootCvErr")
-
-```
 
 ```{r, eval=FALSE}
 
-turn_cif <- party::cforest(Surv(stag, event) ~ age + industry + profession + traffic + 
+turn_cif_var <- party::cforest(Surv(stag, event) ~ age + industry + profession + traffic + 
         greywage + way + selfcontrol + anxiety + age:way + way:selfcontrol,
-       data =  train_turn,
+       data =  turn_use)
 
-  # cforest_unbiased = unbiased variable importance estimates
-control = cforest_unbiased(ntree = 500, mtry= 2)
 
-)
+turn.var_imp_cif <- data.frame(importance = varImp(turn_cif_var)) %>%
+  arrange(desc(Overall))
 
+
+turn.var_imp_cif$vars <- rownames(turn.var_imp_cif)
+
+ggplot(turn.var_imp_cif, aes(x = reorder(vars, -Overall, decreasing = TRUE), 
+                        y = Overall, 
+                        fill = vars)) +
+  geom_col() +
+  coord_flip() +
+  labs(x = "variables", 
+       y = "Importance") + theme_bw() +
+  theme(legend.position = "none")
+
+# 
+   #    title = "CIF Variable Importance Employee Turnover Data",
 
 ```
 
+![CIF Variable Importance Employee Turnover Data. Industry, age, and traffic are among the top 3.](img/var_imp_turn.png)
+
+
+*Prediction Error Curves* 
+
+We can compare the prediction error curves.
+
+```{r, results='hide'}
+
+fit_comp_turn <- pec(list("cforest" = turn_cif), data = turn_use, 
+              formula=Surv(stag,event)~age + industry + profession + traffic + 
+        greywage + way + selfcontrol + anxiety + age:way + way:selfcontrol,  
+              splitMethod = "BootCv",
+        B = 50,
+        reference = FALSE
+              )
+```
+
+```{r}
+
+fit_comp_turn
+
+plot(fit_comp_turn, predErr = "BootCvErr")
+
+```
 
 {% include lib/mathjax.html %}
