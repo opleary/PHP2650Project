@@ -161,16 +161,14 @@ We determine a terminal node *h* ∈ *T* when there are no less than
 deaths and individuals who are at risk at time *t*<sub>*l*, *h*</sub>.
 Then the CHF estimate for a terminal node *h* is defined as
 
-$$
-\\hat{H}\_h(t) = \\sum\_{t\_{l,h} \\le t} \\frac{d\_{l,h}}{Y\_{l,h}}
-$$
+![](img/hat_equation.png)
 
 Each individual *i* has a *d* dimensional covariate **x**<sub>*i*</sub>.
 The binary structure of survival trees allows **x**<sub>*i*</sub> to be
 classified into a unique terminal node *h*. Thus the CHF for individual
 *i* is
 
-*H*(*t*|**x**<sub>*i*</sub>) = *Ĥ*<sub>*h*</sub>(*t*),  if **x**<sub>*i*</sub> ∈ *h*.
+![](img/chf.png)
 
 The ensemble CHF is found by averaging over
 <img src="https://render.githubusercontent.com/render/math?math=B"/>
