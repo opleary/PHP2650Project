@@ -193,7 +193,7 @@ The algorithm:
 
 <center>
 
-![](img/weights.png)
+![](img/weights2.png){width="462"}
 
 </center>
 
@@ -253,7 +253,7 @@ The integrated Brier scores are given by:
 
 <center>
 
-![](img/ibs.png)
+![](img/ibs.png.png){width="257"}
 
 </center>
 
@@ -274,7 +274,7 @@ Primary sclerosing cholangitis is an autoimmune disease leading to destruction o
 This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
 | Variable | Description                                                                                              |
-|----------|----------------------------------------------------------------------------------------------------------|
+|--------------------------|----------------------------------------------|
 | id       | case number                                                                                              |
 | time     | number of days between registration and the earlier of death, transplant, or end of observational period |
 | status   | status at endpoint, 0/1/2 for censored, transplant, dead                                                 |
@@ -722,7 +722,7 @@ turnover <- read_csv("data/turnover.csv")
 ```
 
 | Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-|--------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|--------------------------|----------------------------------------------|
 | stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
@@ -1059,5 +1059,7 @@ plot(fit_comp_turn, predErr = "BootCvErr")
 ```
 
 ## Closing Thoughts
+
+## References:
 
 {% include lib/mathjax.html %}

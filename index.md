@@ -216,7 +216,7 @@ The algorithm:
 
 <center>
 
-![](img/weights.png)
+<img src="img/weights2.png" width="462" />
 
 </center>
 
@@ -299,7 +299,7 @@ The integrated Brier scores are given by:
 
 <center>
 
-![](img/ibs.png)
+<img src="img/ibs.png.png" width="257" />
 
 </center>
 
@@ -330,8 +330,8 @@ contains many covariates collected during the clinical trial.
 
 <table>
 <colgroup>
-<col style="width: 8%" />
-<col style="width: 91%" />
+<col style="width: 36%" />
+<col style="width: 63%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -480,18 +480,18 @@ model as a whole.
     test.ph
 
     ##             chisq df       p
-    ## age        10.855  1 0.00099
-    ## edema       1.127  1 0.28835
-    ## bili        6.850  1 0.00886
-    ## albumin     3.640  1 0.05640
-    ## copper      0.956  1 0.32831
-    ## ast         0.729  1 0.39336
-    ## protime    14.456  1 0.00014
-    ## stage      17.276  1 3.2e-05
-    ## age:edema   1.063  1 0.30243
-    ## age:copper  0.305  1 0.58047
-    ## bili:ast   12.027  1 0.00052
-    ## GLOBAL     63.518 11 2.0e-09
+    ## age        10.869  1 0.00098
+    ## edema       1.109  1 0.29228
+    ## bili        6.760  1 0.00932
+    ## albumin     3.589  1 0.05816
+    ## copper      0.917  1 0.33837
+    ## ast         0.709  1 0.39969
+    ## protime    14.486  1 0.00014
+    ## stage      17.349  1 3.1e-05
+    ## age:edema   1.044  1 0.30698
+    ## age:copper  0.281  1 0.59625
+    ## bili:ast   11.952  1 0.00055
+    ## GLOBAL     63.574 11 2.0e-09
 
 ![](index_files/figure-markdown_strict/unnamed-chunk-16-1.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-2.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-3.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-4.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-5.png)
 
@@ -639,8 +639,8 @@ negligible.
     ## Integrated Brier score (crps):
     ## 
     ##         AppErr BootCvErr
-    ## rsf      0.041     0.068
-    ## cforest  0.054     0.073
+    ## rsf      0.041     0.067
+    ## cforest  0.054     0.072
 
 ![](index_files/figure-markdown_strict/unnamed-chunk-27-1.png)
 
@@ -654,8 +654,8 @@ information.
 
 <table>
 <colgroup>
-<col style="width: 2%" />
-<col style="width: 97%" />
+<col style="width: 36%" />
+<col style="width: 63%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -951,6 +951,8 @@ as time increases.
 ![](index_files/figure-markdown_strict/unnamed-chunk-47-1.png)
 
 ## Closing Thoughts
+
+## References:
 
 {% include lib/mathjax.html %}
 
