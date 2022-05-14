@@ -46,13 +46,13 @@ The main goal of survival analysis is to analyze and estimate the expected amoun
 
 [^2]: Goel, M. K., Khanna, P., & Kishore, J. (2010). Understanding survival analysis: Kaplan-Meier estimate. *International journal of Ayurveda research*, *1*(4), 274.
 
-Subjects are observed from baseline to some often pre-specified time at the end of study. Thus, not every subject will experience the event of interest within the observational period's time frame. In this case, we don't know if or when these subjects will experience the event, we just know that they have not experienced it during the study period. This is called **censoring**, more specifically, right-censoring[^3]. Right censoring is just one of multiple forms of censoring that survival data strives to adjust for and the form that we will focus on in this comprehensive review. Dropout is also a form of right censoring. The event of interest can happen during the specified time frame, outside of the time frame, or not at all but we don't know which scenario applies to the individuals that leave the study early.
+Subjects are observed from baseline to some often pre-specified time at the end of study. Thus, not every subject will experience the event of interest within the observational period's timeframe. In this case, we don't know if or when these subjects will experience the event, we just know that they have not experienced it before or during the study period. This is called **censoring**, more specifically, **right-censoring**[^3]. Right-censoring is just one of multiple forms of censoring that survival data strives to adjust for and the form that we will consider in this comprehensive review. Dropout is also a form of right-censoring in the sense that an individual can leave the study before they can experience the event of interest so even if they do experience it when the general observational period is still on-going, our study would be lost to that knowledge. The event of interest can happen *during* the specified time frame, *outside* of the time frame, or not at all but we don't know which scenario applies to the individuals that leave the study early.
 
 [^3]: Prinja, S., Gupta, N., & Verma, R. (2010). Censoring in clinical trials: review of survival analysis techniques. *Indian journal of community medicine: official publication of Indian Association of Preventive & Social Medicine*, *35*(2), 217.
 
 ![*Right censoring occurs when a subject enters the study before experiencing the event of interest at time = 0 and leaves the study without experiencing the event either by not staying the full observational time, or staying the full time without having the event occur.*](img/right_cens_img.png){width="592"}
 
-It's imperative that we still consider these censored observations in our study instead of removing them so that we don't bias our results towards only those individuals that experienced the event of interest within the observational time frame. Thus, in survival analysis, not only do we include time from baseline at event of interest, but we also include a binary variable indicating whether an individual experienced the event or was censored instead.
+It's imperative that we still consider these censored observations in our study instead of removing them so that we don't bias our results towards only those individuals that experienced the event of interest within the observational time frame. Thus, in survival analysis, not only do we include time from baseline at event of interest in our outcome, but we also include a binary variable indicating whether an individual experienced the event or was censored instead.
 
 In standard survival analysis, the **survival function**, S(t) is what defines the probability that the event of interest has **not** yet happened at time = t.[^4]
 
@@ -103,13 +103,13 @@ S(t) is non-increasing and ranges between 0 and 1. The **hazard function** on th
 
 Both survival functions and hazard functions are alternatives to probability density functions and are better suited for survival data.
 
-Survival regression involves not only information about censorship and time to event, but also additional predictor variables of interest like the sex, age, race, etc. of an individual. The Cox proportional hazards model is a popular and widely utilized modeling technique for survival data because it considers the effects of covariates on the outcome of interest as well as examines the relationships between these variables and the survival distribution[^6]. While this model is praised for its flexibility and simplicity, it is also often criticized for its restrictive proportional hazards assumption.
+Survival regression involves not only information about censorship and time to event, but also additional predictor variables of interest like the sex, age, race, etc. of an individual. The **Cox proportional hazards model** is a popular and widely utilized modeling technique for survival data because it considers the effects of covariates on the outcome of interest as well as examines the relationships between those variables and the survival distribution[^6]. While this model is praised for its flexibility and simplicity, it is also often criticized for its restrictive proportional hazards assumption.
 
 [^6]: Kleinbaum, D. G., & Klein, M. (2012). The Cox proportional hazards model and its characteristics. In *Survival analysis* (pp. 97-159). Springer, New York, NY.
 
 **The Proportional Hazards Assumption**
 
-The **proportional hazards assumption** states that the relative hazard remains constant over time across the different strata/covariate levels in the data[^7]. The most popular graphical technique for evaluating the PH assumption involves comparing estimated **log-log survival curves** over different strata of the variables being investigated[^8]. A log-log survival curve is a transformation of an estimated survival curve that results from taking the natural log of an estimated survival probability twice. Generally, if the log-log survival curves are approximately parallel for each level of the covariates then the proportional hazard assumption is met.
+The **proportional hazards assumption** states that the relative hazard remains constant over time across the different strata/covariate levels in the data[^7]. One of the most popular graphical technique for evaluating the PH assumption involves comparing estimated **log-log survival curves** over different strata of the variables being investigated[^8]. A log-log survival curve is a transformation of an estimated survival curve that results from taking the natural log of an estimated survival probability twice. Generally, if the log-log survival curves are approximately parallel for each level of the (categorical) covariates then the proportional hazards assumption is met.
 
 [^7]: Kleinbaum, D. G., & Klein, M. (2012). The Cox proportional hazards model and its characteristics. In *Survival analysis* (pp. 97-159). Springer, New York, NY.
 
@@ -117,27 +117,31 @@ The **proportional hazards assumption** states that the relative hazard remains 
 
 ![*The proportional hazards assumption states that the survival curves for different strata in the data are proportional over time and can be assessed by gauging the parallel nature of log-log survival curves.*](img/PH_assumption_good.png){width="608"}
 
-In the case of continuous covariates, this assumption can also be checked using statistical tests and graphical methods based on the scaled **Schoenfeld residuals**[^9]. The Schoenfeld residuals are calculated for all covariates for each individual experiencing an event at a given time. Those are the *differences* between that individual's covariate values at the event time and the corresponding risk-weighted average of covariate values among all individuals at risk. The Schoenfeld residuals are then scaled inversely with respect to their covariances/variances. We can think of this as down-weighting Schoenfeld residuals whose values are uncertain because of high variance. If the assumption is valid, the Schoenfeld residuals are independent of time. A plot that shows a non-random pattern against time is evidence of violation of the PH assumption. In summary, the proportional hazard assumption is supported by a non-significant relationship between residuals and time, and refuted by a significant relationship.
+In the case of continuous covariates, this assumption can also be checked using statistical tests and graphical methods based on the scaled **Schoenfeld residuals**[^9]. The Schoenfeld residuals are calculated for all covariates for each individual experiencing an event at a given time. Those are the *differences* between that individual's covariate values at the event time and the corresponding risk-weighted average of covariate values among all individuals at risk. The Schoenfeld residuals are then scaled inversely with respect to their covariances/variances. We can think of this as down-weighting the Schoenfeld residuals whose values are unreliable because of high variance. If the assumption is valid, the Schoenfeld residuals are independent of time. A plot that shows a *non-random* pattern against time is evidence of a violation of the PH assumption. In summary, the proportional hazard assumption is validated by a non-significant (p-value \> 0.05) relationship between residuals and time, and disapproved by a significant relationship (p-value $\le$ 0.05).
 
 [^9]: Hess, K. R. (1995). Graphical methods for assessing violations of the proportional hazards assumption in Cox regression. *Statistics in medicine*, *14*(15), 1707-1723.
 
 ![*The proportional hazards assumption is satisfied if we see a random-spread against time for the covariates in the data (i.e. there's a non-significant relationship (p-value \> 0.05) between the residuals and time).*](img/schoenfeld.png){width="568"}
 
-This is a strong assumption and is often viewed as impractical as it is more often than not violated. There are a number of extensions that aim to deal with data that violate this assumption, but they often rely on restrictive functions or limit the ability to estimate the effects of covariates on survival. **Random survival forests** provide an attractive non-parametric alternative to these models[^10].
+This is a strong assumption and is often viewed as impractical as it is more often than not violated. There are a number of extensions that aim to deal with data that violate this assumption, but they often rely on restrictive functions or limit the ability to estimate the effects of covariates on survival. **Random survival forests** (RSF) provide an attractive non-parametric alternative to these models[^10].
 
 [^10]: Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A comparison of the conditional inference survival forest model to random survival forests based on a simulation study as well as on two applications with time-to-event data. *BMC medical research methodology*, *17*(1), 1-17.
 
-## An Extension of Random Forests and Classification Trees
+## An Extension of Random Forests and Decision Trees
 
-Similar to random forests and classification trees, RSF and CIF build trees by recursively partition data using binary splits on a set of covariates. Random survival forests provide an alternative approach to the Cox proportional hazards models when the PH assumption is violated. Conditional inference forests reduce selection bias and creates partitions using conditional distributions and permutations. These methods are non-parametric, flexible, and used to identify factors in predicting the time-to-event outcome for right censored survival data.
+![*The basic infrastructure of a random forest model consists of an ensemble of uncorrelated decision trees that work together to make predictions on an outcome of interest.*](img/rf_diagram.png){width="571"}
+
+Similar to random forests and decision trees, random survival forests and by extension a method called conditional inference forests (CIF) build trees by recursively partitioning data using binary splits on a set of covariates[^11]. Random survival forests provide an alternative approach to the Cox proportional hazards models when the PH assumption is violated. Conditional inference forests **reduce selection bias** and create partitions using conditional distributions and permutations. These methods are non-parametric, flexible, and used to identify factors in predicting the time-to-event outcome for right-censored survival data.
+
+[^11]: Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A comparison of the conditional inference survival forest model to random survival forests based on a simulation study as well as on two applications with time-to-event data. *BMC medical research methodology*, *17*(1), 1-17.
 
 ## Random Survival Forests
 
 A random survival forest is an extension of random forests used to analyze time to event right-censored survival data.
 
-Random survival forests use splitting criterion based on survival time and censoring status[^11]. Survival trees are binary trees which recursively split tree nodes so that the dissimilarity between child nodes is maximized. Eventually the dissimilar cases are separated and each node becomes more homogeneous. The predictive outcome is defined as the total number of deaths, which is derived from the ensemble cumulative hazard function (CHF).
+Random survival forests use splitting criterion based on survival time and censoring status[^12]. Survival trees are binary trees which recursively split tree nodes so that the dissimilarity between child nodes is maximized. Eventually the dissimilar cases are separated and each node becomes more homogeneous. The predictive outcome is defined as the total number of events of interest experienced, which is derived from the ensemble cumulative hazard function (CHF).
 
-[^11]: Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A comparison of the conditional inference survival forest model to random survival forests based on a simulation study as well as on two applications with time-to-event data. *BMC medical research methodology*, *17*(1), 1-17.
+[^12]: Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A comparison of the conditional inference survival forest model to random survival forests based on a simulation study as well as on two applications with time-to-event data. *BMC medical research methodology*, *17*(1), 1-17.
 
 The algorithm:
 
@@ -145,13 +149,13 @@ The algorithm:
 
 2.  Grow a survival tree for each bootstrap sample. For each node of the tree, consider $p$ random variables to split on. The node is split with the candidate variable which maximizes the survival difference between child nodes.
 
-3.  Grow the tree as long to full size and stop when the terminal node has no less than $d_0 > 0$ unique deaths.
+3.  Grow the tree as long to full size and stop when the terminal node has no less than $d_0 > 0$ unique events.
 
 4.  Average over $B$ survival trees to obtain the ensemble CHF.
 
 5.  Calculate the prediction error for the ensemble CHF using OOB error.
 
-We determine a terminal node $h\in T$ when there are no less than $d_0 > 0$ unique deaths. Let us define $d_{l,h}$ and $Y_{l,h}$ as the number of deaths and individuals who are at risk at time $t_{l,h}$. Then the CHF estimate for a terminal node $h$ is defined as
+We determine a terminal node $h\in T$ when there are no less than $d_0 > 0$ unique events. Let us define $d_{l,h}$ and $Y_{l,h}$ as the number of events and individuals who are at risk at time $t_{l,h}$. Then the CHF estimate for a terminal node $h$ is defined as
 
 <center>
 
@@ -183,25 +187,25 @@ The ensemble CHF is found by averaging over <img src="https://render.githubuserc
 
 ## Conditional Inference Forests
 
-While random survival forests tend to be biased toward variables with many split points, conditional inference forests are designed to reduce this selection bias[^12]. A conditional inference model is composed of a forest of conditional inference trees. Conditional inference forests are designed by separating the algorithm which selects the best splitting covariate from the algorithm which selects the best split point.
+While random survival forests tend to be biased toward variables with many split points, **conditional inference forests** are designed to reduce this selection bias[^13]. A conditional inference model is composed of a forest of conditional inference trees. Conditional inference forests are designed by separating the algorithm which selects the best splitting covariate from the algorithm which selects the best split point.
 
-[^12]: Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A comparison of the conditional inference survival forest model to random survival forests based on a simulation study as well as on two applications with time-to-event data. *BMC medical research methodology*, *17*(1), 1-17.
+[^13]: Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A comparison of the conditional inference survival forest model to random survival forests based on a simulation study as well as on two applications with time-to-event data. *BMC medical research methodology*, *17*(1), 1-17.
 
 The algorithm:
 
-1.  For case weights *w*, set the global null hypothesis of independence between any of the *p* covariates and the response variable. Stop the algorithm if we fail to reject the null hypothesis. Otherwise, select the *j*th covariate *X~j~* with the strongest association to *T*.
+1.  For case weights *w*, set the global null hypothesis of independence between any of the *p* covariates and the response variable. Stop the algorithm if we fail to reject the null hypothesis. Otherwise, select the *jth covariate X*~j\*~ with the strongest association to *T*.
 
-2.  Select a set *A* in *X~j~* in order to split *X~j~* into two disjoint sets: *A\** and *X~j~* without *A*. The weights w~a~ and w~b~ determine the two subgroups with
+2.  Select a set *A\** in *X~j\*~* in order to split *X~j\*~* into two disjoint sets: *A\** and *X~j\*~* without *A\**. The weights w~a~ and w~b~ determine the two subgroups with
 
 <center>
 
-![](img/weights2.png.png){width="480"}
+![](img/weights3.png){width="482"}
 
 </center>
 
-3.  Repeat steps 1 and 2 recursively using modified caseweights *w*~a~ and *w*~b.~
+3.  Repeat steps 1 and 2 recursively using modified case-weights *w*~a~ and *w*~b~.
 
-The first step finds the optimal split variable by testing the association of the covariates to the outcome *T* using a linear rank test. Using permuation tests, the covariate with the strongest association to *T* is selected for splitting. In the second step, the selection of variables are found using a linear rank test. The covariates with the strongest association to $T$ (i.e. minimum p-value) are used for variable selection.
+The first step finds the optimal split variable by testing the association of the covariates to the outcome *T* using a linear rank test. Using permutation tests, the covariate with the strongest association to *T* is selected for splitting. In the second step, the selection of variables are found using a linear rank test. The covariates with the strongest association to $T$ (i.e. minimum p-value) are used for variable selection.
 
 ## Applications
 
@@ -209,33 +213,37 @@ We will run a random survival forest model and a conditional inference forest mo
 
 1.  [PBC Data]{.underline}
 
-The first dataset, the PBC dataset hails from the `survival` package in R and summarizes the survival data of primary biliary cirrhosis (PBC) patients from a randomized trial conducted between 1974 and 1984[^13].
+The first dataset, the PBC dataset hails from the `survival` package in R and summarizes the survival data of 418 primary biliary cirrhosis (PBC) patients from a randomized trial conducted between 1974 and 1984[^14].
 
-[^13]: Therneau, T. M. (2020). *A Package for Survival Analysis in R*. <https://CRAN.R-project.org/package=survival>
+[^14]: Therneau, T. M. (2020). *A Package for Survival Analysis in R*. <https://CRAN.R-project.org/package=survival>
 
 Most of the covariates in the PBC data are either continuous or have two levels (few split-points).
 
 2.  [Employee Data]{.underline}
 
-The second dataset was found on Kaggle, an online community platform for data scientists and machine learning enthusiasts allowing for the public-use of a vast array of practical datasets. This dataset contains the employee attrition information of 1,129 employees.
+The second dataset was found on Kaggle, an online community platform for data scientists and machine learning enthusiasts allowing for the public-use of a vast array of practical datasets. This dataset contains the employee attrition information of 1,129 employees[^15].
+
+[^15]: Wijaya, D. (2020, September 5). *Employee Turnover*. Kaggle. Retrieved May 14, 2022, from <https://www.kaggle.com/datasets/davinwijaya/employee-turnover?select=turnover.csv>
 
 Unlike the PBC dataset, this data consists of many categorical variables with most of them having more than two-levels (many split-points).
 
 **Model Tuning**
 
-In the case of the random survival forest model, we will tune for two parameter values, number of variables to possibly split at each node (mtry) and minimum size of terminal node (nodesize). We will choose the combination on each data set that yields the lowest out-of-bag error.
+In the case of the random survival forest model, we will consider tuning for two parameter values, number of variables to possibly split at each node (mtry) and minimum size of terminal node (nodesize). We will choose the combination on each data set that yields the lowest out-of-bag error.
 
 **Evaluating the Models: Variable Importance**
 
-For each model, we will assess the ranked **variable importance**. We'll do this using the `varImp` function from the `caret` package in R[^14]. This function tracks the changes in metric statistics for each predictor and accumulates the reduction in the statistic when each predictor's feature is added to the model. The reduction is the measure of variable importance. For trees/forests, the prediction accuracy on the out of bag sample is recorded. The same is done after permuting each predictor variable. The difference between the two accuracies are averaged over all trees, and normalized by the standard error. We'll aim to compare how each of the two models rank the importance of the different covariates.
+For each model, we will assess the ranked **variable importance**. We'll do this using the `varImp` function from the `caret` package in R[^16]. This function tracks the changes in metric statistics for each predictor and accumulates the reduction in the statistic when each predictor is added to the model. The reduction is the measure of variable importance. For trees/forests, the prediction accuracy on the out of bag sample is recorded. The same is done after permuting each predictor variable. The difference between the two accuracies are averaged over all trees and normalized. We'll aim to compare how each of the two models rank the importance of the different covariates.
 
-[^14]: Kuhn, M. (2008). Building Predictive Models in R Using the caret Package. Journal of Statistical Software, 28(5), 1 - 26. doi:<http://dx.doi.org/10.18637/jss.v028.i05>
+[^16]: Kuhn, M. (2008). Building Predictive Models in R Using the caret Package. Journal of Statistical Software, 28(5), 1 - 26. doi:<http://dx.doi.org/10.18637/jss.v028.i05>
 
 **Evaluating the Models: Brier Scores**
 
-In certain applications, it is of interest to compare the predictive accuracy of different survival regression strategies for building a risk prediction model. There are several metrics that can be used to assess the resulting probabilistic risk predictions. We're going to focus on one of the most popular metrics, the **Brier score**[^15]. The brier score for an individual is defined as the squared difference between observed survival status (1 = alive at time t and 0 = dead at time t) and a model based prediction of surviving up to time t. The survival status at time t will be right censored for some data. For time to event outcome, this measure can be estimated point-wise over time. We will concentrate on comparing the performance of our models using **prediction error curves** that are obtained by combining time-dependent estimates of the population average Brier score.
+In comparative studies, it is of interest to measure the predictive accuracy of different survival regression strategies for building a risk prediction model. There are several metrics that can be used to assess the resulting probabilistic risk predictions. We're going to focus on one of the most popular metrics, the **Brier score**[^17]. The brier score for an individual is defined as the squared difference between observed survival status (1 = censored at time t and 0 = event experienced at time t) and a model based prediction of 'surviving' up to time t. The survival status at time t will be right-censored for some data. For time-to-event outcome, this measure can be estimated point-wise over time. We will concentrate on comparing the performance of our models using **prediction error curves** that are obtained by combining time-dependent estimates of the population average Brier score[^18].
 
-[^15]: Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A comparison of the conditional inference survival forest model to random survival forests based on a simulation study as well as on two applications with time-to-event data. *BMC medical research methodology*, *17*(1), 1-17.
+[^17]: Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A comparison of the conditional inference survival forest model to random survival forests based on a simulation study as well as on two applications with time-to-event data. *BMC medical research methodology*, *17*(1), 1-17.
+
+[^18]: Mogensen, U. B., Ishwaran, H., & Gerds, T. A. (2012). Evaluating random forests for survival analysis using prediction error curves. *Journal of statistical software*, *50*(11), 1.
 
 Using a test sample of size <img src="https://render.githubusercontent.com/render/math?math=N_{test}"/> , Brier scores at time t are defined as:
 
@@ -243,6 +251,7 @@ Using a test sample of size <img src="https://render.githubusercontent.com/rende
 
 ```{r}
 #BS(t) = \frac{1}{N_{test}}\sum_{l=1}^{N_{test}} \{[0 - \hat{S}(t|x)]^2 \frac{I(t_l \le t, \delta_l = 1)}{\hat{G}(t_l|x)} + [1 - \hat{S}(t|x)]^2 \frac{I(t_l > t)}{\hat{G}(t|x)} \}
+
 ```
 
 where <img src="https://render.githubusercontent.com/render/math?math=\hat{G} (t|x) \approx "/> P(C \> t \| X = x) is the Kaplan-Meier estimate of the conditional survival function of the censoring times.
@@ -261,24 +270,26 @@ The integrated Brier scores are given by:
 
 </center>
 
-To avoid the problem of overfitting that arises from using the same data to train and test the model, we used the Bootstrap cross-validated estimates of the integrated Brier scores. The prediction errors are evaluated in each bootstrap sample.
+To avoid the problem of overfitting that arises from using the same data to train and test the model, we used the **Bootstrap cross-validated estimates** of the integrated Brier scores[^19]. The prediction errors are evaluated in each bootstrap sample.
 
-The prediction errors for each of our models will be implemented in the `pec` package in R[^16]. We implement bootstrap cross-validation to get our estimates for the integrated brier scores. The models are assessed on the data samples that are NOT in the bootstrap sample (OOB data).
+[^19]: Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A comparison of the conditional inference survival forest model to random survival forests based on a simulation study as well as on two applications with time-to-event data. *BMC medical research methodology*, *17*(1), 1-17.
 
-[^16]: Mogensen UB, Ishwaran H, Gerds TA (2012). "Evaluating Random Forests for Survival Analysis Using Prediction Error Curves." *Journal of Statistical Software*, **50**(11), 1--23. <https://www.jstatsoft.org/v50/i11>.
+The prediction errors for each of our models will be implemented in the `pec` package in R[^20]. We implement bootstrap cross-validation to get our estimates for the integrated brier scores. The models are assessed on the data samples that are NOT in the bootstrap sample (OOB data).
+
+[^20]: Mogensen UB, Ishwaran H, Gerds TA (2012). "Evaluating Random Forests for Survival Analysis Using Prediction Error Curves." *Journal of Statistical Software*, **50**(11), 1--23. <https://www.jstatsoft.org/v50/i11>.
 
 ### PBC Data
 
-The following description comes from the `survival` package in R[^17]:
+The following description comes from the `survival` package in R[^21]:
 
-[^17]: Therneau, T. M. (2020). *A Package for Survival Analysis in R*. <https://CRAN.R-project.org/package=survival>
+[^21]: Therneau, T. M. (2020). *A Package for Survival Analysis in R*. <https://CRAN.R-project.org/package=survival>
 
-Primary sclerosing cholangitis is an autoimmune disease leading to destruction of the small bile ducts in the liver. Progression is slow but inexorable, eventually leading to cirrhosis and liver decompensation.
-
-This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
+> Primary sclerosing cholangitis is an autoimmune disease leading to destruction of the small bile ducts in the liver. Progression is slow but inexorable, eventually leading to cirrhosis and liver decompensation.
+>
+> This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
 | Variable | Description                                                                                              |
-|----------|----------------------------------------------------------------------------------------------------------|
+|--------------------------|----------------------------------------------|
 | id       | case number                                                                                              |
 | time     | number of days between registration and the earlier of death, transplant, or end of observational period |
 | status   | status at endpoint, 0/1/2 for censored, transplant, dead                                                 |
@@ -302,9 +313,9 @@ This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. 
 
 **Variable Selection**
 
-In order to choose the variables that we want to use in our models, we will first run a cox proportional hazards model with all of the possible main effects in our data. We will then go through a backwards elimination process, removing the variables with the highest p-values over a significance level of 0.05 one by one until all of the main effects are statistically significant. Then, we'll test for all two-way interaction terms and perform backwards elimination until all two-interactions left in the model are statistically significant.
+In order to choose the variables that we want to use in our models, we will first run a cox proportional hazards model with all of the possible main effects in our data. We will then go through a backwards elimination process, removing the variables with the highest p-values over a significance level of 0.05 one by one until all of the main effects are statistically significant. Then, we'll test for all two-way interaction terms and perform backwards elimination until all two-way interactions left in the model are statistically significant.
 
-Note that the status variable will be simplified to two levels. Individuals will have a value of 1 if they experienced death, and 0 otherwise, making **death our event of interest**.
+Note that the status variable will be simplified to two levels. Individuals will have a value of 1 if they experienced death and 0 otherwise, making **death our event of interest**.
 
 ```{r}
 
@@ -447,15 +458,15 @@ schoenplot5$`11`
 
 ```
 
-The output from the test tells us that the test is statistically significant for age, bili, protime, stage, and the interaction between bili and ast at a significance level of 0.05. It's also globally statistically significant with a p-value of 2e-09. Thus, the PH assumption is violated.
+The output from the test tells us that the test is statistically significant for age, bili, protime, stage, and the interaction between bili and ast at a significance level of 0.05. It's also globally statistically significant with a p-value of 2e-09. Thus, the PH assumption is *violated*.
 
 Using random survival forests and conditional inference forests are useful alternatives in this case.
 
 **Random Survival Forest Implementation**
 
-In hyperparameter tuning which was done using the `tune` function from the `e1071` package in R, we found that an mtry value of 1 and a nodesize of 5 produced the lowest out-of-bag error (0.107)[^18].
+In hyperparameter tuning, which was done using the `tune` function from the `e1071` package in R, we found that an mtry value of 1 and a nodesize of 5 produced the lowest out-of-bag error (0.107)[^22]. The random forest model was run using the `rfsrc` function in the randomForestSRC package in R[^23].
 
-[^18]: Meyer D, Dimitriadou E, Hornik K, Weingessel A, Leisch F
+[^22]: Meyer D, Dimitriadou E, Hornik K, Weingessel A, Leisch F
 
     (2021). \_e1071: Misc Functions of the Department of
 
@@ -464,6 +475,10 @@ In hyperparameter tuning which was done using the `tune` function from the `e107
     Wien\_. R package version 1.7-9,
 
     <https://CRAN.R-project.org/package=e1071>.
+
+[^23]: Ishwaran H. and Kogalur U.B. (2022). Fast Unified Random Forests for Survival,
+
+    Regression, and Classification (RF-SRC), R package version 3.1.0.
 
 ```{r, results='hide'}
 
@@ -479,7 +494,7 @@ tuning <- tune(formula = Surv(time, status) ~ age + edema + bili + albumin + cop
 
 res <- as.data.frame(tuning$results)
 # print optimal nodesize and mtry
-tuning$optimal # wtf lmao
+tuning$optimal
 node_size <- c(seq(5, 100, by = 5))
 
 ```
@@ -507,6 +522,14 @@ pbc_rf <- rfsrc(Surv(time, status) ~ age + edema + bili + albumin +
 
 **Conditional Inference Forest Implementation**
 
+We build a conditional inference forest using the `pecCforest` function from the `pec` package in R[^24].
+
+[^24]: Ulla B. Mogensen, Hemant Ishwaran, Thomas A. Gerds (2012). Evaluating Random
+
+    Forests for Survival Analysis Using Prediction Error Curves. Journal of
+
+    Statistical Software, 50(11), 1-23. DOI 10.18637/jss.v050.i11
+
 ```{r, echo = TRUE}
 
 set.seed(1)
@@ -522,7 +545,7 @@ pbc_cif <- pecCforest(Surv(time, status) ~ age + edema + bili + albumin +
 
 **Comparing the Models**
 
-We can plot the predicted survival curves for 4 random individuals in our data (2 censored and 2 non-censored) and compare the predicted median survival times (the time where the probability of survival = 0.5) of both of the models to what is observed.
+We can plot the predicted survival curves for 4 random individuals in our data (2 censored and 2 non-censored) and compare the predicted median survival times (the time where the probability of survival = 0.5 of both of the models) to what is observed.
 
 ```{r}
 
@@ -690,7 +713,7 @@ We can compare the variable importance rankings between the random survival fore
 
 We can compare the prediction error curves for the random survival forest and the conditional inference forest models.
 
-Using bootstrap cross-validation ( <img src="https://render.githubusercontent.com/render/math?math=B"/> = 50), we see an integrated brier score of 0.068 for the random survival forest and 0.073 for the conditional inference forest. Recall that a lower score means better performance. While the random survival forest performs better here, we see that the difference is marginal and perhaps negligible.
+Using bootstrap cross-validation ( <img src="https://render.githubusercontent.com/render/math?math=B"/> = 50), we see an integrated brier score of 0.068 for the random survival forest and 0.073 for the conditional inference forest. Recall that a lower score means better performance. While the random survival forest performs better here, the difference is marginal and perhaps negligible.
 
 ```{r}
 set.seed(1)
@@ -726,7 +749,7 @@ turnover <- read_csv("data/turnover.csv")
 ```
 
 | Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-|--------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|--------------------------|----------------------------------------------|
 | stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
@@ -817,11 +840,17 @@ The output from the test tells us that the test is statistically significant for
 
 **Random Survival Forest Implementation**
 
-In hyperparameter tuning which was done by changing mtry values using the ranger function, we found that an mtry value of 2 produced the lowest out-of-bag error (0.313).
+In hyperparameter tuning which was done by changing mtry values using the `ranger` function from the `ranger` package in R, we found that an mtry value of 2 produced the lowest out-of-bag error (0.313)[^25].
 
-![](img/turning.tuning.plot.png){width="525"}
+[^25]: Marvin N. Wright, Andreas Ziegler (2017). ranger: A Fast Implementation of
 
-Note that to run random survival forest for the employee turnover data, due to computational issues, we've switched to using the `ranger` function from the `ranger` package in R. We'll run a parameter tuned random survival forest model with the variables and interactions that we identified in variable selection.
+    Random Forests for High Dimensional Data in C++ and R. Journal of Statistical
+
+    Software, 77(1), 1-17. <doi:10.18637/jss.v077.i01>
+
+![](img/turning.tuning.plot.png){width="538"}
+
+Note that to run random survival forest for the employee turnover data, due to computational issues, we've switched to using the `ranger` function as opposed to the `rfsrc` function. We'll run a parameter tuned random survival forest model with the variables and interactions that we identified in variable selection.
 
 ```{r}
 
@@ -951,11 +980,11 @@ lines(time, turn_rsf_pred$survival[4,], col = "green")
 | 471 | 14.49 | 0     | 164.6               | 80.2                |
 | 299 | 73.43 | 0     | 179.4               | 133.0               |
 
-For the observations that experienced death, the random forest model predicts a median survival time closer to time of death than the conditional inference forest model does. For the censored individuals, the conditional inference forest model predicts small median survival times that occurs within the course of the study.
+For the observations that experienced death, the random forest model predicts a median survival time closer to time of death than the conditional inference forest model does. For the censored individuals, the conditional inference forest model predicts small median survival times that occur within the course of the study.
 
 [Variable Importance]{.underline}
 
-First, we'll compare the variables that the random survival forest model and the conditional inference model found to be most important in the training process on the employee turnover data.
+We'll compare the variables that the random survival forest model and the conditional inference forest model found to be most important in the training process on the employee turnover data.
 
 ```{r, eval=FALSE}
 
@@ -1011,13 +1040,13 @@ ggplot(turn_rf_imp, aes(x = reorder(vars, importance, decreasing = TRUE),
 
 ![CIF Variable Importance Employee Turnover Data. Industry, age.way, and age are among the top 3.](img/cif.var_imp_turn.png){width="570"}
 
-While the two models generally agree on the first 5 most important variables (with a switch in age and age.way in terms of order), we can focus on the magnitude of the variable importance as well as the ordering of variables 6-9. The industry variable in the dataset is one of the variables that has the most split points/levels. There are 16 unique variables that industry can take. Even though both models rank this variable to be the most important, relative to the conditional inference forest, the random survival forest seems to inflate the importance of this covariate as it reaches an importance of just over 0.04 in the random survival forest (as opposed to about 0.035 in the conditional inference forest). After the first 5 variables, the random survival forest ranks profession, self-control, anxiety, and way as the next important while the conditional inference forest ranks self-control, way, profession, and then anxiety as the next important.
+While the two models generally agree on the first 5 most important variables (with a switch in age and age.way in terms of order), we can focus on the magnitude of the variable importance as well as the ordering of variables ranked 6-9. The industry variable in the dataset is one of the variables that has the most split points/levels. There are 16 unique variables that industry can take. Even though both models rank this variable to be the most important, relative to the conditional inference forest, the random survival forest seems to slightly inflate the importance of this covariate as it reaches an importance of just over 0.04 in the random survival forest (as opposed to about 0.035 in the conditional inference forest). After the first 5 variables, the random survival forest ranks profession, self-control, anxiety, and way as the next important while the conditional inference forest ranks self-control, way, profession, and then anxiety as the next important.
 
-What may be of interest here is the ranking of the profession variable which has 15 unique split points. The random survival forest ranks this variable 2 places higher than the conditional inference forest does. The conditional inference forest on the other hand seems to favor the numeric self-control score over profession which may indicate an attempt to control for bias.
+What may be of interest here is the ranking of the profession variable which has 15 unique split points. The random survival forest ranks this variable 2 places higher than the conditional inference forest does. The conditional inference forest on the other hand seems to favor the continuous self-control score over profession which may indicate an attempt to control for bias.
 
 [Prediction Error Curves]{.underline}
 
-We can compare the prediction error curves of the two models. Recall that these estimates are based on the average brier scores computed at different time points. We reduce <img src="https://render.githubusercontent.com/render/math?math=B"/> = 5 for computation and run-time purposes. Using bootstrap cross-validation, we see an integrated brier score of 0.15 for the random survival forest and 0.12 for the conditional inference forest. We see that in the case of this employee turnover data, the conditional inference forest performs noticeably better than the random survival forest, especially as time increases.
+We can compare the prediction error curves of the two models. Recall that these estimates are based on the average brier scores computed at different time points. We reduce to <img src="https://render.githubusercontent.com/render/math?math=B"/> = 5 for computation and run-time purposes. Using bootstrap cross-validation, we see an integrated brier score of 0.15 for the random survival forest and 0.12 for the conditional inference forest. Thus, in the case of this employee turnover data, the conditional inference forest performs noticeably better than the random survival forest, especially as time increases.
 
 ```{r}
 
@@ -1063,6 +1092,8 @@ plot(fit_comp_turn, predErr = "BootCvErr")
 ```
 
 ## Closing Thoughts
+
+In summary, we observed that while both random survival forests and conditional inference forests performed well when predicting the time to death and employee turnover within two separate datasets, the conditional inference forest seemed to perform notably better in the face of categorical covariates with many split-points. This result may suggest that **conditional inference forests tend to be better suited to adjust for the bias that random survival forests struggle with when there are multi-leveled predictors in our data.** However, in the case of covariates with few split-points, the two models seem to perform comparatively. Therefore, we can be reinforced of the importance of exploratory data analysis and its contribution to the choice of an appropriate model to analyze our data. Ultimately, random survival forests and conditional inference forests are two of many robust models for the analysis of time-to-event data. Further studies may take an interest in learning more about these alternative modeling techniques, including those that take a Bayesian approach in the applications of these data.
 
 ## References:
 
