@@ -31,6 +31,7 @@ library(Metrics)
 library(partykit)
 library(riskRegression)
 library(ggfortify)
+library(ranger)
 library(imbalance)
 ```
 
@@ -226,6 +227,14 @@ pbc_use$copper <- as.numeric(pbc_use$copper)
 
 pbc_use$stage <- as.numeric(pbc_use$stage)
 
+pbc_use$platelet <- as.numeric(pbc_use$platelet)
+
+pbc_use$trig <- as.numeric(pbc_use$trig)
+
+pbc_use$time <- as.numeric(pbc_use$time)
+
+pbc_use$chol <- as.numeric(pbc_use$chol)
+
 ```
 
 ```{r, echo = TRUE, eval = FALSE}
@@ -288,16 +297,13 @@ aareg_pbc <- aareg(Surv(time, status) ~ age + edema + bili + albumin +
   data = pbc_use)
 
 pbc_use <- pbc_use %>%
-  filter(time %in% aareg_pbc$times) %>%
-  mutate(status = as.factor(status))
+  filter(time %in% aareg_pbc$times)
 
 
-pbc_use <- oversample(na.omit(pbc_use),
+pbc_use <- imbalance::oversample(na.omit(pbc_use),
            classAttr = "status",
            ratio = 1) %>%
   mutate(status = as.integer(as.character(status)))
-
-
 
 
  
@@ -347,9 +353,9 @@ Using random survival forests and conditional inference forests are useful alter
 
 **Random Survival Forest Implementation**
 
-In hyperparameter tuning, we found that an mtry value of 1 and a nodesize of 4 produced the lowest out-of-bag error (0.106).
+In hyperparameter tuning, we found that an mtry value of 1 and a nodesize of 15 produced the lowest out-of-bag error (0.106).
 
-```{r}
+```{r, results='hide'}
 
 set.seed(1)
 # We can find the optimal mtry and nodesize using OOB
@@ -384,7 +390,7 @@ pbc_rf <- rfsrc(Surv(time, status) ~ age + edema + bili + albumin +
   copper + ast + protime + stage + age:edema + age:copper + 
   bili:ast, 
   mtry = 1,
-  nodesize = 4,
+  nodesize = 15,
   data = pbc_use)
 
 ```
@@ -456,7 +462,7 @@ t_id2 <- which.min(abs(round(pbc_pred$survival[2,], 2) - .5))
 t_id3 <- which.min(abs(round(pbc_pred$survival[3,], 2) - .5))
 t_id4 <- which.min(abs(round(pbc_pred$survival[4,], 2) - .5))
 # obtain the times at which survival probability = 0.5 occurs
-Time[t_id1] # 2105
+Time[t_id1] # 1413
 Time[t_id2] # 1487
 Time[t_id3] # 3584
 Time[t_id4] # 3584
@@ -509,23 +515,22 @@ lines(Time, pbc_pred$survival[3,])
 
 | id  | time | event | CIF median survival | RSF median survival |
 |-----|------|-------|---------------------|---------------------|
-| 69  | 3395 | 1     | 1741                | 2015                |
+| 69  | 3395 | 1     | 1741                | 1413                |
 | 40  | 1487 | 1     | 1536                | 1487                |
 | 140 | 3445 | 0     | 3584                | 3584                |
-| 153 | 2224 | 0     | 2583                | 3584                |
+| 153 | 2224 | 0     | 3584                | 3584                |
 
-The observations that experiences death dies at the exact time that the model predict that patient has a 50% chance of survival. The two other observations, which are censored, have more time beyond the scope of their observational periods before they have a 50% chance of surviving.
+For the observations that experienced death, the conditional inference forest model predicts a median survival time closer to time of death than the random survival forest model does. For the censored individuals #140 and #153, both models predict the same median survival times for both observations.
 
 [Variable Importance]{.underline}
 
-![CIF Variable Importance PBC Data. Bili, age, and stage are among the top 3.](img/cif.var_imp_pbc.png)
 
 ```{r, eval = FALSE}
-
+## VAR IMP CIF ##
 pbc_cif_var <- party::cforest(Surv(time, status) ~ age + edema + bili + albumin + 
   copper + ast + protime + stage + age:edema + age:copper + 
   bili:ast,
-  data = test_data)
+  data = pbc_use)
 
 
 pbc.var_imp_cif <- data.frame(importance = varImp(pbc_cif_var)) %>%
@@ -546,29 +551,65 @@ ggplot(pbc.var_imp_cif, aes(x = reorder(vars, -Overall, decreasing = TRUE),
 
 ```
 
+
+![RSF Variable Importance PBC Data. Bili, edema, and copper are among the top 3.](img/rsf.var_imp_pbc.png)
+
+```{r pbcvarimprsf, eval=FALSE}
+
+## VAR IMP RSF ##
+rf_imp_pbc <- data.frame(importance = vimp(pbc_rf)$importance %>% sort(decreasing = T))
+rf_imp_pbc$variables <- rownames(rf_imp_pbc)
+
+ggplot(rf_imp_pbc, aes(x = reorder(variables, -importance, decreasing = TRUE), 
+                        y = importance, 
+                        fill = variables)) +
+  geom_col() +
+  coord_flip() +
+  labs(x = "variables",
+       y = "RSF Variable Importance") + theme_bw() +
+  theme(legend.position = "none")
+
+#plot.survival.rfsrc(pbc_rf)
+
+
+```
+
+![CIF Variable Importance PBC Data. Bili, age, and stage are among the top 3.](img/cif.var_imp_pbc.png)
+
+We can compare the variable importance rankings between the random survival forest and the conditional inference forest. 
+
+
 [Prediction Error Curves]{.underline}
 
 We can compare the prediction error curves for the random survival forest and the conditional inference forest models.
 
-```{r, eval=FALSE}
+Using bootstrap cross-validation, we see an integrated brier score of 0.07 for the random survival forest and 0.073 for the conditional inference forest. Recall that a lower score means better performance. While the random survival forest performs better here, we see that the difference is marginal and perhaps negligible. 
 
-fit_comp_pbc <- pec(list("cforest" = pbc_cif, "rsf" = pbc_rf),  
+```{r, eval=FALSE}
+set.seed(1)
+fit_comp_pbc <- pec(list("rsf" = pbc_rf, "cforest" = pbc_cif),  
                     data = pbc_use,
                     formula = Surv(time, status) ~ age + edema + bili + albumin + copper + ast + protime + stage + age:edema + age:copper + bili:ast,  
                     splitMethod = "BootCv",
                     reference = FALSE,
-                    B = 50
+                    maxtime = 3445,
+                    B = 50,
+                    exact = TRUE
               )
 
 ```
 
 ```{r, eval=FALSE}
 
-fit_comp_pbc
+crps(fit_comp_pbc)
+
 
 plot(fit_comp_pbc, predErr = "BootCvErr")
 
 ```
+
+
+
 
 ### Employee Turnover Data
 
@@ -581,7 +622,7 @@ turnover <- read_csv("data/turnover.csv")
 ```
 
 | Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|-------------------------|----------------------------------------------|
+|--------------------------|----------------------------------------------|
 | stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -672,6 +713,26 @@ The output from the test tells us that the test is statistically significant for
 
 **Random Forest Implementation**
 
+```{r}
+
+turn_use$age.way <- interaction(turn_use$age, turn_use$way)
+turn_use$way.selfcontrol <- interaction(turn_use$way,
+                                        turn_use$selfcontrol)
+
+```
+
+
+```{r}
+
+turn_rf <- ranger(Surv(stag, event) ~ age + industry + profession + traffic + 
+        greywage + way + selfcontrol + anxiety +
+          age.way + way.selfcontrol,
+       data =  turn_use)
+
+
+```
+
+
 **Conditional Inference Forest Implementation**
 
 We'll run a conditional inference forest model next with the variables and interactions that we identified in variable selection.
@@ -679,7 +740,7 @@ We'll run a conditional inference forest model next with the variables and inter
 ```{r, echo=TRUE}
 
 turn_cif <- pecCforest(Surv(stag, event) ~ age + industry + profession + traffic + 
-        greywage + way + selfcontrol + anxiety + age:way + way:selfcontrol,
+        greywage + way + selfcontrol + anxiety,
        data =  turn_use)
 
 
@@ -776,7 +837,7 @@ We can compare the prediction error curves of the two models. Recall that these 
 
 ```{r, results='hide'}
 
-fit_comp_turn <- pec(list("cforest" = turn_cif), data = turn_use, 
+fit_comp_turn <- pec(list("cforest" = turn_cif, "rsfc" = turn_rf), data = turn_use, 
               formula=Surv(stag,event)~age + industry + profession + traffic + 
         greywage + way + selfcontrol + anxiety + age:way + way:selfcontrol,  
               splitMethod = "BootCv",
