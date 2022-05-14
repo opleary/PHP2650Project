@@ -127,7 +127,9 @@ This is a strong assumption and is often viewed as impractical as it is more oft
 
 [^10]: Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A comparison of the conditional inference survival forest model to random survival forests based on a simulation study as well as on two applications with time-to-event data. *BMC medical research methodology*, *17*(1), 1-17.
 
-## Review of Random Forests
+## An Extension of Random Forests and Classification Trees
+
+Similar to random forests and classification trees, RSF and CIF build trees by recursively partition data using binary splits on a set of covariates. Random survival forests provide an alternative approach to the Cox proportional hazards models when the PH assumption is violated. Conditional inference forests reduce selection bias and creates partitions using conditional distributions and permutations. These methods are non-parametric, flexible, and used to identify factors in predicting the time-to-event outcome for right censored survival data.
 
 ## Random Survival Forests
 
@@ -181,7 +183,7 @@ The ensemble CHF is found by averaging over <img src="https://render.githubuserc
 
 ## Conditional Inference Forests
 
-While random survival forests tend to be biased toward variables with many split points, conditional inference forests are designed to reduce this selection bias[^12]. Conditional inference forests are designed by separating the algorithm which selects the best splitting covariate from the algorithm which selects the best split point.
+While random survival forests tend to be biased toward variables with many split points, conditional inference forests are designed to reduce this selection bias[^12]. A conditional inference model is composed of a forest of conditional inference trees. Conditional inference forests are designed by separating the algorithm which selects the best splitting covariate from the algorithm which selects the best split point.
 
 [^12]: Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A comparison of the conditional inference survival forest model to random survival forests based on a simulation study as well as on two applications with time-to-event data. *BMC medical research methodology*, *17*(1), 1-17.
 
@@ -198,6 +200,8 @@ The algorithm:
 </center>
 
 3.  Repeat steps 1 and 2 recursively using modified caseweights *w*~a~ and *w*~b.~
+
+The first step finds the optimal split variable by testing the association of the covariates to the outcome *T* using a linear rank test. Using permuation tests, the covariate with the strongest association to *T* is selected for splitting. In the second step, the selection of variables are found using a linear rank test. The covariates with the strongest association to $T$ (i.e. minimum p-value) are used for variable selection.
 
 ## Applications
 
