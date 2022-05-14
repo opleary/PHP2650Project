@@ -72,9 +72,15 @@ S(t) is non-increasing and ranges between 0 and 1. The **hazard function** on th
 
 [^5]: Kleinbaum, D. G., & Klein, M. (2012). *Survival analysis: a self-learning text* (Vol. 3). New York: Springer.
 
-::: {align="center"}
-<img src="https://render.githubusercontent.com/render/math?math=\Large h(t) = lim_{\delta t \rightarrow 0} \frac{Pr(t \le T \le t + \delta t | T&gt; t)}{\delta t}"/>
-:::
+![](img/hazard_function.png){width="393"}
+
+```{r}
+#::: {align="center"}
+#<img src="https://render.githubusercontent.com/render/math?math=\Large h(t) = lim_{\delta t \rightarrow 0} \frac{Pr(t \le T \le t \+ \delta t | T&gt; t)}{\delta t}"/>
+#:::
+
+#$$h(t) = lim_{\delta t \rightarrow 0} \frac{Pr(t \le T \le t + \delta t | T > t)}{\delta t}$$
+```
 
 ```{r}
 
@@ -102,7 +108,7 @@ In the case of continuous covariates, this assumption can also be checked using 
 
 [^9]: Hess, K. R. (1995). Graphical methods for assessing violations of the proportional hazards assumption in Cox regression. *Statistics in medicine*, *14*(15), 1707-1723.
 
-![*The proportional hazards assumption is satisfied if we see a random-spread against time for the covariates in the data (i.e. there's a non-significant relationship (p-value > 0.05) between the residuals and time).*](img/schoenfeld.png){width="568"}
+![*The proportional hazards assumption is satisfied if we see a random-spread against time for the covariates in the data (i.e. there's a non-significant relationship (p-value \> 0.05) between the residuals and time).*](img/schoenfeld.png){width="568"}
 
 This is a strong assumption and is often viewed as impractical as it is more often than not violated. There are a number of extensions that aim to deal with data that violate this assumption, but they often rely on restrictive functions or limit the ability to estimate the effects of covariates on survival. **Random survival forests** provide an attractive non-parametric alternative to these models[^10].
 
@@ -112,9 +118,7 @@ This is a strong assumption and is often viewed as impractical as it is more oft
 
 ## Random Survival Forests
 
-Used to analyze time to event survival data.
-
-Used to analyze time to event survival data.
+A random survival forest is an extension of random forests used to analyze time to event right-censored survival data.
 
 Random survival forests use splitting criterion based on survival time and censoring status. Survival trees are binary trees which recursively split tree nodes so that the dissimilarity between child nodes is maximized. Eventually the dissimilar cases are separated and each node becomes more homogeneous. The predictive outcome is defined as the total number of deaths, which is derived from the ensemble cumulative hazard function (CHF).
 
@@ -132,21 +136,39 @@ The algorithm:
 
 We determine a terminal node $h\in T$ when there are no less than $d_0 > 0$ unique deaths. Let us define $d_{l,h}$ and $Y_{l,h}$ as the number of deaths and individuals who are at risk at time $t_{l,h}$. Then the CHF estimate for a terminal node $h$ is defined as
 
-$$
-\hat{H}_h(t) = \sum_{t_{l,h} \le t} \frac{d_{l,h}}{Y_{l,h}}
-$$
+![](img/hat_equation.png){width="731"}
+
+```{r}
+#$$
+#\hat{H}_h(t) = \sum_{t_{l,h} \le t} \frac{d_{l,h}}{Y_{l,h}}
+#$$
+```
 
 Each individual $i$ has a $d$ dimensional covariate $\mathbf{x}_i$. The binary structure of survival trees allows $\mathbf{x}_i$ to be classified into a unique terminal node $h$. Thus the CHF for individual $i$ is
 
-$$
-H (t | \mathbf{x}_i) = \hat H_h(t), \ \text{ if } \mathbf{x}_i\in h.
-$$
+![](img/chf.png)
+
+```{r}
+#$$
+#H (t | \mathbf{x}_i) = \hat H_h(t), \ \text{ if } \mathbf{x}_i\in h.
+#$$
+```
 
 The ensemble CHF is found by averaging over <img src="https://render.githubusercontent.com/render/math?math=B"/> survival trees.
 
 ## Conditional Inference Forests
 
-While random survival forests
+While random survival forests tend to be biased toward variables with many split points, conditional inference forests are designed to reduce this selection bias. Conditional inference forests are designed by separating the algorithm which selects the best splitting covariate from the algorithm which selects the best split point.
+
+The algorithm:
+
+1.  For case weights *w*, set the global null hypothesis of independence between any of the p covariates and the response variable. Stop the algorithm if we fail to reject the null hypothesis. Otherwise, select the *j*th covariate X~j\*~ with the strongest association to *T*.
+
+2.  Select a set *A* in *X~j~* in order to split *X~j\*~* into two disjoint sets: *A* and *X~j~* without *A\**. The weights w~a~ and w~b~ determine the two subgroups with
+
+![](img/weights.png)
+
+3.  Repeat steps 1 and 2 recursively using modified caseweights *w*~a~ and *w*~b~
 
 ## Applications
 
@@ -597,9 +619,7 @@ ggplot(pbc.var_imp_cif, aes(x = reorder(vars, -Overall, decreasing = TRUE),
 
 ```
 
-
 ![*RSF Variable Importance PBC Data. Bili, edema, and copper are among the top 3.*](img/rsf.var_imp_pbc.png)
-
 
 ```{r pbcvarimprsf, eval=FALSE}
 
@@ -621,9 +641,7 @@ ggplot(rf_imp_pbc, aes(x = reorder(variables, -importance, decreasing = TRUE),
 
 ```
 
-
 ![*CIF Variable Importance PBC Data. Bili, age, and stage are among the top 3.*](img/cif.var_imp_pbc.png)
-
 
 We can compare the variable importance rankings between the random survival forest and the conditional inference forest. Most notably, the scale of variable importance is larger in the conditional inference forest case than it is in the random survival forest. This is because even though bili is the most important predictor in both models, it is that much more important in the conditional inference forest. Additionally, we see that while edema and copper are 2nd and 3rd most important in the random survival forest, they are relatively not that important in the conditional inference forest. Conversely, while age and stage are important in the conditional inference forest, they are not as important in the random survival forest. One thing to note is that the variable edema can be viewed as a predictor with many split-points (greater than 2), taking on three unique values: 0, 0.5, and 1. We may be seeing the inherent bias problem coming into play here in the fact that the random survival forest favors that variable in terms of its importance.
 
@@ -666,24 +684,24 @@ turnover <- read_csv("data/turnover.csv")
 
 ```
 
-| Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 |--------------------------|----------------------------------------------|
-| stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| age          | Employee's age (year)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| industry     | Employee's Industry                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| profession   | Employee's profession                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| age          | Employee's age (year)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| industry     | Employee's Industry                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| profession   | Employee's profession                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | traffic      | From what pipeline employee came to the company. 1. contacted the company directly (advert). 2. contacted the company directly on the recommendation of a friend that's not an employee of the company (recNErab). 3. contacted the company directly on the recommendation of a friend that IS an employee of the company (referral). 4. applied for a vacancy on the job site (youjs) 5. recruiting agency brought you to the employer (KA) 6. invited by an employer known before employment (friends). 7. employer contacted on the recommendation of a person who knows the employee (rabrecNErab). 8. employer reached you through your resume on the job site (empjs). |
-| coach        | presence of a coach (training) on probation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| head_gender  | head (supervisor) gender (m/f)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| greywage     | The salary does not seem to the tax authorities. Greywage in Russia or Ukraine means that the employer (company) pay just a tiny bit amount of salary above the white-wage (white-wage means minimum wage) (white/gray)                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| way          | Employee's way of transportation (bus/car/foot)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| extraversion | Extraversion score                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| independ     | Independend score                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| selfcontrol  | Self-control score                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| anxiety      | Anxiety Score                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| novator      | Novator Score                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| coach        | presence of a coach (training) on probation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| head_gender  | head (supervisor) gender (m/f)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| greywage     | The salary does not seem to the tax authorities. Greywage in Russia or Ukraine means that the employer (company) pay just a tiny bit amount of salary above the white-wage (white-wage means minimum wage) (white/gray)                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| way          | Employee's way of transportation (bus/car/foot)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| extraversion | Extraversion score                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| independ     | Independend score                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| selfcontrol  | Self-control score                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| anxiety      | Anxiety Score                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| novator      | Novator Score                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 
 **Variable Selection**
 
@@ -758,6 +776,10 @@ The output from the test tells us that the test is statistically significant for
 
 **Random Survival Forest Implementation**
 
+In hyperparameter tuning which was done by changing mtry values using the ranger function, we found that an mtry value of 2 produced the lowest out-of-bag error (0.313).
+
+![](img/turning.tuning.plot.png)
+
 Note that to run random survival forest for the employee turnover data, due to computational issues, we've switched to using the `ranger` function from the `ranger` package in R. We'll run a parameter tuned random survival forest model with the variables and interactions that we identified in variable selection.
 
 ```{r}
@@ -775,6 +797,7 @@ set.seed(1)
 turn_rsf <- ranger(Surv(stag, event) ~ age + industry + profession + traffic + 
         greywage + way + selfcontrol + anxiety +
           age.way + way.selfcontrol,
+        mtry = 2,
        data =  turn_use)
 
 
@@ -887,7 +910,7 @@ lines(time, turn_rsf_pred$survival[4,], col = "green")
 | 471 | 14.49 | 0     | 164.6               | 80.2                |
 | 299 | 73.43 | 0     | 179.4               | 133.0               |
 
-We see that....
+For the observations that experienced death, the random forest model predicts a median survival time closer to time of death than the conditional inference forest model does. For the censored individuals, the conditional inference forest model predicts small median survival times that occurs within the course of the study.
 
 [Variable Importance]{.underline}
 
@@ -943,16 +966,13 @@ ggplot(turn_rf_imp, aes(x = reorder(vars, importance, decreasing = TRUE),
 
 ```
 
-
 ![RSF Variable Importance Employee Turnover Data. Industry, age, and age.way are among the top 3.](img/rsf.var_imp_turn.png)
 
 ![CIF Variable Importance Employee Turnover Data. Industry, age.way, and age are among the top 3.](img/cif.var_imp_turn.png)
 
-
 While the two models generally agree on the first 5 most important variables (with a switch in age and age.way in terms of order), we can focus on the magnitude of the variable importance as well as the ordering of variables 6-9. The industry variable in the dataset is one of the variables that has the most split points/levels. There are 16 unique variables that industry can take. Even though both models rank this variable to be the most important, relative to the conditional inference forest, the random survival forest seems to inflate the importance of this covariate as it reaches an importance of just over 0.04 in the random survival forest (as opposed to about 0.035 in the conditional inference forest). After the first 5 variables, the random survival forest ranks profession, self-control, anxiety, and way as the next important while the conditional inference forest ranks self-control, way, profession, and then anxiety as the next important.
 
 What may be of interest here is the ranking of the profession variable which has 15 unique split points. The random survival forest ranks this variable 2 places higher than the conditional inference forest does. The conditional inference forest on the other hand seems to favor the numeric self-control score over profession which may indicate an attempt to control for bias.
-
 
 [Prediction Error Curves]{.underline}
 

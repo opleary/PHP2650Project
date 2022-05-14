@@ -58,7 +58,7 @@ function** on the other hand is defined as the instantaneous risk of an
 individual experiencing the event of interest within a small time
 frame[5].
 
-<img src="https://render.githubusercontent.com/render/math?math=\Large h(t) = lim_{\delta t \rightarrow 0} \frac{Pr(t \le T \le t + \delta t | T&gt; t)}{\delta t}"/>
+<img src="img/hazard_function.png" width="393" />
 
 Both survival functions and hazard functions are alternatives to
 probability density functions and are better suited for survival data.
@@ -111,31 +111,34 @@ violation of the PH assumption. In summary, the proportional hazard
 assumption is supported by a non-significant relationship between
 residuals and time, and refuted by a significant relationship.
 
-![*The proportional hazards assumption is satisfied if we see a
-random-spread against time for the covariates in the data (i.e. there’s
-a non-significant relationship (p-value &gt; 0.05) between the residuals
-and time).*](img/schoenfeld.png)
+<figure>
+<img src="img/schoenfeld.png" width="568"
+alt="The proportional hazards assumption is satisfied if we see a random-spread against time for the covariates in the data (i.e. there’s a non-significant relationship (p-value &gt; 0.05) between the residuals and time)." />
+<figcaption aria-hidden="true"><em>The proportional hazards assumption
+is satisfied if we see a random-spread against time for the covariates
+in the data (i.e. there’s a non-significant relationship (p-value &gt;
+0.05) between the residuals and time).</em></figcaption>
+</figure>
 
 This is a strong assumption and is often viewed as impractical as it is
 more often than not violated. There are a number of extensions that aim
 to deal with data that violate this assumption, but they often rely on
 restrictive functions or limit the ability to estimate the effects of
 covariates on survival. **Random survival forests** provide an
-attractive non-parameteric alternative to these models[10].
+attractive non-parametric alternative to these models[10].
 
 ## Review of Random Forests
 
 ## Random Survival Forests
 
-Used to analyze time to event survival data.
-
-Used to analyze time to event survival data.
+A random survival forest is an extension of random forests used to
+analyze time to event right-censored survival data.
 
 Random survival forests use splitting criterion based on survival time
 and censoring status. Survival trees are binary trees which recursively
 split tree nodes so that the dissimilarity between child nodes is
 maximized. Eventually the dissimilar cases are separated and each node
-becomes more homogenous. The predictive outcome is defined as the total
+becomes more homogeneous. The predictive outcome is defined as the total
 number of deaths, which is derived from the ensemble cumulative hazard
 function (CHF).
 
@@ -161,7 +164,7 @@ We determine a terminal node *h* ∈ *T* when there are no less than
 deaths and individuals who are at risk at time *t*<sub>*l*, *h*</sub>.
 Then the CHF estimate for a terminal node *h* is defined as
 
-![](img/hat_equation.png)
+<img src="img/hat_equation.png" width="731" />
 
 Each individual *i* has a *d* dimensional covariate **x**<sub>*i*</sub>.
 The binary structure of survival trees allows **x**<sub>*i*</sub> to be
@@ -176,18 +179,29 @@ survival trees.
 
 ## Conditional Inference Forests
 
-While random survival forests tend to be biased toward variables with many split points, conditional inference forests are designed to reduce this selection bias. Conditional inference forests are designed by separating the algorithm which selects the best splitting covariate from the algorithm which selects the best split point.
-
+While random survival forests tend to be biased toward variables with
+many split points, conditional inference forests are designed to reduce
+this selection bias. Conditional inference forests are designed by
+separating the algorithm which selects the best splitting covariate from
+the algorithm which selects the best split point.
 
 The algorithm:
 
-1.  For case weights *w*, set the global null hypothesis of independence between any of the *p* covariates and the response variable. Stop the algorithm if we fail to reject the null hypothesis. Otherwise, select the *j*th covariate *X*<sub>j</sub> with the strongest association to *T*.
+1.  For case weights *w*, set the global null hypothesis of independence
+    between any of the p covariates and the response variable. Stop the
+    algorithm if we fail to reject the null hypothesis. Otherwise,
+    select the *j*th covariate X<sub>j\*</sub> with the strongest
+    association to *T*.
 
-2.  Select a set *A* in *X*<sub>j</sub> in order to split *X*<sub>j</sub> into two disjoint sets: *A* and *X*<sub>j</sub> without *A*. The weights *w*<sub>a</sub> and *w*<sub>b</sub> determine the two subgroups with
+2.  Select a set *A* in *X<sub>j</sub>* in order to split
+    *X<sub>j\*</sub>* into two disjoint sets: *A* and *X<sub>j</sub>*
+    without *A\**. The weights w<sub>a</sub> and w<sub>b</sub> determine
+    the two subgroups with
 
 ![](img/weights.png)
 
-3. Repeat steps 1 and 2 recursively using modified caseweights *w*<sub>a</sub> and *w*<sub>b</sub>
+1.  Repeat steps 1 and 2 recursively using modified caseweights
+    *w*<sub>a</sub> and *w*<sub>b</sub>
 
 ## Applications
 
@@ -412,7 +426,7 @@ otherwise, making **death our event of interest**.
 
 Going through backwards elimination leaves us with a model with age,
 edema status (edema), serum bilirunbin (bili), serum albumin (albumin),
-urine copper (copper), aspartate aminotransferase (ast), standardised
+urine copper (copper), aspartate aminotransferase (ast), standardized
 blood clotting time (protime), histologic stage of disease (stage) and
 the interactions between age and edema status, age and urine copper, and
 serum bilirunbin and aspartate aminotransferase.
@@ -442,20 +456,20 @@ model as a whole.
     test.ph
 
     ##             chisq df       p
-    ## age        10.884  1 0.00097
-    ## edema       1.115  1 0.29091
-    ## bili        6.809  1 0.00907
-    ## albumin     3.630  1 0.05673
-    ## copper      0.932  1 0.33430
-    ## ast         0.716  1 0.39761
-    ## protime    14.552  1 0.00014
-    ## stage      17.315  1 3.2e-05
-    ## age:edema   1.053  1 0.30492
-    ## age:copper  0.292  1 0.58908
-    ## bili:ast   11.955  1 0.00055
-    ## GLOBAL     63.669 11 1.9e-09
+    ## age        10.855  1 0.00099
+    ## edema       1.127  1 0.28835
+    ## bili        6.850  1 0.00886
+    ## albumin     3.640  1 0.05640
+    ## copper      0.956  1 0.32831
+    ## ast         0.729  1 0.39336
+    ## protime    14.456  1 0.00014
+    ## stage      17.276  1 3.2e-05
+    ## age:edema   1.063  1 0.30243
+    ## age:copper  0.305  1 0.58047
+    ## bili:ast   12.027  1 0.00052
+    ## GLOBAL     63.518 11 2.0e-09
 
-![](index_files/figure-markdown_strict/unnamed-chunk-11-1.png)![](index_files/figure-markdown_strict/unnamed-chunk-11-2.png)![](index_files/figure-markdown_strict/unnamed-chunk-11-3.png)![](index_files/figure-markdown_strict/unnamed-chunk-11-4.png)![](index_files/figure-markdown_strict/unnamed-chunk-11-5.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-14-1.png)![](index_files/figure-markdown_strict/unnamed-chunk-14-2.png)![](index_files/figure-markdown_strict/unnamed-chunk-14-3.png)![](index_files/figure-markdown_strict/unnamed-chunk-14-4.png)![](index_files/figure-markdown_strict/unnamed-chunk-14-5.png)
 
 The output from the test tells us that the test is statistically
 significant for age, bili, protime, stage, and the interaction between
@@ -501,7 +515,7 @@ our data (2 censored and 2 non-censored) and compare the predicted
 median survival times (the time where the probability of survival = 0.5)
 of both of the models to what is observed.
 
-![](index_files/figure-markdown_strict/unnamed-chunk-19-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-22-1.png)
 
 <table>
 <thead>
@@ -596,7 +610,7 @@ negligible.
     ## rsf      0.041     0.068
     ## cforest  0.054     0.073
 
-![](index_files/figure-markdown_strict/unnamed-chunk-22-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-25-1.png)
 
 ### Employee Turnover Data
 
@@ -648,8 +662,8 @@ information.
 company directly (advert). 2. contacted the company directly on the
 recommendation of a friend that’s not an employee of the company
 (recNErab). 3. contacted the company directly on the recommendation of a
-friend that IS an employee of the company (referal). 4. applied for a
-vacany on the job site (youjs) 5. recruiting agency brought you to the
+friend that IS an employee of the company (referral). 4. applied for a
+vacancy on the job site (youjs) 5. recruiting agency brought you to the
 employer (KA) 6. invited by an employer known before employment
 (friends). 7. employer contacted on the recommendation of a person who
 knows the employee (rabrecNErab). 8. employer reached you through your
@@ -741,7 +755,7 @@ We can test the proportional-hazards assumption for this model using the
     ## way:selfcontrol  0.6640  2 0.71750
     ## GLOBAL          73.0448 46 0.00677
 
-![](index_files/figure-markdown_strict/unnamed-chunk-30-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-33-1.png)
 
 The output from the test tells us that the test is statistically
 significant for profession at a significance level of 0.05. It’s also
@@ -751,7 +765,9 @@ inference forests can be useful alternatives with this data as well.
 
 **Random Survival Forest Implementation**
 
-In hyperparameter tuning which was done by changing mtry values using the ranger function, we found that an mtry value of 2 produced the lowest out-of-bag error (0.313).
+In hyperparameter tuning which was done by changing mtry values using
+the ranger function, we found that an mtry value of 2 produced the
+lowest out-of-bag error (0.313).
 
 ![](img/turning.tuning.plot.png)
 
@@ -766,6 +782,7 @@ identified in variable selection.
     turn_rsf <- ranger(Surv(stag, event) ~ age + industry + profession + traffic + 
             greywage + way + selfcontrol + anxiety +
               age.way + way.selfcontrol,
+            mtry = 2,
            data =  turn_use)
 
 **Conditional Inference Forest Implementation**
@@ -787,7 +804,7 @@ and plot and compare their predicted survival curves as well as their
 predicted median survival times ( the time where the probability of
 survival = 0.5) to what is observed.
 
-![](index_files/figure-markdown_strict/unnamed-chunk-36-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-39-1.png)
 
 <table>
 <thead>
@@ -831,7 +848,11 @@ survival = 0.5) to what is observed.
 </tbody>
 </table>
 
-For the observations that experienced death, the random forest model predicts a median survival time closer to time of death than the conditional inference forest model does. For the censored individuals, the conditional inference forest model predicts small median survival times that occurs within the course of the study.
+For the observations that experienced death, the random forest model
+predicts a median survival time closer to time of death than the
+conditional inference forest model does. For the censored individuals,
+the conditional inference forest model predicts small median survival
+times that occurs within the course of the study.
 
 <u>Variable Importance</u>
 
@@ -839,11 +860,33 @@ First, we’ll compare the variables that the random survival forest model
 and the conditional inference model found to be most important in the
 training process on the employee turnover data.
 
+![RSF Variable Importance Employee Turnover Data. Industry, age, and
+age.way are among the top 3.](img/rsf.var_imp_turn.png)
+
 ![CIF Variable Importance Employee Turnover Data. Industry, age.way, and
 age are among the top 3.](img/cif.var_imp_turn.png)
 
-![RSF Variable Importance Employee Turnover Data. Industry, age, and
-age.way are among the top 3.](img/rsf.var_imp_turn.png)
+While the two models generally agree on the first 5 most important
+variables (with a switch in age and age.way in terms of order), we can
+focus on the magnitude of the variable importance as well as the
+ordering of variables 6-9. The industry variable in the dataset is one
+of the variables that has the most split points/levels. There are 16
+unique variables that industry can take. Even though both models rank
+this variable to be the most important, relative to the conditional
+inference forest, the random survival forest seems to inflate the
+importance of this covariate as it reaches an importance of just over
+0.04 in the random survival forest (as opposed to about 0.035 in the
+conditional inference forest). After the first 5 variables, the random
+survival forest ranks profession, self-control, anxiety, and way as the
+next important while the conditional inference forest ranks
+self-control, way, profession, and then anxiety as the next important.
+
+What may be of interest here is the ranking of the profession variable
+which has 15 unique split points. The random survival forest ranks this
+variable 2 places higher than the conditional inference forest does. The
+conditional inference forest on the other hand seems to favor the
+numeric self-control score over profession which may indicate an attempt
+to control for bias.
 
 <u>Prediction Error Curves</u>
 
@@ -857,10 +900,10 @@ for computation and run-time purposes.
     ## Integrated Brier score (crps):
     ## 
     ##         AppErr BootCvErr
-    ## rsfc     0.079     0.155
-    ## cforest  0.061     0.120
+    ## rsfc     0.082      0.15
+    ## cforest  0.061      0.12
 
-![](index_files/figure-markdown_strict/unnamed-chunk-42-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-45-1.png)
 
 ## Closing Thoughts
 
