@@ -176,7 +176,16 @@ survival trees.
 
 ## Conditional Inference Forests
 
-While random survival forests
+While random survival forests tend to be biased toward variables with many split points, conditional inference forests are designed to reduce this selection bias. Conditional inference forests are designed by separating the algorithm which selects the best splitting covariate from the algorithm which selects the best split point.
+
+
+The algorithm:
+
+1.  For case weights *w*, set the global null hypothesis of independence between any of the *p* covariates and the response variable. Stop the algorithm if we fial to reject the null hypothesis. Otherwise, select the *j*th covariate *X*<sub>j*</sub> with the strongest association to *T*.
+
+2.  Select a set *A*<sup>*</sup> in *X*<sub>j*</sub> in order to split *X*<sub>j*</sub> into two disjoint sets: 
+
+3. Repeat
 
 ## Applications
 
