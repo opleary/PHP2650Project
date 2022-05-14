@@ -14,14 +14,14 @@ mechanical failure, time to repeat offense of a released inmate, time to
 the split of a financial stock and more! Time in survival analysis is
 relative and all subjects of interest are likened to a common starting
 point at baseline (t = 0) with a 100% probability of not experiencing
-the event of interest.
+the event of interest[2].
 
 Subjects are observed from baseline to some often pre-specified time at
 the end of study. Thus, not every subject will experience the event of
 interest within the observational period’s time frame. In this case, we
 don’t know if or when these subjects will experience the event, we just
 know that they have not experienced it during the study period. This is
-called **censoring**, more specifically, right-censoring. Right
+called **censoring**, more specifically, right-censoring[3]. Right
 censoring is just one of multiple forms of censoring that survival data
 strives to adjust for and the form that we will focus on in this
 comprehensive review. Dropout is also a form of right censoring. The
@@ -49,13 +49,14 @@ the event or was censored instead.
 
 In standard survival analysis, the **survival function**, S(t) is what
 defines the probability that the event of interest has **not** yet
-happened at time = t.
+happened at time = t.[4]
 
 <img src="https://render.githubusercontent.com/render/math?math=\Large S(t) = P(T &gt; t)"/>
 
-S(t) is non-increasing and ranges between 0 and 1. The hazard function
-on the other hand is defined as the instantaneous risk of an individual
-experiencing the event of interest within a small time frame.
+S(t) is non-increasing and ranges between 0 and 1. The **hazard
+function** on the other hand is defined as the instantaneous risk of an
+individual experiencing the event of interest within a small time
+frame[5].
 
 <img src="https://render.githubusercontent.com/render/math?math=\Large h(t) = lim_{\delta t \rightarrow 0} \frac{Pr(t \le T \le t + \delta t | T&gt; t)}{\delta t}"/>
 
@@ -64,11 +65,11 @@ probability density functions and are better suited for survival data.
 
 Survival regression involves not only information about censorship and
 time to event, but also additional predictor variables of interest like
-the sex, age, race, etc. of an individual. Cox proportional hazards
-models is a popular and widely utilized modeling technique for survival
+the sex, age, race, etc. of an individual. The Cox proportional hazards
+model is a popular and widely utilized modeling technique for survival
 data because it considers the effects of covariates on the outcome of
 interest as well as examines the relationships between these variables
-and the survival distribution. While this model is praised for its
+and the survival distribution[6]. While this model is praised for its
 flexibility and simplicity, it is also often criticized for its
 restrictive proportional hazards assumption.
 
@@ -76,14 +77,14 @@ restrictive proportional hazards assumption.
 
 The **proportional hazards assumption** states that the relative hazard
 remains constant over time across the different strata/covariate levels
-in the data. The most popular graphical technique for evaluating the PH
-assumption involves comparing estimated **log-log survival curves** over
-different strata of the variables being investigated. A log-log survival
-curve is a transformation of an estimated survival curve that results
-from taking the natural log of an estimated survival probability twice.
-Generally, if the log-log survival curves are approximately parallel for
-each level of the covariates then the proportional hazard assumption is
-met.
+in the data[7]. The most popular graphical technique for evaluating the
+PH assumption involves comparing estimated **log-log survival curves**
+over different strata of the variables being investigated[8]. A log-log
+survival curve is a transformation of an estimated survival curve that
+results from taking the natural log of an estimated survival probability
+twice. Generally, if the log-log survival curves are approximately
+parallel for each level of the covariates then the proportional hazard
+assumption is met.
 
 <figure>
 <img src="img/PH_assumption_good.png" width="608"
@@ -96,28 +97,31 @@ nature of log-log survival curves.</em></figcaption>
 
 In the case of continuous covariates, this assumption can also be
 checked using statistical tests and graphical methods based on the
-scaled Schoenfeld residuals. The Schoenfeld residuals are calculated for
-all covariates for each individual experiencing an event at a given
-time. Those are the *differences* between that individual’s covariate
-values at the event time and the corresponding risk-weighted average of
-covariate values among all individuals at risk. The Schoenfeld residuals
-are then scaled inversely with respect to their covariances/variances.
-We can think of this as down-weighting Schoenfeld residuals whose values
-are uncertain because of high variance. If the assumption is valid, the
-*Schoenfeld residuals* are independent of time. A plot that shows a
-non-random pattern against time is evidence of violation of the PH
-assumption. In summary, the proportional hazard assumption is supported
-by a non-significant relationship between residuals and time, and
-refuted by a significant relationship.
+scaled **Schoenfeld residuals**[9]. The Schoenfeld residuals are
+calculated for all covariates for each individual experiencing an event
+at a given time. Those are the *differences* between that individual’s
+covariate values at the event time and the corresponding risk-weighted
+average of covariate values among all individuals at risk. The
+Schoenfeld residuals are then scaled inversely with respect to their
+covariances/variances. We can think of this as down-weighting Schoenfeld
+residuals whose values are uncertain because of high variance. If the
+assumption is valid, the Schoenfeld residuals are independent of time. A
+plot that shows a non-random pattern against time is evidence of
+violation of the PH assumption. In summary, the proportional hazard
+assumption is supported by a non-significant relationship between
+residuals and time, and refuted by a significant relationship.
 
-(insert image)
+![*The proportional hazards assumption is satisfied if we see a
+random-spread against time for the covariates in the data (i.e. there’s
+a non-significant relationship (p-value &gt; 0.05) between the residuals
+and time).*](img/schoenfeld.png)
 
 This is a strong assumption and is often viewed as impractical as it is
 more often than not violated. There are a number of extensions that aim
 to deal with data that violate this assumption, but they often rely on
 restrictive functions or limit the ability to estimate the effects of
 covariates on survival. **Random survival forests** provide an
-attractive non-parameteric alternative to these models.
+attractive non-parameteric alternative to these models[10].
 
 ## Review of Random Forests
 
@@ -185,7 +189,7 @@ forest model on two real survival datasets.
 
 The first dataset, the PBC dataset hails from the `survival` package in
 R and summarizes the survival data of primary biliary cirrhosis (PBC)
-patients from a randomized trial conducted between 1974 and 1984.
+patients from a randomized trial conducted between 1974 and 1984[11].
 
 Most of the covariates in the PBC data are either continuous or have two
 levels (few split-points).
@@ -210,10 +214,10 @@ combination on each data set that yields the lowest out-of-bag error.
 **Evaluating the Models: Variable Importance**
 
 For each model, we will assess the ranked **variable importance**. We’ll
-do this using the `varImp` function from the `caret` package in R. This
-function tracks the changes in metric statistics for each predictor and
-accumulates the reduction in the statistic when each predictor’s feature
-is added to the model. The reduction is the measure of variable
+do this using the `varImp` function from the `caret` package in R[12].
+This function tracks the changes in metric statistics for each predictor
+and accumulates the reduction in the statistic when each predictor’s
+feature is added to the model. The reduction is the measure of variable
 importance. For trees/forests, the prediction accuracy on the out of bag
 sample is recorded. The same is done after permuting each predictor
 variable. The difference between the two accuracies are averaged over
@@ -227,15 +231,15 @@ In certain applications, it is of interest to compare the predictive
 accuracy of different survival regression strategies for building a risk
 prediction model. There are several metrics that can be used to assess
 the resulting probabilistic risk predictions. We’re going to focus on
-one of the most popular metrics, the **Brier score**. The brier score
-for an individual is defined as the squared difference between observed
-survival status (1 = alive at time t and 0 = dead at time t) and a model
-based prediction of surviving up to time t. The survival status at time
-t will be right censored for some data. For time to event outcome, this
-measure can be estimated pointwise over time. We will concentrate on
-comparing the performance of our models using **prediction error
-curves** that are obtained by combining time-dependent estimates of the
-population average Brier score.
+one of the most popular metrics, the **Brier score**[13]. The brier
+score for an individual is defined as the squared difference between
+observed survival status (1 = alive at time t and 0 = dead at time t)
+and a model based prediction of surviving up to time t. The survival
+status at time t will be right censored for some data. For time to event
+outcome, this measure can be estimated point-wise over time. We will
+concentrate on comparing the performance of our models using
+**prediction error curves** that are obtained by combining
+time-dependent estimates of the population average Brier score.
 
 Using a test sample of size
 <img src="https://render.githubusercontent.com/render/math?math=N_{test}"/>
@@ -258,13 +262,13 @@ estimates of the integrated Brier scores. The prediction errors are
 evaluated in each bootstrap sample.
 
 The prediction errors for each of our models will be implemented in the
-`pec` package in R. We implement bootstrap cross-validation to get our
-estimates for the integrated brier scores. The models are assessed on
-the data samples that are NOT in the bootstrap sample (OOB data).
+`pec` package in R[14]. We implement bootstrap cross-validation to get
+our estimates for the integrated brier scores. The models are assessed
+on the data samples that are NOT in the bootstrap sample (OOB data).
 
 ### PBC Data
 
-The following description comes from the `survival` package in R:
+The following description comes from the `survival` package in R[15]:
 
 Primary sclerosing cholangitis is an autoimmune disease leading to
 destruction of the small bile ducts in the liver. Progression is slow
@@ -404,6 +408,14 @@ blood clotting time (protime), histologic stage of disease (stage) and
 the interactions between age and edema status, age and urine copper, and
 serum bilirunbin and aspartate aminotransferase.
 
+Note that due to the nature of this dataset, some of the subgroups have
+not yet reached 50% survival as far as the scope of the information that
+we have goes. Thus, some survival times were not able to be implemented
+by our methods due to ‘missingness’. To make up for this shortage, we
+utilized an oversampling technique to bootstrap sample for more
+observations which also ended up sampling for more censored observations
+in our data.
+
     pbc_cox <- coxph(Surv(time, status) ~ age + edema + bili + albumin + 
       copper + ast + protime + stage + age:edema + age:copper + 
       bili:ast, 
@@ -421,18 +433,18 @@ model as a whole.
     test.ph
 
     ##             chisq df       p
-    ## age        10.869  1 0.00098
-    ## edema       1.109  1 0.29228
-    ## bili        6.760  1 0.00932
-    ## albumin     3.589  1 0.05816
-    ## copper      0.917  1 0.33837
-    ## ast         0.709  1 0.39969
-    ## protime    14.486  1 0.00014
-    ## stage      17.349  1 3.1e-05
-    ## age:edema   1.044  1 0.30698
-    ## age:copper  0.281  1 0.59625
-    ## bili:ast   11.952  1 0.00055
-    ## GLOBAL     63.574 11 2.0e-09
+    ## age        10.884  1 0.00097
+    ## edema       1.115  1 0.29091
+    ## bili        6.809  1 0.00907
+    ## albumin     3.630  1 0.05673
+    ## copper      0.932  1 0.33430
+    ## ast         0.716  1 0.39761
+    ## protime    14.552  1 0.00014
+    ## stage      17.315  1 3.2e-05
+    ## age:edema   1.053  1 0.30492
+    ## age:copper  0.292  1 0.58908
+    ## bili:ast   11.955  1 0.00055
+    ## GLOBAL     63.669 11 1.9e-09
 
 ![](index_files/figure-markdown_strict/unnamed-chunk-11-1.png)![](index_files/figure-markdown_strict/unnamed-chunk-11-2.png)![](index_files/figure-markdown_strict/unnamed-chunk-11-3.png)![](index_files/figure-markdown_strict/unnamed-chunk-11-4.png)![](index_files/figure-markdown_strict/unnamed-chunk-11-5.png)
 
@@ -447,8 +459,9 @@ useful alternatives in this case.
 
 **Random Survival Forest Implementation**
 
-In hyperparameter tuning, we found that an mtry value of 1 and a
-nodesize of 5 produced the lowest out-of-bag error (0.107).
+In hyperparameter tuning which was done using the `tune` function from
+the `e1071` package in R, we found that an mtry value of 1 and a
+nodesize of 5 produced the lowest out-of-bag error (0.107)[16].
 
 ![PBC OOB Error on Parameter
 Values](index_files/figure-markdown_strict/parampbc-1.png)
@@ -571,8 +584,8 @@ negligible.
     ## Integrated Brier score (crps):
     ## 
     ##         AppErr BootCvErr
-    ## rsf      0.041     0.067
-    ## cforest  0.054     0.072
+    ## rsf      0.041     0.068
+    ## cforest  0.054     0.073
 
 ![](index_files/figure-markdown_strict/unnamed-chunk-22-1.png)
 
@@ -731,11 +744,13 @@ inference forests can be useful alternatives with this data as well.
 
 Note that to run random survival forest for the employee turnover data,
 due to computational issues, we’ve switched to using the `ranger`
-function from the `ranger` package in R.
+function from the `ranger` package in R. We’ll run a parameter tuned
+random survival forest model with the variables and interactions that we
+identified in variable selection.
 
     set.seed(1)
     # random survival forest
-    turn_rf <- ranger(Surv(stag, event) ~ age + industry + profession + traffic + 
+    turn_rsf <- ranger(Surv(stag, event) ~ age + industry + profession + traffic + 
             greywage + way + selfcontrol + anxiety +
               age.way + way.selfcontrol,
            data =  turn_use)
@@ -759,7 +774,7 @@ and plot and compare their predicted survival curves as well as their
 predicted median survival times ( the time where the probability of
 survival = 0.5) to what is observed.
 
-![](index_files/figure-markdown_strict/unnamed-chunk-35-2.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-36-1.png)
 
 <table>
 <thead>
@@ -811,11 +826,11 @@ First, we’ll compare the variables that the random survival forest model
 and the conditional inference model found to be most important in the
 training process on the employee turnover data.
 
+![CIF Variable Importance Employee Turnover Data. Industry, age.way, and
+age are among the top 3.](img/cif.var_imp_turn.png)
+
 ![RSF Variable Importance Employee Turnover Data. Industry, age, and
 age.way are among the top 3.](img/rsf.var_imp_turn.png)
-
-![CIF Variable Importance Employee Turnover Data. Industry, age, and
-traffic are among the top 3.](img/cif.var_imp_turn.png)
 
 <u>Prediction Error Curves</u>
 
@@ -830,10 +845,81 @@ for computation and run-time purposes.
     ## 
     ##         AppErr BootCvErr
     ## rsfc     0.079     0.155
-    ## cforest  0.061     0.121
+    ## cforest  0.061     0.120
 
-![](index_files/figure-markdown_strict/unnamed-chunk-41-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-42-1.png)
+
+## Closing Thoughts
 
 {% include lib/mathjax.html %}
 
-[1] My reference
+[1] Goel, M. K., Khanna, P., & Kishore, J. (2010). Understanding
+survival analysis: Kaplan-Meier estimate. *International journal of
+Ayurveda research*, *1*(4), 274.
+
+[2] Goel, M. K., Khanna, P., & Kishore, J. (2010). Understanding
+survival analysis: Kaplan-Meier estimate. *International journal of
+Ayurveda research*, *1*(4), 274.
+
+[3] Prinja, S., Gupta, N., & Verma, R. (2010). Censoring in clinical
+trials: review of survival analysis techniques. *Indian journal of
+community medicine: official publication of Indian Association of
+Preventive & Social Medicine*, *35*(2), 217.
+
+[4] Kleinbaum, D. G., & Klein, M. (2012). *Survival analysis: a
+self-learning text* (Vol. 3). New York: Springer.
+
+[5] Kleinbaum, D. G., & Klein, M. (2012). *Survival analysis: a
+self-learning text* (Vol. 3). New York: Springer.
+
+[6] Kleinbaum, D. G., & Klein, M. (2012). The Cox proportional hazards
+model and its characteristics. In *Survival analysis* (pp. 97-159).
+Springer, New York, NY.
+
+[7] Kleinbaum, D. G., & Klein, M. (2012). The Cox proportional hazards
+model and its characteristics. In *Survival analysis* (pp. 97-159).
+Springer, New York, NY.
+
+[8] Sestelo, M. (2017). A short course on Survival Analysis applied to
+the Financial Industry.
+
+[9] Hess, K. R. (1995). Graphical methods for assessing violations of
+the proportional hazards assumption in Cox regression. *Statistics in
+medicine*, *14*(15), 1707-1723.
+
+[10] Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A
+comparison of the conditional inference survival forest model to random
+survival forests based on a simulation study as well as on two
+applications with time-to-event data. *BMC medical research
+methodology*, *17*(1), 1-17.
+
+[11] Therneau, T. M. (2020). *A Package for Survival Analysis in R*.
+<https://CRAN.R-project.org/package=survival>
+
+[12] Kuhn, M. (2008). Building Predictive Models in R Using the caret
+Package. Journal of Statistical Software, 28(5), 1 - 26.
+doi:<http://dx.doi.org/10.18637/jss.v028.i05>
+
+[13] Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A
+comparison of the conditional inference survival forest model to random
+survival forests based on a simulation study as well as on two
+applications with time-to-event data. *BMC medical research
+methodology*, *17*(1), 1-17.
+
+[14] Mogensen UB, Ishwaran H, Gerds TA (2012). “Evaluating Random
+Forests for Survival Analysis Using Prediction Error Curves.” *Journal
+of Statistical Software*, **50**(11), 1–23.
+<https://www.jstatsoft.org/v50/i11>.
+
+[15] Therneau, T. M. (2020). *A Package for Survival Analysis in R*.
+<https://CRAN.R-project.org/package=survival>
+
+[16] Meyer D, Dimitriadou E, Hornik K, Weingessel A, Leisch F
+
+(2021). \_e1071: Misc Functions of the Department of
+
+Statistics, Probability Theory Group (Formerly: E1071), TU
+
+Wien\_. R package version 1.7-9,
+
+<https://CRAN.R-project.org/package=e1071>.

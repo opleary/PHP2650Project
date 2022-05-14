@@ -102,7 +102,7 @@ In the case of continuous covariates, this assumption can also be checked using 
 
 [^9]: Hess, K. R. (1995). Graphical methods for assessing violations of the proportional hazards assumption in Cox regression. *Statistics in medicine*, *14*(15), 1707-1723.
 
-(insert image)
+![*The proportional hazards assumption is satisfied if we see a random-spread against time for the covariates in the data (i.e. there's a non-significant relationship (p-value \> 0.05) between the residuals and time).*](img/schoenfeld.png)
 
 This is a strong assumption and is often viewed as impractical as it is more often than not violated. There are a number of extensions that aim to deal with data that violate this assumption, but they often rely on restrictive functions or limit the ability to estimate the effects of covariates on survival. **Random survival forests** provide an attractive non-parameteric alternative to these models[^10].
 
@@ -178,7 +178,7 @@ For each model, we will assess the ranked **variable importance**. We'll do this
 
 **Evaluating the Models: Brier Scores**
 
-In certain applications, it is of interest to compare the predictive accuracy of different survival regression strategies for building a risk prediction model. There are several metrics that can be used to assess the resulting probabilistic risk predictions. We're going to focus on one of the most popular metrics, the **Brier score**[^13]. The brier score for an individual is defined as the squared difference between observed survival status (1 = alive at time t and 0 = dead at time t) and a model based prediction of surviving up to time t. The survival status at time t will be right censored for some data. For time to event outcome, this measure can be estimated pointwise over time. We will concentrate on comparing the performance of our models using **prediction error curves** that are obtained by combining time-dependent estimates of the population average Brier score.
+In certain applications, it is of interest to compare the predictive accuracy of different survival regression strategies for building a risk prediction model. There are several metrics that can be used to assess the resulting probabilistic risk predictions. We're going to focus on one of the most popular metrics, the **Brier score**[^13]. The brier score for an individual is defined as the squared difference between observed survival status (1 = alive at time t and 0 = dead at time t) and a model based prediction of surviving up to time t. The survival status at time t will be right censored for some data. For time to event outcome, this measure can be estimated point-wise over time. We will concentrate on comparing the performance of our models using **prediction error curves** that are obtained by combining time-dependent estimates of the population average Brier score.
 
 [^13]: Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A comparison of the conditional inference survival forest model to random survival forests based on a simulation study as well as on two applications with time-to-event data. *BMC medical research methodology*, *17*(1), 1-17.
 
@@ -323,6 +323,8 @@ pbc.full <- coxph(Surv(time, status) ~ (.)^2, data =  pbc_use)
 
 Going through backwards elimination leaves us with a model with age, edema status (edema), serum bilirunbin (bili), serum albumin (albumin), urine copper (copper), aspartate aminotransferase (ast), standardised blood clotting time (protime), histologic stage of disease (stage) and the interactions between age and edema status, age and urine copper, and serum bilirunbin and aspartate aminotransferase.
 
+Note that due to the nature of this dataset, some of the subgroups have not yet reached 50% survival as far as the scope of the information that we have goes. Thus, some survival times were not able to be implemented by our methods due to 'missingness'. To make up for this shortage, we utilized an oversampling technique to bootstrap sample for more observations which also ended up sampling for more censored observations in our data.
+
 ```{r}
 
 
@@ -388,7 +390,17 @@ Using random survival forests and conditional inference forests are useful alter
 
 **Random Survival Forest Implementation**
 
-In hyperparameter tuning, we found that an mtry value of 1 and a nodesize of 5 produced the lowest out-of-bag error (0.107).
+In hyperparameter tuning which was done using the `tune` function from the `e1071` package in R, we found that an mtry value of 1 and a nodesize of 5 produced the lowest out-of-bag error (0.107)[^16].
+
+[^16]: Meyer D, Dimitriadou E, Hornik K, Weingessel A, Leisch F
+
+    (2021). \_e1071: Misc Functions of the Department of
+
+    Statistics, Probability Theory Group (Formerly: E1071), TU
+
+    Wien\_. R package version 1.7-9,
+
+    <https://CRAN.R-project.org/package=e1071>.
 
 ```{r, results='hide'}
 
@@ -742,7 +754,7 @@ The output from the test tells us that the test is statistically significant for
 
 **Random Survival Forest Implementation**
 
-Note that to run random survival forest for the employee turnover data, due to computational issues, we've switched to using the `ranger` function from the `ranger` package in R.
+Note that to run random survival forest for the employee turnover data, due to computational issues, we've switched to using the `ranger` function from the `ranger` package in R. We'll run a parameter tuned random survival forest model with the variables and interactions that we identified in variable selection.
 
 ```{r}
 
@@ -903,7 +915,6 @@ ggplot(turn.var_imp_cif, aes(x = reorder(vars, -Overall, decreasing = TRUE),
 
 ```
 
-
 ```{r, eval = FALSE}
 
 turn.rf.imp <- ranger(Surv(stag, event) ~ age + industry + profession + traffic + 
@@ -928,7 +939,7 @@ ggplot(turn_rf_imp, aes(x = reorder(vars, importance, decreasing = TRUE),
 
 ```
 
-![CIF Variable Importance Employee Turnover Data. Industry, age, and traffic are among the top 3.](img/cif.var_imp_turn.png)
+![CIF Variable Importance Employee Turnover Data. Industry, age.way, and age are among the top 3.](img/cif.var_imp_turn.png)
 
 ![RSF Variable Importance Employee Turnover Data. Industry, age, and age.way are among the top 3.](img/rsf.var_imp_turn.png)
 
@@ -955,10 +966,10 @@ predictSurvProb.ranger <- function (object, newdata, times, ...) {
 ```{r, results='hide'}
 
 form <- as.formula(paste("Surv(stag, event)~",
-       paste(turn_rf$forest$independent.variable.names, collapse="+")))
+       paste(turn_rsf$forest$independent.variable.names, collapse="+")))
 
 #?pec::predictSurvProb
-fit_comp_turn <- pec(list("rsfc" = turn_rf, "cforest" = turn_cif), 
+fit_comp_turn <- pec(list("rsfc" = turn_rsf, "cforest" = turn_cif), 
                      data = turn_use, 
               formula= form,  
               splitMethod = "BootCv",
@@ -978,5 +989,7 @@ crps(fit_comp_turn)
 plot(fit_comp_turn, predErr = "BootCvErr")
 
 ```
+
+## Closing Thoughts
 
 {% include lib/mathjax.html %}
