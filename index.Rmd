@@ -158,6 +158,8 @@ In certain applications, it is of interest to compare the predictive accuracy of
 
 Using a test sample of size <img src="https://render.githubusercontent.com/render/math?math=N_{test}"/> , Brier scores at time t are defined as:
 
+![](img/brier_score_equation.png)
+
 $$
 BS(t) = \frac{1}{N_{test}}\sum_{l=1}^{N_{test}} \{[0 - \hat{S}(t|x)]^2 \frac{I(t_l \le t, \delta_l = 1)}{\hat{G}(t_l|x)} + [1 - \hat{S}(t|x)]^2 \frac{I(t_l > t)}{\hat{G}(t|x)} \}
 $$
@@ -181,7 +183,7 @@ Primary sclerosing cholangitis is an autoimmune disease leading to destruction o
 This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
 | Variable | Description                                                                                              |
-|--------------------------|----------------------------------------------|
+|-------------------------|-----------------------------------------------|
 | id       | case number                                                                                              |
 | time     | number of days between registration and the earlier of death, transplant, or end of observational period |
 | status   | status at endpoint, 0/1/2 for censored, transplant, dead                                                 |
@@ -597,7 +599,7 @@ fit_comp_pbc <- pec(list("rsf" = pbc_rf, "cforest" = pbc_cif),
 
 ```
 
-```{r, eval=FALSE}
+```{r}
 
 crps(fit_comp_pbc)
 
@@ -617,7 +619,7 @@ turnover <- read_csv("data/turnover.csv")
 ```
 
 | Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|--------------------------|----------------------------------------------|
+|------------------------|-----------------------------------------------|
 | stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
