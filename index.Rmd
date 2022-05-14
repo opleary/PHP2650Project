@@ -765,8 +765,8 @@ rand_data_turn <- rbind(turn_use[turn_use$event == 1,][rand_inds_turn_event, ],
 cif.predict3_turn <- treeresponse(turn_cif$forest, 
                                  newdata = rand_data_turn)
 
-
-
+turn_rsf_pred <- predict(turn_rsf, rand_data_turn, type='response')
+time <- turn_rsf_pred$unique.death.times
 ```
 
 ```{r, eval =FALSE}
@@ -793,21 +793,21 @@ plot(cif.predict3_turn$`1`, col = "blue",
      sub = "Event Experienced",
      xlab = "time",
      ylab = "Survival Probability")
-#lines(Time, pbc_pred$survival[1,])
-#legend(4000, -0.46,          # Position
-    #   legend = c("CIF", "RSF"),  # Legend texts
-  #     title = "Method",           
-#       col = c("red", "black"),          
-#       lwd = 2,
-#       xpd = "NA",
-#       cex = 0.8)   
+lines(time, turn_rsf_pred$survival[1,], col = "green")
+legend(4000, -0.46,          # Position
+  legend = c("CIF", "RSF"),  # Legend texts
+    title = "Method",
+      col = c("blue", "green"),
+      lwd = 2,
+      xpd = "NA",
+      cex = 0.8)
 
 plot(cif.predict3_turn$`2`, col = "blue",
      main = "Turn Pred. Survival Individual 509",
      sub = "Event Experienced",
      xlab = "time",
      ylab = "Survival Probability")
-#lines(Time, pbc_pred$survival[2,])
+lines(time, turn_rsf_pred$survival[2,], col = "green")
   
 
 plot(cif.predict3_turn$`3`, col = "blue",
@@ -815,7 +815,7 @@ plot(cif.predict3_turn$`3`, col = "blue",
      sub = "Censored",
      xlab = "time",
      ylab = "Survival Probability")
-lines(Time, pbc_pred$survival[3,])
+lines(time, turn_rsf_pred$survival[3,], col = "green")
   
 
 plot(cif.predict3_turn$`4`, col = "blue",
@@ -823,7 +823,7 @@ plot(cif.predict3_turn$`4`, col = "blue",
      sub = "Censored",
      xlab = "time",
      ylab = "Survival Probability")
-#lines(Time, pbc_pred$survival[3,])
+lines(time, turn_rsf_pred$survival[4,], col = "green")
 
 
 ```
