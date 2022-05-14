@@ -156,8 +156,7 @@ We will run a random survival forest model and a conditional inference forest mo
 
 The first dataset, the PBC dataset hails from the `survival` package in R and summarizes the survival data of primary biliary cirrhosis (PBC) patients from a randomized trial conducted between 1974 and 1984[^11].
 
-[^11]: Reference
-
+[^11]: Therneau, T. M. (2020). *A Package for Survival Analysis in R*. <https://CRAN.R-project.org/package=survival>
 
 Most of the covariates in the PBC data are either continuous or have two levels (few split-points).
 
@@ -173,11 +172,15 @@ In the case of the random survival forest model, we will tune for two parameter 
 
 **Evaluating the Models: Variable Importance**
 
-For each model, we will assess the ranked **variable importance**. We'll do this using the `varImp` function from the `caret` package in R. This function tracks the changes in metric statistics for each predictor and accumulates the reduction in the statistic when each predictor's feature is added to the model. The reduction is the measure of variable importance. For trees/forests, the prediction accuracy on the out of bag sample is recorded. The same is done after permuting each predictor variable. The difference between the two accuracies are averaged over all trees, and normalized by the standard error. We'll aim to compare how each of the two models rank the importance of the different covariates.
+For each model, we will assess the ranked **variable importance**. We'll do this using the `varImp` function from the `caret` package in R[^12]. This function tracks the changes in metric statistics for each predictor and accumulates the reduction in the statistic when each predictor's feature is added to the model. The reduction is the measure of variable importance. For trees/forests, the prediction accuracy on the out of bag sample is recorded. The same is done after permuting each predictor variable. The difference between the two accuracies are averaged over all trees, and normalized by the standard error. We'll aim to compare how each of the two models rank the importance of the different covariates.
+
+[^12]: Kuhn, M. (2008). Building Predictive Models in R Using the caret Package. Journal of Statistical Software, 28(5), 1 - 26. doi:<http://dx.doi.org/10.18637/jss.v028.i05>
 
 **Evaluating the Models: Brier Scores**
 
-In certain applications, it is of interest to compare the predictive accuracy of different survival regression strategies for building a risk prediction model. There are several metrics that can be used to assess the resulting probabilistic risk predictions. We're going to focus on one of the most popular metrics, the **Brier score**. The brier score for an individual is defined as the squared difference between observed survival status (1 = alive at time t and 0 = dead at time t) and a model based prediction of surviving up to time t. The survival status at time t will be right censored for some data. For time to event outcome, this measure can be estimated pointwise over time. We will concentrate on comparing the performance of our models using **prediction error curves** that are obtained by combining time-dependent estimates of the population average Brier score.
+In certain applications, it is of interest to compare the predictive accuracy of different survival regression strategies for building a risk prediction model. There are several metrics that can be used to assess the resulting probabilistic risk predictions. We're going to focus on one of the most popular metrics, the **Brier score**[^13]. The brier score for an individual is defined as the squared difference between observed survival status (1 = alive at time t and 0 = dead at time t) and a model based prediction of surviving up to time t. The survival status at time t will be right censored for some data. For time to event outcome, this measure can be estimated pointwise over time. We will concentrate on comparing the performance of our models using **prediction error curves** that are obtained by combining time-dependent estimates of the population average Brier score.
+
+[^13]: Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A comparison of the conditional inference survival forest model to random survival forests based on a simulation study as well as on two applications with time-to-event data. *BMC medical research methodology*, *17*(1), 1-17.
 
 Using a test sample of size <img src="https://render.githubusercontent.com/render/math?math=N_{test}"/> , Brier scores at time t are defined as:
 
@@ -197,18 +200,22 @@ The integrated Brier scores are given by:
 
 To avoid the problem of overfitting that arises from using the same data to train and test the model, we used the Bootstrap cross-validated estimates of the integrated Brier scores. The prediction errors are evaluated in each bootstrap sample.
 
-The prediction errors for each of our models will be implemented in the `pec` package in R. We implement bootstrap cross-validation to get our estimates for the integrated brier scores. The models are assessed on the data samples that are NOT in the bootstrap sample (OOB data).
+The prediction errors for each of our models will be implemented in the `pec` package in R[^14]. We implement bootstrap cross-validation to get our estimates for the integrated brier scores. The models are assessed on the data samples that are NOT in the bootstrap sample (OOB data).
+
+[^14]: Mogensen UB, Ishwaran H, Gerds TA (2012). "Evaluating Random Forests for Survival Analysis Using Prediction Error Curves." *Journal of Statistical Software*, **50**(11), 1--23. <https://www.jstatsoft.org/v50/i11>.
 
 ### PBC Data
 
-The following description comes from the `survival` package in R:
+The following description comes from the `survival` package in R[^15]:
+
+[^15]: Therneau, T. M. (2020). *A Package for Survival Analysis in R*. <https://CRAN.R-project.org/package=survival>
 
 Primary sclerosing cholangitis is an autoimmune disease leading to destruction of the small bile ducts in the liver. Progression is slow but inexorable, eventually leading to cirrhosis and liver decompensation.
 
 This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
 | Variable | Description                                                                                              |
-|--------------------------|----------------------------------------------|
+|----------|----------------------------------------------------------------------------------------------------------|
 | id       | case number                                                                                              |
 | time     | number of days between registration and the earlier of death, transplant, or end of observational period |
 | status   | status at endpoint, 0/1/2 for censored, transplant, dead                                                 |
@@ -644,7 +651,7 @@ turnover <- read_csv("data/turnover.csv")
 ```
 
 | Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|--------------------------|----------------------------------------------|
+|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -920,7 +927,6 @@ ggplot(turn_rf_imp, aes(x = reorder(vars, importance, decreasing = TRUE),
 ![CIF Variable Importance Employee Turnover Data. Industry, age, and traffic are among the top 3.](img/cif.var_imp_turn.png)
 
 ![RSF Variable Importance Employee Turnover Data. Industry, age, and age.way are among the top 3.](img/rsf.var_imp_turn.png)
-
 
 [Prediction Error Curves]{.underline}
 
