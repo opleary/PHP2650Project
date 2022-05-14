@@ -814,6 +814,9 @@ training process on the employee turnover data.
 ![CIF Variable Importance Employee Turnover Data. Industry, age, and
 traffic are among the top 3.](img/cif.var_imp_turn.png)
 
+![RSF Variable Importance Employee Turnover Data. Industry, age, and
+age.way are among the top 3.](img/rsf.var_imp_turn.png)
+
 <u>Prediction Error Curves</u>
 
 We can compare the prediction error curves of the two models. Recall
