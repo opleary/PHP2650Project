@@ -759,7 +759,7 @@ and plot and compare their predicted survival curves as well as their
 predicted median survival times ( the time where the probability of
 survival = 0.5) to what is observed.
 
-![](index_files/figure-markdown_strict/unnamed-chunk-36-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-35-2.png)
 
 <table>
 <thead>
