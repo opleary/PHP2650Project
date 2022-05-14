@@ -102,9 +102,9 @@ In the case of continuous covariates, this assumption can also be checked using 
 
 [^9]: Hess, K. R. (1995). Graphical methods for assessing violations of the proportional hazards assumption in Cox regression. *Statistics in medicine*, *14*(15), 1707-1723.
 
-![*The proportional hazards assumption is satisfied if we see a random-spread against time for the covariates in the data (i.e. there's a non-significant relationship (p-value \> 0.05) between the residuals and time).*](img/schoenfeld.png){width="568"}
+![*The proportional hazards assumption is satisfied if we see a random-spread against time for the covariates in the data (i.e. there's a non-significant relationship (p-value > 0.05) between the residuals and time).*](img/schoenfeld.png){width="568"}
 
-This is a strong assumption and is often viewed as impractical as it is more often than not violated. There are a number of extensions that aim to deal with data that violate this assumption, but they often rely on restrictive functions or limit the ability to estimate the effects of covariates on survival. **Random survival forests** provide an attractive non-parameteric alternative to these models[^10].
+This is a strong assumption and is often viewed as impractical as it is more often than not violated. There are a number of extensions that aim to deal with data that violate this assumption, but they often rely on restrictive functions or limit the ability to estimate the effects of covariates on survival. **Random survival forests** provide an attractive non-parametric alternative to these models[^10].
 
 [^10]: Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A comparison of the conditional inference survival forest model to random survival forests based on a simulation study as well as on two applications with time-to-event data. *BMC medical research methodology*, *17*(1), 1-17.
 
@@ -116,7 +116,7 @@ Used to analyze time to event survival data.
 
 Used to analyze time to event survival data.
 
-Random survival forests use splitting criterion based on survival time and censoring status. Survival trees are binary trees which recursively split tree nodes so that the dissimilarity between child nodes is maximized. Eventually the dissimilar cases are separated and each node becomes more homogenous. The predictive outcome is defined as the total number of deaths, which is derived from the ensemble cumulative hazard function (CHF).
+Random survival forests use splitting criterion based on survival time and censoring status. Survival trees are binary trees which recursively split tree nodes so that the dissimilarity between child nodes is maximized. Eventually the dissimilar cases are separated and each node becomes more homogeneous. The predictive outcome is defined as the total number of deaths, which is derived from the ensemble cumulative hazard function (CHF).
 
 The algorithm:
 
@@ -321,7 +321,7 @@ pbc.full <- coxph(Surv(time, status) ~ (.)^2, data =  pbc_use)
 
 ```
 
-Going through backwards elimination leaves us with a model with age, edema status (edema), serum bilirunbin (bili), serum albumin (albumin), urine copper (copper), aspartate aminotransferase (ast), standardised blood clotting time (protime), histologic stage of disease (stage) and the interactions between age and edema status, age and urine copper, and serum bilirunbin and aspartate aminotransferase.
+Going through backwards elimination leaves us with a model with age, edema status (edema), serum bilirunbin (bili), serum albumin (albumin), urine copper (copper), aspartate aminotransferase (ast), standardized blood clotting time (protime), histologic stage of disease (stage) and the interactions between age and edema status, age and urine copper, and serum bilirunbin and aspartate aminotransferase.
 
 Note that due to the nature of this dataset, some of the subgroups have not yet reached 50% survival as far as the scope of the information that we have goes. Thus, some survival times were not able to be implemented by our methods due to 'missingness'. To make up for this shortage, we utilized an oversampling technique to bootstrap sample for more observations which also ended up sampling for more censored observations in our data.
 
@@ -597,7 +597,9 @@ ggplot(pbc.var_imp_cif, aes(x = reorder(vars, -Overall, decreasing = TRUE),
 
 ```
 
+
 ![*RSF Variable Importance PBC Data. Bili, edema, and copper are among the top 3.*](img/rsf.var_imp_pbc.png)
+
 
 ```{r pbcvarimprsf, eval=FALSE}
 
@@ -619,7 +621,9 @@ ggplot(rf_imp_pbc, aes(x = reorder(variables, -importance, decreasing = TRUE),
 
 ```
 
+
 ![*CIF Variable Importance PBC Data. Bili, age, and stage are among the top 3.*](img/cif.var_imp_pbc.png)
+
 
 We can compare the variable importance rankings between the random survival forest and the conditional inference forest. Most notably, the scale of variable importance is larger in the conditional inference forest case than it is in the random survival forest. This is because even though bili is the most important predictor in both models, it is that much more important in the conditional inference forest. Additionally, we see that while edema and copper are 2nd and 3rd most important in the random survival forest, they are relatively not that important in the conditional inference forest. Conversely, while age and stage are important in the conditional inference forest, they are not as important in the random survival forest. One thing to note is that the variable edema can be viewed as a predictor with many split-points (greater than 2), taking on three unique values: 0, 0.5, and 1. We may be seeing the inherent bias problem coming into play here in the fact that the random survival forest favors that variable in terms of its importance.
 
@@ -670,7 +674,7 @@ turnover <- read_csv("data/turnover.csv")
 | age          | Employee's age (year)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | industry     | Employee's Industry                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | profession   | Employee's profession                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| traffic      | From what pipeline employee came to the company. 1. contacted the company directly (advert). 2. contacted the company directly on the recommendation of a friend that's not an employee of the company (recNErab). 3. contacted the company directly on the recommendation of a friend that IS an employee of the company (referal). 4. applied for a vacany on the job site (youjs) 5. recruiting agency brought you to the employer (KA) 6. invited by an employer known before employment (friends). 7. employer contacted on the recommendation of a person who knows the employee (rabrecNErab). 8. employer reached you through your resume on the job site (empjs). |
+| traffic      | From what pipeline employee came to the company. 1. contacted the company directly (advert). 2. contacted the company directly on the recommendation of a friend that's not an employee of the company (recNErab). 3. contacted the company directly on the recommendation of a friend that IS an employee of the company (referral). 4. applied for a vacancy on the job site (youjs) 5. recruiting agency brought you to the employer (KA) 6. invited by an employer known before employment (friends). 7. employer contacted on the recommendation of a person who knows the employee (rabrecNErab). 8. employer reached you through your resume on the job site (empjs). |
 | coach        | presence of a coach (training) on probation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | head_gender  | head (supervisor) gender (m/f)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | greywage     | The salary does not seem to the tax authorities. Greywage in Russia or Ukraine means that the employer (company) pay just a tiny bit amount of salary above the white-wage (white-wage means minimum wage) (white/gray)                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
@@ -939,7 +943,9 @@ ggplot(turn_rf_imp, aes(x = reorder(vars, importance, decreasing = TRUE),
 
 ```
 
+
 ![CIF Variable Importance Employee Turnover Data. Industry, age.way, and age are among the top 3.](img/cif.var_imp_turn.png)
+
 
 ![RSF Variable Importance Employee Turnover Data. Industry, age, and age.way are among the top 3.](img/rsf.var_imp_turn.png)
 
