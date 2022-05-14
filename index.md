@@ -18,7 +18,7 @@ the event of interest[2].
 
 Subjects are observed from baseline to some often pre-specified time at
 the end of study. Thus, not every subject will experience the event of
-interest within the observational period’s timeframe. In this case, we
+interest within the observational period’s time frame. In this case, we
 don’t know if or when these subjects will experience the event, we just
 know that they have not experienced it before or during the study
 period. This is called **censoring**, more specifically,
