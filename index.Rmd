@@ -172,7 +172,7 @@ The integrated Brier scores are given by:
 
 To avoid the problem of overfitting that arises from using the same data to train and test the model, we used the Bootstrap cross-validated estimates of the integrated Brier scores. The prediction errors are evaluated in each bootstrap sample.
 
-The prediction errors for each of our models will be implemented in the `pec` package in R. We set <img src="https://render.githubusercontent.com/render/math?math=B "/> = 50 and implement bootstrap cross-validation to get our estimates for the integrated brier scores. The models are assessed on the data samples that are NOT in the bootstrap sample (OOB data).
+The prediction errors for each of our models will be implemented in the `pec` package in R. We implement bootstrap cross-validation to get our estimates for the integrated brier scores. The models are assessed on the data samples that are NOT in the bootstrap sample (OOB data).
 
 ### PBC Data
 
@@ -354,7 +354,7 @@ Using random survival forests and conditional inference forests are useful alter
 
 **Random Survival Forest Implementation**
 
-In hyperparameter tuning, we found that an mtry value of 1 and a nodesize of 15 produced the lowest out-of-bag error (0.106).
+In hyperparameter tuning, we found that an mtry value of 1 and a nodesize of 5 produced the lowest out-of-bag error (0.107).
 
 ```{r, results='hide'}
 
@@ -391,7 +391,7 @@ pbc_rf <- rfsrc(Surv(time, status) ~ age + edema + bili + albumin +
   copper + ast + protime + stage + age:edema + age:copper + 
   bili:ast, 
   mtry = 1,
-  nodesize = 15,
+  nodesize = 5,
   data = pbc_use)
 
 ```
@@ -463,7 +463,7 @@ t_id2 <- which.min(abs(round(pbc_pred$survival[2,], 2) - .5))
 t_id3 <- which.min(abs(round(pbc_pred$survival[3,], 2) - .5))
 t_id4 <- which.min(abs(round(pbc_pred$survival[4,], 2) - .5))
 # obtain the times at which survival probability = 0.5 occurs
-Time[t_id1] # 1413
+Time[t_id1] # 1827
 Time[t_id2] # 1487
 Time[t_id3] # 3584
 Time[t_id4] # 3584
@@ -516,12 +516,12 @@ lines(Time, pbc_pred$survival[3,], col = "green")
 
 | id  | time | event | RSF median survival | CIF median survival |
 |-----|------|-------|---------------------|---------------------|
-| 69  | 3395 | 1     | 1413                | 1741                |
+| 69  | 3395 | 1     | 1827                | 1741                |
 | 40  | 1487 | 1     | 1487                | 1536                |
 | 140 | 3445 | 0     | 3584                | 3584                |
 | 153 | 2224 | 0     | 3584                | 3584                |
 
-For the observations that experienced death, the conditional inference forest model predicts a median survival time closer to time of death than the random survival forest model does. For the censored individuals #140 and #153, both models predict the same median survival times for both observations.
+For the observations that experienced death, the random forest model predicts a median survival time closer to time of death than the random survival forest model does. For the censored individuals #140 and #153, both models predict the same median survival times for both observations.
 
 [Variable Importance]{.underline}
 
@@ -551,7 +551,7 @@ ggplot(pbc.var_imp_cif, aes(x = reorder(vars, -Overall, decreasing = TRUE),
 
 ```
 
-![RSF Variable Importance PBC Data. Bili, edema, and copper are among the top 3.](img/rsf.var_imp_pbc.png)
+![*RSF Variable Importance PBC Data. Bili, edema, and copper are among the top 3.*](img/rsf.var_imp_pbc.png)
 
 ```{r pbcvarimprsf, eval=FALSE}
 
@@ -573,15 +573,15 @@ ggplot(rf_imp_pbc, aes(x = reorder(variables, -importance, decreasing = TRUE),
 
 ```
 
-![CIF Variable Importance PBC Data. Bili, age, and stage are among the top 3.](img/cif.var_imp_pbc.png)
+![*CIF Variable Importance PBC Data. Bili, age, and stage are among the top 3.*](img/cif.var_imp_pbc.png)
 
-We can compare the variable importance rankings between the random survival forest and the conditional inference forest.
+We can compare the variable importance rankings between the random survival forest and the conditional inference forest. Most notably, the scale of variable importance is larger in the conditional inference forest case than it is in the random survival forest. This is because even though bili is the most important predictor in both models, it is that much more important in the conditional inference forest. Additionally, we see that while edema and copper are 2nd and 3rd most important in the random survival forest, they are relatively not that important in the conditional inference forest. Conversely, while age and stage are important in the conditional inference forest, they are not as important in the random survival forest. One thing to note is that the variable edema can be viewed as a predictor with many split-points (greater than 2), taking on three unique values: 0, 0.5, and 1. We may be seeing the inherent bias problem coming into play here in the fact that the random survival forest favors that variable in terms of its importance.
 
 [Prediction Error Curves]{.underline}
 
 We can compare the prediction error curves for the random survival forest and the conditional inference forest models.
 
-Using bootstrap cross-validation, we see an integrated brier score of 0.07 for the random survival forest and 0.073 for the conditional inference forest. Recall that a lower score means better performance. While the random survival forest performs better here, we see that the difference is marginal and perhaps negligible.
+Using bootstrap cross-validation ( <img src="https://render.githubusercontent.com/render/math?math=B"/> = 50), we see an integrated brier score of 0.07 for the random survival forest and 0.073 for the conditional inference forest. Recall that a lower score means better performance. While the random survival forest performs better here, we see that the difference is marginal and perhaps negligible.
 
 ```{r, eval=FALSE}
 set.seed(1)
@@ -605,7 +605,6 @@ crps(fit_comp_pbc)
 plot(fit_comp_pbc, predErr = "BootCvErr")
 
 ```
-
 
 ### Employee Turnover Data
 
@@ -870,7 +869,7 @@ ggplot(turn.var_imp_cif, aes(x = reorder(vars, -Overall, decreasing = TRUE),
 
 [Prediction Error Curves]{.underline}
 
-We can compare the prediction error curves of the two models. Recall that these estimates are based on the average brier scores computed at different time points.
+We can compare the prediction error curves of the two models. Recall that these estimates are based on the average brier scores computed at different time points. We reduce <img src="https://render.githubusercontent.com/render/math?math=B"/> = 5 for computation and run-time purposes.
 
 ```{r}
 
@@ -888,9 +887,7 @@ predictSurvProb.ranger <- function (object, newdata, times, ...) {
 
 ```
 
-
-
-```{r, results='hide', eval=FALSE}
+```{r, results='hide'}
 
 form <- as.formula(paste("Surv(stag, event)~",
        paste(turn_rf$forest$independent.variable.names, collapse="+")))

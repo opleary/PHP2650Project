@@ -260,11 +260,9 @@ estimates of the integrated Brier scores. The prediction errors are
 evaluated in each bootstrap sample.
 
 The prediction errors for each of our models will be implemented in the
-`pec` package in R. We set
-<img src="https://render.githubusercontent.com/render/math?math=B "/> =
-50 and implement bootstrap cross-validation to get our estimates for the
-integrated brier scores. The models are assessed on the data samples
-that are NOT in the bootstrap sample (OOB data).
+`pec` package in R. We implement bootstrap cross-validation to get our
+estimates for the integrated brier scores. The models are assessed on
+the data samples that are NOT in the bootstrap sample (OOB data).
 
 ### PBC Data
 
@@ -397,7 +395,7 @@ otherwise, making **death our event of interest**.
 
     # test two-way interactions
     pbc.full <- coxph(Surv(time, status) ~ (.)^2, data =  pbc_use)
-    step(pbc.full, direction = "backward")
+    #step(pbc.full, direction = "backward")
 
 Going through backwards elimination leaves us with a model with age,
 edema status (edema), serum bilirunbin (bili), serum albumin (albumin),
@@ -450,7 +448,7 @@ useful alternatives in this case.
 **Random Survival Forest Implementation**
 
 In hyperparameter tuning, we found that an mtry value of 1 and a
-nodesize of 15 produced the lowest out-of-bag error (0.106).
+nodesize of 5 produced the lowest out-of-bag error (0.107).
 
 ![PBC OOB Error on Parameter
 Values](index_files/figure-markdown_strict/parampbc-1.png)
@@ -461,7 +459,7 @@ Values](index_files/figure-markdown_strict/parampbc-1.png)
       copper + ast + protime + stage + age:edema + age:copper + 
       bili:ast, 
       mtry = 1,
-      nodesize = 15,
+      nodesize = 5,
       data = pbc_use)
 
 **Conditional Inference Forest Implementation**
@@ -498,7 +496,7 @@ of both of the models to what is observed.
 <td>69</td>
 <td>3395</td>
 <td>1</td>
-<td>1413</td>
+<td>1827</td>
 <td>1741</td>
 </tr>
 <tr class="even">
@@ -525,33 +523,49 @@ of both of the models to what is observed.
 </tbody>
 </table>
 
-For the observations that experienced death, the conditional inference
-forest model predicts a median survival time closer to time of death
-than the random survival forest model does. For the censored individuals
-\#140 and \#153, both models predict the same median survival times for
-both observations.
+For the observations that experienced death, the random forest model
+predicts a median survival time closer to time of death than the random
+survival forest model does. For the censored individuals \#140 and
+\#153, both models predict the same median survival times for both
+observations.
 
 <u>Variable Importance</u>
 
-![RSF Variable Importance PBC Data. Bili, edema, and copper are among
-the top 3.](img/rsf.var_imp_pbc.png)
+![*RSF Variable Importance PBC Data. Bili, edema, and copper are among
+the top 3.*](img/rsf.var_imp_pbc.png)
 
-![CIF Variable Importance PBC Data. Bili, age, and stage are among the
-top 3.](img/cif.var_imp_pbc.png)
+![*CIF Variable Importance PBC Data. Bili, age, and stage are among the
+top 3.*](img/cif.var_imp_pbc.png)
 
 We can compare the variable importance rankings between the random
-survival forest and the conditional inference forest.
+survival forest and the conditional inference forest. Most notably, the
+scale of variable importance is larger in the conditional inference
+forest case than it is in the random survival forest. This is because
+even though bili is the most important predictor in both models, it is
+that much more important in the conditional inference forest.
+Additionally, we see that while edema and copper are 2nd and 3rd most
+important in the random survival forest, they are relatively not that
+important in the conditional inference forest. Conversely, while age and
+stage are important in the conditional inference forest, they are not as
+important in the random survival forest. One thing to note is that the
+variable edema can be viewed as a predictor with many split-points
+(greater than 2), taking on three unique values: 0, 0.5, and 1. We may
+be seeing the inherent bias problem coming into play here in the fact
+that the random survival forest favors that variable in terms of its
+importance.
 
 <u>Prediction Error Curves</u>
 
 We can compare the prediction error curves for the random survival
 forest and the conditional inference forest models.
 
-Using bootstrap cross-validation, we see an integrated brier score of
-0.07 for the random survival forest and 0.073 for the conditional
-inference forest. Recall that a lower score means better performance.
-While the random survival forest performs better here, we see that the
-difference is marginal and perhaps negligible.
+Using bootstrap cross-validation (
+<img src="https://render.githubusercontent.com/render/math?math=B"/> =
+50), we see an integrated brier score of 0.07 for the random survival
+forest and 0.073 for the conditional inference forest. Recall that a
+lower score means better performance. While the random survival forest
+performs better here, we see that the difference is marginal and perhaps
+negligible.
 
 ### Employee Turnover Data
 
@@ -795,6 +809,17 @@ traffic are among the top 3.](img/cif.var_imp_turn.png)
 
 We can compare the prediction error curves of the two models. Recall
 that these estimates are based on the average brier scores computed at
-different time points.
+different time points. We reduce
+<img src="https://render.githubusercontent.com/render/math?math=B"/> = 5
+for computation and run-time purposes.
+
+    ## 
+    ## Integrated Brier score (crps):
+    ## 
+    ##         AppErr BootCvErr
+    ## rsfc     0.079     0.155
+    ## cforest  0.061     0.121
+
+![](index_files/figure-markdown_strict/unnamed-chunk-40-1.png)
 
 {% include lib/mathjax.html %}
