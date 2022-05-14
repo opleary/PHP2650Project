@@ -102,7 +102,7 @@ In the case of continuous covariates, this assumption can also be checked using 
 
 [^9]: Hess, K. R. (1995). Graphical methods for assessing violations of the proportional hazards assumption in Cox regression. *Statistics in medicine*, *14*(15), 1707-1723.
 
-![*The proportional hazards assumption is satisfied if we see a random-spread against time for the covariates in the data (i.e. there's a non-significant relationship (p-value \> 0.05) between the residuals and time).*](img/schoenfeld.png)
+![*The proportional hazards assumption is satisfied if we see a random-spread against time for the covariates in the data (i.e. there's a non-significant relationship (p-value \> 0.05) between the residuals and time).*](img/schoenfeld.png){width="568"}
 
 This is a strong assumption and is often viewed as impractical as it is more often than not violated. There are a number of extensions that aim to deal with data that violate this assumption, but they often rely on restrictive functions or limit the ability to estimate the effects of covariates on survival. **Random survival forests** provide an attractive non-parameteric alternative to these models[^10].
 
