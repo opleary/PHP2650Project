@@ -206,17 +206,17 @@ The algorithm:
 1.  For case weights *w*, set the global null hypothesis of independence
     between any of the *p* covariates and the response variable. Stop
     the algorithm if we fail to reject the null hypothesis. Otherwise,
-    select the *j*th covariate *X<sub>j\*</sub>* with the strongest
+    select the *j*th covariate *X<sub>j</sub>* with the strongest
     association to *T*.
 
 2.  Select a set *A* in *X<sub>j</sub>* in order to split
-    *X<sub>j\*</sub>* into two disjoint sets: *A* and *X<sub>j</sub>*
-    without *A\**. The weights w<sub>a</sub> and w<sub>b</sub> determine
+    *X<sub>j</sub>* into two disjoint sets: *A\** and *X<sub>j</sub>*
+    without *A*. The weights w<sub>a</sub> and w<sub>b</sub> determine
     the two subgroups with
 
 <center>
 
-<img src="img/weights2.png" width="462" />
+<img src="img/weights2.png.png" width="462" />
 
 </center>
 
@@ -480,18 +480,18 @@ model as a whole.
     test.ph
 
     ##             chisq df       p
-    ## age        10.869  1 0.00098
-    ## edema       1.109  1 0.29228
-    ## bili        6.760  1 0.00932
-    ## albumin     3.589  1 0.05816
-    ## copper      0.917  1 0.33837
-    ## ast         0.709  1 0.39969
-    ## protime    14.486  1 0.00014
-    ## stage      17.349  1 3.1e-05
-    ## age:edema   1.044  1 0.30698
-    ## age:copper  0.281  1 0.59625
-    ## bili:ast   11.952  1 0.00055
-    ## GLOBAL     63.574 11 2.0e-09
+    ## age        10.884  1 0.00097
+    ## edema       1.115  1 0.29091
+    ## bili        6.809  1 0.00907
+    ## albumin     3.630  1 0.05673
+    ## copper      0.932  1 0.33430
+    ## ast         0.716  1 0.39761
+    ## protime    14.552  1 0.00014
+    ## stage      17.315  1 3.2e-05
+    ## age:edema   1.053  1 0.30492
+    ## age:copper  0.292  1 0.58908
+    ## bili:ast   11.955  1 0.00055
+    ## GLOBAL     63.669 11 1.9e-09
 
 ![](index_files/figure-markdown_strict/unnamed-chunk-16-1.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-2.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-3.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-4.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-5.png)
 
@@ -639,8 +639,8 @@ negligible.
     ## Integrated Brier score (crps):
     ## 
     ##         AppErr BootCvErr
-    ## rsf      0.041     0.067
-    ## cforest  0.054     0.072
+    ## rsf      0.041     0.068
+    ## cforest  0.054     0.073
 
 ![](index_files/figure-markdown_strict/unnamed-chunk-27-1.png)
 
