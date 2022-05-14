@@ -882,10 +882,32 @@ ggplot(turn.var_imp_cif, aes(x = reorder(vars, -Overall, decreasing = TRUE),
   theme(legend.position = "none")
 
 
+turn.rf.imp <- ranger(Surv(stag, event) ~ age + industry + profession + traffic + 
+        greywage + way + selfcontrol + anxiety +
+          age.way + way.selfcontrol,
+       data =  turn_use,
+       importance = 'permutation')
+
+turn.rf.imp$variable.importance
+turn_rf_imp <- data.frame(importance = turn.rf.imp$variable.importance) %>%
+  arrange(desc(importance))
+turn_rf_imp$vars <- rownames(turn_rf_imp)
+
+ggplot(turn_rf_imp, aes(x = reorder(vars, importance, decreasing = TRUE), 
+                        y = importance, 
+                        fill = vars)) +
+  geom_col() +
+  coord_flip() +
+  labs(x = "variables", 
+       y = "RSF Variable Importance") + theme_bw() +
+  theme(legend.position = "none")
 
 ```
 
 ![CIF Variable Importance Employee Turnover Data. Industry, age, and traffic are among the top 3.](img/cif.var_imp_turn.png)
+
+![RSF Variable Importance Employee Turnover Data. Industry, age, and age.way are among the top 3.](img/cif.var_imp_turn.png)
+
 
 [Prediction Error Curves]{.underline}
 
