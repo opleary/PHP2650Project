@@ -742,6 +742,10 @@ inference forests can be useful alternatives with this data as well.
 
 **Random Survival Forest Implementation**
 
+In hyperparameter tuning which was done by changing mtry values using the ranger function, we found that an mtry value of 2 produced the loest out-of-bag error (0.313).
+
+![](img/turning.tuning.plot.png)
+
 Note that to run random survival forest for the employee turnover data,
 due to computational issues, we’ve switched to using the `ranger`
 function from the `ranger` package in R. We’ll run a parameter tuned
