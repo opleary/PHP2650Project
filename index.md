@@ -776,28 +776,28 @@ survival = 0.5) to what is observed.
 <td>129</td>
 <td>49.38</td>
 <td>1</td>
-<td></td>
+<td>49.3</td>
 <td>21.6</td>
 </tr>
 <tr class="even">
 <td>509</td>
 <td>73.3</td>
 <td>1</td>
-<td></td>
+<td>74.1</td>
 <td>73.3</td>
 </tr>
 <tr class="odd">
 <td>471</td>
 <td>14.49</td>
 <td>0</td>
-<td></td>
+<td>164.6</td>
 <td>80.2</td>
 </tr>
 <tr class="even">
 <td>299</td>
 <td>73.43</td>
 <td>0</td>
-<td></td>
+<td>179.4</td>
 <td>133.0</td>
 </tr>
 </tbody>
