@@ -513,17 +513,16 @@ lines(Time, pbc_pred$survival[3,])
 
 ```
 
-| id  | time | event | CIF median survival | RSF median survival |
+| id  | time | event | RSF median survival | CIF median survival |
 |-----|------|-------|---------------------|---------------------|
-| 69  | 3395 | 1     | 1741                | 1413                |
-| 40  | 1487 | 1     | 1536                | 1487                |
+| 69  | 3395 | 1     | 1413                | 1741                |
+| 40  | 1487 | 1     | 1487                | 1536                |
 | 140 | 3445 | 0     | 3584                | 3584                |
 | 153 | 2224 | 0     | 3584                | 3584                |
 
 For the observations that experienced death, the conditional inference forest model predicts a median survival time closer to time of death than the random survival forest model does. For the censored individuals #140 and #153, both models predict the same median survival times for both observations.
 
 [Variable Importance]{.underline}
-
 
 ```{r, eval = FALSE}
 ## VAR IMP CIF ##
@@ -551,7 +550,6 @@ ggplot(pbc.var_imp_cif, aes(x = reorder(vars, -Overall, decreasing = TRUE),
 
 ```
 
-
 ![RSF Variable Importance PBC Data. Bili, edema, and copper are among the top 3.](img/rsf.var_imp_pbc.png)
 
 ```{r pbcvarimprsf, eval=FALSE}
@@ -576,14 +574,13 @@ ggplot(rf_imp_pbc, aes(x = reorder(variables, -importance, decreasing = TRUE),
 
 ![CIF Variable Importance PBC Data. Bili, age, and stage are among the top 3.](img/cif.var_imp_pbc.png)
 
-We can compare the variable importance rankings between the random survival forest and the conditional inference forest. 
-
+We can compare the variable importance rankings between the random survival forest and the conditional inference forest.
 
 [Prediction Error Curves]{.underline}
 
 We can compare the prediction error curves for the random survival forest and the conditional inference forest models.
 
-Using bootstrap cross-validation, we see an integrated brier score of 0.07 for the random survival forest and 0.073 for the conditional inference forest. Recall that a lower score means better performance. While the random survival forest performs better here, we see that the difference is marginal and perhaps negligible. 
+Using bootstrap cross-validation, we see an integrated brier score of 0.07 for the random survival forest and 0.073 for the conditional inference forest. Recall that a lower score means better performance. While the random survival forest performs better here, we see that the difference is marginal and perhaps negligible.
 
 ```{r, eval=FALSE}
 set.seed(1)
@@ -607,9 +604,6 @@ crps(fit_comp_pbc)
 plot(fit_comp_pbc, predErr = "BootCvErr")
 
 ```
-
-
-
 
 ### Employee Turnover Data
 
@@ -711,7 +705,9 @@ schoenplot1_turn$`3`
 
 The output from the test tells us that the test is statistically significant for profession at a significance level of 0.05. It's also globally statistically significant with a p-value of 0.007. Thus, the PH assumption is violated and random survival forests and conditional inference forests can be useful alternatives with this data as well.
 
-**Random Forest Implementation**
+**Random Survival Forest Implementation**
+
+Note that to run random survival forest for the employee turnover data, due to computational issues, we've switched to using the `ranger` function from the `ranger` package in R.
 
 ```{r}
 
@@ -721,9 +717,10 @@ turn_use$way.selfcontrol <- interaction(turn_use$way,
 
 ```
 
+```{r, echo=TRUE}
 
-```{r}
-
+set.seed(1)
+# random survival forest
 turn_rf <- ranger(Surv(stag, event) ~ age + industry + profession + traffic + 
         greywage + way + selfcontrol + anxiety +
           age.way + way.selfcontrol,
@@ -732,29 +729,38 @@ turn_rf <- ranger(Surv(stag, event) ~ age + industry + profession + traffic +
 
 ```
 
-
 **Conditional Inference Forest Implementation**
 
 We'll run a conditional inference forest model next with the variables and interactions that we identified in variable selection.
 
 ```{r, echo=TRUE}
 
+set.seed(1)
 turn_cif <- pecCforest(Surv(stag, event) ~ age + industry + profession + traffic + 
-        greywage + way + selfcontrol + anxiety,
+        greywage + way + selfcontrol + anxiety +
+          age.way + way.selfcontrol,
        data =  turn_use)
 
 
 
 ```
 
-We can plot the predicted survival curves for 3 random individuals in our data and compare the predicted median survival time ( the time where the probability of survival = 0.5) to what is observed.
+**Comparing the Models**
+
+Similar to the PBC data, we will choose 4 random individuals in the study, 2 who experienced the event of interest and 2 who are censored, and plot and compare their predicted survival curves as well as their predicted median survival times ( the time where the probability of survival = 0.5) to what is observed.
 
 ```{r}
 
 set.seed(1)
-rand_inds_turn <- sample(1:nrow(turn_use), 3)
+rand_inds_turn_event <- sample(nrow(turn_use[turn_use$event == 1,]), 2)
+rand_inds_turn_cens <- sample(nrow(turn_use[turn_use$event == 0,]), 2)
+rand_data_turn <- rbind(turn_use[turn_use$event == 1,][rand_inds_turn_event, ],
+                       turn_use[turn_use$event == 0,][rand_inds_turn_cens, ])
 
-cif.predict3_turn <- treeresponse(turn_cif$forest, newdata = turn_use[rand_inds_turn, ])
+cif.predict3_turn <- treeresponse(turn_cif$forest, 
+                                 newdata = rand_data_turn)
+
+
 
 ```
 
@@ -763,6 +769,7 @@ cif.predict3_turn <- treeresponse(turn_cif$forest, newdata = turn_use[rand_inds_
 cif.predict3_turn$`1`
 cif.predict3_turn$`2`
 cif.predict3_turn$`3`
+cif.predict3_turn$`4`
 
 
 #fit <- survfit(Surv(stag, event) ~ age + industry + profession + traffic + 
@@ -774,30 +781,56 @@ cif.predict3_turn$`3`
 
 ```{r}
 
+par(mfrow = c(2,2))
+# Compare the two methods by plotting
 plot(cif.predict3_turn$`1`, col = "blue",
-     main = "Turnover Predicted Survival Curves for 3 Individuals",
+     main = "Turn Pred. Survival Individual 129",
+     sub = "Event Experienced",
      xlab = "time",
      ylab = "Survival Probability")
-lines(cif.predict3_turn$`2`, col = "green", add = T)
-lines(cif.predict3_turn$`3`, col = "orange", add = T)
-legend(x = "topright",          # Position
-       legend = c("1", "2", "3"),  # Legend texts
-       title = "id",           
-       col = c("blue", "green", "orange"),          
-       lwd = 2)    
+#lines(Time, pbc_pred$survival[1,])
+#legend(4000, -0.46,          # Position
+    #   legend = c("CIF", "RSF"),  # Legend texts
+  #     title = "Method",           
+#       col = c("red", "black"),          
+#       lwd = 2,
+#       xpd = "NA",
+#       cex = 0.8)   
+
+plot(cif.predict3_turn$`2`, col = "blue",
+     main = "Turn Pred. Survival Individual 509",
+     sub = "Event Experienced",
+     xlab = "time",
+     ylab = "Survival Probability")
+#lines(Time, pbc_pred$survival[2,])
+  
+
+plot(cif.predict3_turn$`3`, col = "blue",
+     main = "PBC Pred. Survival Individual 471",
+     sub = "Censored",
+     xlab = "time",
+     ylab = "Survival Probability")
+lines(Time, pbc_pred$survival[3,])
+  
+
+plot(cif.predict3_turn$`4`, col = "blue",
+     main = "PBC Pred. Survival Individual 299",
+     sub = "Censored",
+     xlab = "time",
+     ylab = "Survival Probability")
+#lines(Time, pbc_pred$survival[3,])
 
 
 ```
 
-| id  | time  | event | median survival |
-|-----|-------|-------|-----------------|
-| 1   | 57.53 | 0     | 61.8            |
-| 2   | 1.41  | 1     | 24              |
-| 3   | 38.8  | 1     | 45.9            |
+| id  | time  | event | RSF median survival | CIF median survival |
+|-----|-------|-------|---------------------|---------------------|
+| 129 | 49.38 | 1     |                     | 21.6                |
+| 509 | 73.3  | 1     |                     | 73.3                |
+| 471 | 14.49 | 0     |                     | 80.2                |
+| 299 | 73.43 | 0     |                     | 133.0               |
 
-We see that for the two individuals that experience turnover within the observational period, they turnover before their predicted median survival time. This is especially true for the second individual who only has a time of 1.41 before terminating their employment with their organization. Still, we see a trend in the median survival times, accurate to the order observed in time to event of the 3 individuals.
-
-**Comparing the Models**
+We see that....
 
 [Variable Importance]{.underline}
 
@@ -805,8 +838,10 @@ First, we'll compare the variables that the random survival forest model and the
 
 ```{r, eval=FALSE}
 
+set.seed(1)
 turn_cif_var <- party::cforest(Surv(stag, event) ~ age + industry + profession + traffic + 
-        greywage + way + selfcontrol + anxiety + age:way + way:selfcontrol,
+        greywage + way + selfcontrol + anxiety + 
+          age.way + way.selfcontrol,
        data =  turn_use)
 
 
@@ -835,24 +870,25 @@ ggplot(turn.var_imp_cif, aes(x = reorder(vars, -Overall, decreasing = TRUE),
 
 We can compare the prediction error curves of the two models. Recall that these estimates are based on the average brier scores computed at different time points.
 
-```{r, results='hide'}
+```{r, results='hide', eval=FALSE}
 
-fit_comp_turn <- pec(list("cforest" = turn_cif, "rsfc" = turn_rf), data = turn_use, 
-              formula=Surv(stag,event)~age + industry + profession + traffic + 
-        greywage + way + selfcontrol + anxiety + age:way + way:selfcontrol,  
+fit_comp_turn <- pec(list("rsfc" = turn_rf, "cforest" = turn_cif), 
+                     data = turn_use, 
+              formula=Surv(stag,event) ~ age + industry + profession + traffic + 
+        greywage + way + selfcontrol + anxiety + age.way + way.selfcontrol,  
               splitMethod = "BootCv",
         B = 50,
         reference = FALSE
               )
 ```
 
-```{r}
+```{r, eval = FALSE}
 
-fit_comp_turn
+crps(fit_comp_turn)
 
 ```
 
-```{r}
+```{r, eval=FALSE}
 
 plot(fit_comp_turn, predErr = "BootCvErr")
 

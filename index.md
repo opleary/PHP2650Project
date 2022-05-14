@@ -51,6 +51,8 @@ In standard survival analysis, the **survival function**, S(t) is what
 defines the probability that the event of interest has **not** yet
 happened at time = t.
 
+<img src="https://render.githubusercontent.com/render/math?math=\Large S(t) = P(T &gt; t)"/>
+
 S(t) is non-increasing and ranges between 0 and 1. The hazard function
 on the other hand is defined as the instantaneous risk of an individual
 experiencing the event of interest within a small time frame.
@@ -198,6 +200,13 @@ the employee attrition information of 1,129 employees.
 Unlike the PBC dataset, this data consists of many categorical variables
 with most of them having more than two-levels (many split-points).
 
+**Model Tuning**
+
+In the case of the random survival forest model, we will tune for two
+parameter values, number of variables to possibly split at each node
+(mtry) and minimum size of terminal node (nodesize). We will choose the
+combination on each data set that yields the lowest out-of-bag error.
+
 **Evaluating the Models: Variable Importance**
 
 For each model, we will assess the ranked **variable importance**. We’ll
@@ -243,7 +252,7 @@ survival function of the censoring times.
 
 The integrated Brier scores are given by:
 
-*I**B**S* = ∫<sub>0</sub><sup>*m**a**x*(*t*)</sup>*B**S*(*t*)*d**t*
+<img src="https://render.githubusercontent.com/render/math?math=IBS = \int_0^{max(t)} BS(t)dt"/>
 
 To avoid the problem of overfitting that arises from using the same data
 to train and test the model, we used the Bootstrap cross-validated
@@ -272,8 +281,8 @@ contains many covariates collected during the clinical trial.
 
 <table>
 <colgroup>
-<col style="width: 30%" />
-<col style="width: 69%" />
+<col style="width: 36%" />
+<col style="width: 63%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -413,37 +422,51 @@ model as a whole.
     test.ph <- cox.zph(pbc_cox)
     test.ph
 
-    ##              chisq df     p
-    ## age         0.3869  1 0.534
-    ## edema       1.8393  1 0.175
-    ## bili        4.6535  1 0.031
-    ## albumin     0.1930  1 0.660
-    ## copper      0.0297  1 0.863
-    ## ast         0.5231  1 0.470
-    ## protime     3.9768  1 0.046
-    ## stage       2.8331  1 0.092
-    ## age:edema   3.2337  1 0.072
-    ## age:copper  0.0880  1 0.767
-    ## bili:ast    6.4185  1 0.011
-    ## GLOBAL     20.1396 11 0.043
+    ##             chisq df       p
+    ## age        10.855  1 0.00099
+    ## edema       1.127  1 0.28835
+    ## bili        6.850  1 0.00886
+    ## albumin     3.640  1 0.05640
+    ## copper      0.956  1 0.32831
+    ## ast         0.729  1 0.39336
+    ## protime    14.456  1 0.00014
+    ## stage      17.276  1 3.2e-05
+    ## age:edema   1.063  1 0.30243
+    ## age:copper  0.305  1 0.58047
+    ## bili:ast   12.027  1 0.00052
+    ## GLOBAL     63.518 11 2.0e-09
 
-![](index_files/figure-markdown_strict/unnamed-chunk-9-1.png)![](index_files/figure-markdown_strict/unnamed-chunk-9-2.png)![](index_files/figure-markdown_strict/unnamed-chunk-9-3.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-10-1.png)![](index_files/figure-markdown_strict/unnamed-chunk-10-2.png)![](index_files/figure-markdown_strict/unnamed-chunk-10-3.png)![](index_files/figure-markdown_strict/unnamed-chunk-10-4.png)![](index_files/figure-markdown_strict/unnamed-chunk-10-5.png)
 
 The output from the test tells us that the test is statistically
-significant for bili, protime, and the interaction between bili and ast
-at a significance level of 0.05. It’s also globally statistically
-significant with a p-value of 0.04. Thus, the PH assumption is violated.
+significant for age, bili, protime, stage, and the interaction between
+bili and ast at a significance level of 0.05. It’s also globally
+statistically significant with a p-value of 2e-09. Thus, the PH
+assumption is violated.
 
 Using random survival forests and conditional inference forests are
 useful alternatives in this case.
 
-We’ll start by splitting our data into a 75/25 training-testing set. Our
-training and testing sets have 313 and 105 observations respectively.
-
 **Random Survival Forest Implementation**
+
+In hyperparameter tuning, we found that an mtry value of 1 and a
+nodesize of 15 produced the lowest out-of-bag error (0.106).
+
+![PBC OOB Error on Parameter
+Values](index_files/figure-markdown_strict/parampbc-1.png)
+
+    set.seed(1)
+    # random forest
+    pbc_rf <- rfsrc(Surv(time, status) ~ age + edema + bili + albumin + 
+      copper + ast + protime + stage + age:edema + age:copper + 
+      bili:ast, 
+      mtry = 1,
+      nodesize = 15,
+      data = pbc_use)
 
 **Conditional Inference Forest Implementation**
 
+    set.seed(1)
     # run conditional inference forest
 
     pbc_cif <- pecCforest(Surv(time, status) ~ age + edema + bili + albumin + 
@@ -451,11 +474,14 @@ training and testing sets have 313 and 105 observations respectively.
       bili:ast,
       data = pbc_use)
 
-We can plot the predicted survival curves for 3 random individuals in
-our data and compare the predicted median survival time ( the time where
-the probability of survival = 0.5) to what is observed.
+**Comparing the Models**
 
-![](index_files/figure-markdown_strict/unnamed-chunk-15-1.png)
+We can plot the predicted survival curves for 4 random individuals in
+our data (2 censored and 2 non-censored) and compare the predicted
+median survival times (the time where the probability of survival = 0.5)
+of both of the models to what is observed.
+
+![](index_files/figure-markdown_strict/unnamed-chunk-18-1.png)
 
 <table>
 <thead>
@@ -463,47 +489,69 @@ the probability of survival = 0.5) to what is observed.
 <th>id</th>
 <th>time</th>
 <th>event</th>
-<th>median survival</th>
+<th>RSF median survival</th>
+<th>CIF median survival</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>261</td>
-<td>1677</td>
-<td>0</td>
-<td>2288</td>
+<td>69</td>
+<td>3395</td>
+<td>1</td>
+<td>1413</td>
+<td>1741</td>
 </tr>
 <tr class="even">
-<td>186</td>
-<td>1576</td>
+<td>40</td>
+<td>1487</td>
 <td>1</td>
-<td>1576</td>
+<td>1487</td>
+<td>1536</td>
 </tr>
 <tr class="odd">
 <td>140</td>
-<td>3059</td>
+<td>3445</td>
 <td>0</td>
-<td>4191</td>
+<td>3584</td>
+<td>3584</td>
+</tr>
+<tr class="even">
+<td>153</td>
+<td>2224</td>
+<td>0</td>
+<td>3584</td>
+<td>3584</td>
 </tr>
 </tbody>
 </table>
 
-The observation that experiences death dies at the exact time that the
-model predict that patient has a 50% chance of survival. The two other
-observations, which are censored, have more time beyond the scope of
-their observational periods before they have a 50% chance of surviving.
-
-**Comparing the Models**
+For the observations that experienced death, the conditional inference
+forest model predicts a median survival time closer to time of death
+than the random survival forest model does. For the censored individuals
+\#140 and \#153, both models predict the same median survival times for
+both observations.
 
 <u>Variable Importance</u>
 
+![RSF Variable Importance PBC Data. Bili, edema, and copper are among
+the top 3.](img/rsf.var_imp_pbc.png)
+
 ![CIF Variable Importance PBC Data. Bili, age, and stage are among the
 top 3.](img/cif.var_imp_pbc.png)
+
+We can compare the variable importance rankings between the random
+survival forest and the conditional inference forest.
 
 <u>Prediction Error Curves</u>
 
 We can compare the prediction error curves for the random survival
 forest and the conditional inference forest models.
+
+Using bootstrap cross-validation, we see an integrated brier score of
+0.07 for the random survival forest and 0.073 for the conditional
+inference forest. Recall that a lower score means better performance.
+While the random survival forest performs better here, we see that the
+difference is marginal and perhaps negligible.
 
 ### Employee Turnover Data
 
@@ -515,8 +563,8 @@ information.
 
 <table>
 <colgroup>
-<col style="width: 30%" />
-<col style="width: 69%" />
+<col style="width: 36%" />
+<col style="width: 63%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -648,7 +696,7 @@ We can test the proportional-hazards assumption for this model using the
     ## way:selfcontrol  0.6640  2 0.71750
     ## GLOBAL          73.0448 46 0.00677
 
-![](index_files/figure-markdown_strict/unnamed-chunk-26-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-29-1.png)
 
 The output from the test tells us that the test is statistically
 significant for profession at a significance level of 0.05. It’s also
@@ -656,22 +704,39 @@ globally statistically significant with a p-value of 0.007. Thus, the PH
 assumption is violated and random survival forests and conditional
 inference forests can be useful alternatives with this data as well.
 
-**Random Forest Implementation**
+**Random Survival Forest Implementation**
+
+Note that to run random survival forest for the employee turnover data,
+due to computational issues, we’ve switched to using the `ranger`
+function from the `ranger` package in R.
+
+    set.seed(1)
+    # random survival forest
+    turn_rf <- ranger(Surv(stag, event) ~ age + industry + profession + traffic + 
+            greywage + way + selfcontrol + anxiety +
+              age.way + way.selfcontrol,
+           data =  turn_use)
 
 **Conditional Inference Forest Implementation**
 
 We’ll run a conditional inference forest model next with the variables
 and interactions that we identified in variable selection.
 
+    set.seed(1)
     turn_cif <- pecCforest(Surv(stag, event) ~ age + industry + profession + traffic + 
-            greywage + way + selfcontrol + anxiety + age:way + way:selfcontrol,
+            greywage + way + selfcontrol + anxiety +
+              age.way + way.selfcontrol,
            data =  turn_use)
 
-We can plot the predicted survival curves for 3 random individuals in
-our data and compare the predicted median survival time ( the time where
-the probability of survival = 0.5) to what is observed.
+**Comparing the Models**
 
-![](index_files/figure-markdown_strict/unnamed-chunk-30-1.png)
+Similar to the PBC data, we will choose 4 random individuals in the
+study, 2 who experienced the event of interest and 2 who are censored,
+and plot and compare their predicted survival curves as well as their
+predicted median survival times ( the time where the probability of
+survival = 0.5) to what is observed.
+
+![](index_files/figure-markdown_strict/unnamed-chunk-35-1.png)
 
 <table>
 <thead>
@@ -679,39 +744,43 @@ the probability of survival = 0.5) to what is observed.
 <th>id</th>
 <th>time</th>
 <th>event</th>
-<th>median survival</th>
+<th>RSF median survival</th>
+<th>CIF median survival</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td>129</td>
+<td>49.38</td>
 <td>1</td>
-<td>57.53</td>
-<td>0</td>
-<td>61.8</td>
+<td></td>
+<td>21.6</td>
 </tr>
 <tr class="even">
-<td>2</td>
-<td>1.41</td>
+<td>509</td>
+<td>73.3</td>
 <td>1</td>
-<td>24</td>
+<td></td>
+<td>73.3</td>
 </tr>
 <tr class="odd">
-<td>3</td>
-<td>38.8</td>
-<td>1</td>
-<td>45.9</td>
+<td>471</td>
+<td>14.49</td>
+<td>0</td>
+<td></td>
+<td>80.2</td>
+</tr>
+<tr class="even">
+<td>299</td>
+<td>73.43</td>
+<td>0</td>
+<td></td>
+<td>133.0</td>
 </tr>
 </tbody>
 </table>
 
-We see that for the two individuals that experience turnover within the
-observational period, they turnover before their predicted median
-survival time. This is especially true for the second individual who
-only has a time of 1.41 before terminating their employment with their
-organization. Still, we see a trend in the median survival times,
-accurate to the order observed in time to event of the 3 individuals.
-
-**Comparing the Models**
+We see that….
 
 <u>Variable Importance</u>
 
@@ -727,43 +796,5 @@ traffic are among the top 3.](img/cif.var_imp_turn.png)
 We can compare the prediction error curves of the two models. Recall
 that these estimates are based on the average brier scores computed at
 different time points.
-
-    ## 
-    ## Prediction error curves
-    ## 
-    ## Prediction models:
-    ## 
-    ## cforest 
-    ## cforest 
-    ## 
-    ## Right-censored response of a survival model
-    ## 
-    ## No.Observations: 1129 
-    ## 
-    ## Pattern:
-    ##                 Freq
-    ##  event          571 
-    ##  right.censored 558 
-    ## 
-    ## IPCW: cox model
-    ## 
-    ## Method for estimating the prediction error:
-    ## 
-    ## Bootstrap cross-validation
-    ## 
-    ## Type: resampling
-    ## Bootstrap sample size:  1129 
-    ## No. bootstrap samples:  50 
-    ## Sample size:  1129 
-    ## 
-    ## Cumulative prediction error, aka Integrated Brier score  (IBS)
-    ##  aka Cumulative rank probability score
-    ## 
-    ## Range of integration: 0 and time=179.4 :
-    ## 
-    ## cforest :
-    ## [1] 0.19
-
-![](index_files/figure-markdown_strict/unnamed-chunk-34-1.png)
 
 {% include lib/mathjax.html %}
