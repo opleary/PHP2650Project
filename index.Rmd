@@ -40,15 +40,23 @@ library(randomForest)
 
 ## What is Survival Analysis?
 
-The main goal of survival analysis is to analyze and estimate the expected amount of time until an event of interest occurs for a subject or groups of subjects. Originally, survival analysis was developed for the primary use of measuring the lifespans of certain populations[^1]. However, over time its utilities have extended to a wide array of applications even outside of the domain of healthcare. Thus, while biological death continues to be the main outcome under the scrutiny of survival analysis, other outcomes of interest may include time to mechanical failure, time to repeat offense of a released inmate, time to the split of a financial stock and more! Time in survival analysis is relative and all subjects of interest are likened to a common starting point at baseline (t = 0) with a 100% probability of not experiencing the event of interest.
+The main goal of survival analysis is to analyze and estimate the expected amount of time until an event of interest occurs for a subject or groups of subjects. Originally, survival analysis was developed for the primary use of measuring the lifespans of certain populations[^1]. However, over time its utilities have extended to a wide array of applications even outside of the domain of healthcare. Thus, while biological death continues to be the main outcome under the scrutiny of survival analysis, other outcomes of interest may include time to mechanical failure, time to repeat offense of a released inmate, time to the split of a financial stock and more! Time in survival analysis is relative and all subjects of interest are likened to a common starting point at baseline (t = 0) with a 100% probability of not experiencing the event of interest[^2].
 
-Subjects are observed from baseline to some often pre-specified time at the end of study. Thus, not every subject will experience the event of interest within the observational period's time frame. In this case, we don't know if or when these subjects will experience the event, we just know that they have not experienced it during the study period. This is called **censoring**, more specifically, right-censoring. Right censoring is just one of multiple forms of censoring that survival data strives to adjust for and the form that we will focus on in this comprehensive review. Dropout is also a form of right censoring. The event of interest can happen during the specified time frame, outside of the time frame, or not at all but we don't know which scenario applies to the individuals that leave the study early.
+[^1]: Goel, M. K., Khanna, P., & Kishore, J. (2010). Understanding survival analysis: Kaplan-Meier estimate. *International journal of Ayurveda research*, *1*(4), 274.
+
+[^2]: Goel, M. K., Khanna, P., & Kishore, J. (2010). Understanding survival analysis: Kaplan-Meier estimate. *International journal of Ayurveda research*, *1*(4), 274.
+
+Subjects are observed from baseline to some often pre-specified time at the end of study. Thus, not every subject will experience the event of interest within the observational period's time frame. In this case, we don't know if or when these subjects will experience the event, we just know that they have not experienced it during the study period. This is called **censoring**, more specifically, right-censoring[^3]. Right censoring is just one of multiple forms of censoring that survival data strives to adjust for and the form that we will focus on in this comprehensive review. Dropout is also a form of right censoring. The event of interest can happen during the specified time frame, outside of the time frame, or not at all but we don't know which scenario applies to the individuals that leave the study early.
+
+[^3]: Prinja, S., Gupta, N., & Verma, R. (2010). Censoring in clinical trials: review of survival analysis techniques. *Indian journal of community medicine: official publication of Indian Association of Preventive & Social Medicine*, *35*(2), 217.
 
 ![*Right censoring occurs when a subject enters the study before experiencing the event of interest at time = 0 and leaves the study without experiencing the event either by not staying the full observational time, or staying the full time without having the event occur.*](img/right_cens_img.png){width="592"}
 
 It's imperative that we still consider these censored observations in our study instead of removing them so that we don't bias our results towards only those individuals that experienced the event of interest within the observational time frame. Thus, in survival analysis, not only do we include time from baseline at event of interest, but we also include a binary variable indicating whether an individual experienced the event or was censored instead.
 
-In standard survival analysis, the **survival function**, S(t) is what defines the probability that the event of interest has **not** yet happened at time = t.
+In standard survival analysis, the **survival function**, S(t) is what defines the probability that the event of interest has **not** yet happened at time = t.[^4]
+
+[^4]: Kleinbaum, D. G., & Klein, M. (2012). *Survival analysis: a self-learning text* (Vol. 3). New York: Springer.
 
 ::: {align="center"}
 <img src="https://render.githubusercontent.com/render/math?math=\Large S(t) = P(T &gt; t)"/>
@@ -60,7 +68,9 @@ In standard survival analysis, the **survival function**, S(t) is what defines t
 
 ```
 
-S(t) is non-increasing and ranges between 0 and 1. The hazard function on the other hand is defined as the instantaneous risk of an individual experiencing the event of interest within a small time frame.
+S(t) is non-increasing and ranges between 0 and 1. The **hazard function** on the other hand is defined as the instantaneous risk of an individual experiencing the event of interest within a small time frame[^5].
+
+[^5]: Kleinbaum, D. G., & Klein, M. (2012). *Survival analysis: a self-learning text* (Vol. 3). New York: Springer.
 
 ::: {align="center"}
 <img src="https://render.githubusercontent.com/render/math?math=\Large h(t) = lim_{\delta t \rightarrow 0} \frac{Pr(t \le T \le t + \delta t | T&gt; t)}{\delta t}"/>
@@ -726,7 +736,7 @@ turn_use$way.selfcontrol <- interaction(turn_use$way,
 
 set.seed(1)
 # random survival forest
-turn_rf <- ranger(Surv(stag, event) ~ age + industry + profession + traffic + 
+turn_rsf <- ranger(Surv(stag, event) ~ age + industry + profession + traffic + 
         greywage + way + selfcontrol + anxiety +
           age.way + way.selfcontrol,
        data =  turn_use)
@@ -923,7 +933,5 @@ crps(fit_comp_turn)
 plot(fit_comp_turn, predErr = "BootCvErr")
 
 ```
-
-[^1]: My reference
 
 {% include lib/mathjax.html %}
