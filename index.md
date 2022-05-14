@@ -185,7 +185,7 @@ The algorithm:
 
 2.  Select a set *A*<sup>*</sup> in *X*<sub>j*</sub> in order to split *X*<sub>j*</sub> into two disjoint sets: *A*<sup>*</sup> and *X*<sub>j*</sub> without *A*<sup>*</sup>. The weights *w*<sub>a</sub> and *w*<sub>b</sub> determine the two subgroups with
 
-![]("img/weights.png")
+![](img/weights.png)
 
 3. Repeat steps 1 and 2 recursively using modified caseweights *w*<sub>a</sub> and *w*<sub>b</sub>
 
