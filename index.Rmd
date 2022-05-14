@@ -33,6 +33,7 @@ library(riskRegression)
 library(ggfortify)
 library(ranger)
 library(imbalance)
+library(randomForest)
 ```
 
 # Predicting Survival and Controlling for Bias with Random Survival Forests and Conditional Inference Forests
@@ -282,7 +283,7 @@ pbc_use <- pbc_use %>%
 
 # test two-way interactions
 pbc.full <- coxph(Surv(time, status) ~ (.)^2, data =  pbc_use)
-step(pbc.full, direction = "backward")
+#step(pbc.full, direction = "backward")
 
 ```
 
@@ -478,11 +479,11 @@ plot(cif.predict3_pbc$`69`, col = "blue",
      sub = "Event Experienced",
      xlab = "time",
      ylab = "Survival Probability")
-lines(Time, pbc_pred$survival[1,])
+lines(Time, pbc_pred$survival[1,], col = "green")
 legend(4000, -0.46,          # Position
        legend = c("CIF", "RSF"),  # Legend texts
        title = "Method",           
-       col = c("blue", "black"),          
+       col = c("blue", "green"),          
        lwd = 2,
        xpd = "NA",
        cex = 0.8)   
@@ -492,7 +493,7 @@ plot(cif.predict3_pbc$`40`, col = "blue",
      sub = "Event Experienced",
      xlab = "time",
      ylab = "Survival Probability")
-lines(Time, pbc_pred$survival[2,])
+lines(Time, pbc_pred$survival[2,], col = "green")
   
 
 plot(cif.predict3_pbc$`14`, col = "blue",
@@ -500,7 +501,7 @@ plot(cif.predict3_pbc$`14`, col = "blue",
      sub = "Censored",
      xlab = "time",
      ylab = "Survival Probability")
-lines(Time, pbc_pred$survival[3,])
+lines(Time, pbc_pred$survival[3,], col = "green")
   
 
 plot(cif.predict3_pbc$`153`, col = "blue",
@@ -508,7 +509,7 @@ plot(cif.predict3_pbc$`153`, col = "blue",
      sub = "Censored",
      xlab = "time",
      ylab = "Survival Probability")
-lines(Time, pbc_pred$survival[3,])
+lines(Time, pbc_pred$survival[3,], col = "green")
 
 
 ```
@@ -604,6 +605,7 @@ crps(fit_comp_pbc)
 plot(fit_comp_pbc, predErr = "BootCvErr")
 
 ```
+
 
 ### Employee Turnover Data
 
@@ -870,25 +872,46 @@ ggplot(turn.var_imp_cif, aes(x = reorder(vars, -Overall, decreasing = TRUE),
 
 We can compare the prediction error curves of the two models. Recall that these estimates are based on the average brier scores computed at different time points.
 
+```{r}
+
+predictSurvProb.ranger <- function (object, newdata, times, ...) {
+    ptemp <- ranger:::predict.ranger(object, data = newdata, importance = "none")$survival
+    pos <- prodlim::sindex(jump.times = object$unique.death.times, 
+        eval.times = times)
+    p <- cbind(1, ptemp)[, pos + 1, drop = FALSE]
+    if (NROW(p) != NROW(newdata) || NCOL(p) != length(times)) 
+        stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ", 
+            NROW(newdata), " x ", length(times), "\nProvided prediction matrix: ", 
+            NROW(p), " x ", NCOL(p), "\n\n", sep = ""))
+    p
+}
+
+```
+
+
+
 ```{r, results='hide', eval=FALSE}
 
+form <- as.formula(paste("Surv(stag, event)~",
+       paste(turn_rf$forest$independent.variable.names, collapse="+")))
+
+#?pec::predictSurvProb
 fit_comp_turn <- pec(list("rsfc" = turn_rf, "cforest" = turn_cif), 
                      data = turn_use, 
-              formula=Surv(stag,event) ~ age + industry + profession + traffic + 
-        greywage + way + selfcontrol + anxiety + age.way + way.selfcontrol,  
+              formula= form,  
               splitMethod = "BootCv",
-        B = 50,
+        B = 5,
         reference = FALSE
               )
 ```
 
-```{r, eval = FALSE}
+```{r}
 
 crps(fit_comp_turn)
 
 ```
 
-```{r, eval=FALSE}
+```{r}
 
 plot(fit_comp_turn, predErr = "BootCvErr")
 
