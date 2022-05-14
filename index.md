@@ -742,7 +742,7 @@ inference forests can be useful alternatives with this data as well.
 
 **Random Survival Forest Implementation**
 
-In hyperparameter tuning which was done by changing mtry values using the ranger function, we found that an mtry value of 2 produced the loest out-of-bag error (0.313).
+In hyperparameter tuning which was done by changing mtry values using the ranger function, we found that an mtry value of 2 produced the lowest out-of-bag error (0.313).
 
 ![](img/turning.tuning.plot.png)
 
