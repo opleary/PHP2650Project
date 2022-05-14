@@ -58,7 +58,11 @@ function** on the other hand is defined as the instantaneous risk of an
 individual experiencing the event of interest within a small time
 frame[5].
 
+<center>
+
 <img src="img/hazard_function.png" width="393" />
+
+</center>
 
 Both survival functions and hazard functions are alternatives to
 probability density functions and are better suited for survival data.
@@ -198,7 +202,11 @@ The algorithm:
     without *A\**. The weights w<sub>a</sub> and w<sub>b</sub> determine
     the two subgroups with
 
+<center>
+
 ![](img/weights.png)
+
+</center>
 
 1.  Repeat steps 1 and 2 recursively using modified caseweights
     *w*<sub>a</sub> and *w*<sub>b</sub>
@@ -597,7 +605,7 @@ forest and the conditional inference forest models.
 
 Using bootstrap cross-validation (
 <img src="https://render.githubusercontent.com/render/math?math=B"/> =
-50), we see an integrated brier score of 0.07 for the random survival
+50), we see an integrated brier score of 0.068 for the random survival
 forest and 0.073 for the conditional inference forest. Recall that a
 lower score means better performance. While the random survival forest
 performs better here, we see that the difference is marginal and perhaps
@@ -894,7 +902,12 @@ We can compare the prediction error curves of the two models. Recall
 that these estimates are based on the average brier scores computed at
 different time points. We reduce
 <img src="https://render.githubusercontent.com/render/math?math=B"/> = 5
-for computation and run-time purposes.
+for computation and run-time purposes. Using bootstrap cross-validation,
+we see an integrated brier score of 0.15 for the random survival forest
+and 0.12 for the conditional inference forest. We see that in the case
+of this employee turnover data, the conditional inference forest
+performs noticeably better than the random survival forest, especially
+as time increases.
 
     ## 
     ## Integrated Brier score (crps):

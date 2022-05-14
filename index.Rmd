@@ -72,7 +72,11 @@ S(t) is non-increasing and ranges between 0 and 1. The **hazard function** on th
 
 [^5]: Kleinbaum, D. G., & Klein, M. (2012). *Survival analysis: a self-learning text* (Vol. 3). New York: Springer.
 
+<center>
+
 ![](img/hazard_function.png){width="393"}
+
+</center>
 
 ```{r}
 #::: {align="center"}
@@ -166,7 +170,11 @@ The algorithm:
 
 2.  Select a set *A* in *X~j~* in order to split *X~j\*~* into two disjoint sets: *A* and *X~j~* without *A\**. The weights w~a~ and w~b~ determine the two subgroups with
 
+<center>
+
 ![](img/weights.png)
+
+</center>
 
 3.  Repeat steps 1 and 2 recursively using modified caseweights *w*~a~ and *w*~b~
 
@@ -649,7 +657,7 @@ We can compare the variable importance rankings between the random survival fore
 
 We can compare the prediction error curves for the random survival forest and the conditional inference forest models.
 
-Using bootstrap cross-validation ( <img src="https://render.githubusercontent.com/render/math?math=B"/> = 50), we see an integrated brier score of 0.07 for the random survival forest and 0.073 for the conditional inference forest. Recall that a lower score means better performance. While the random survival forest performs better here, we see that the difference is marginal and perhaps negligible.
+Using bootstrap cross-validation ( <img src="https://render.githubusercontent.com/render/math?math=B"/> = 50), we see an integrated brier score of 0.068 for the random survival forest and 0.073 for the conditional inference forest. Recall that a lower score means better performance. While the random survival forest performs better here, we see that the difference is marginal and perhaps negligible.
 
 ```{r}
 set.seed(1)
@@ -976,7 +984,7 @@ What may be of interest here is the ranking of the profession variable which has
 
 [Prediction Error Curves]{.underline}
 
-We can compare the prediction error curves of the two models. Recall that these estimates are based on the average brier scores computed at different time points. We reduce <img src="https://render.githubusercontent.com/render/math?math=B"/> = 5 for computation and run-time purposes.
+We can compare the prediction error curves of the two models. Recall that these estimates are based on the average brier scores computed at different time points. We reduce <img src="https://render.githubusercontent.com/render/math?math=B"/> = 5 for computation and run-time purposes. Using bootstrap cross-validation, we see an integrated brier score of 0.15 for the random survival forest and 0.12 for the conditional inference forest. We see that in the case of this employee turnover data, the conditional inference forest performs noticeably better than the random survival forest, especially as time increases. 
 
 ```{r}
 
