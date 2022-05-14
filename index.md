@@ -831,7 +831,7 @@ survival = 0.5) to what is observed.
 </tbody>
 </table>
 
-We see that….
+For the observations that experienced death, the random forest model predicts a median survival time closer to time of death than the conditional inference forest model does. For the censored individuals, the conditional inference forest model predicts small median survival times that occurs within the course of the study.
 
 <u>Variable Importance</u>
 
