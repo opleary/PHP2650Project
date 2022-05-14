@@ -84,19 +84,29 @@ S(t) is non-increasing and ranges between 0 and 1. The **hazard function** on th
 
 Both survival functions and hazard functions are alternatives to probability density functions and are better suited for survival data.
 
-Survival regression involves not only information about censorship and time to event, but also additional predictor variables of interest like the sex, age, race, etc. of an individual. Cox proportional hazards models is a popular and widely utilized modeling technique for survival data because it considers the effects of covariates on the outcome of interest as well as examines the relationships between these variables and the survival distribution. While this model is praised for its flexibility and simplicity, it is also often criticized for its restrictive proportional hazards assumption.
+Survival regression involves not only information about censorship and time to event, but also additional predictor variables of interest like the sex, age, race, etc. of an individual. The Cox proportional hazards model is a popular and widely utilized modeling technique for survival data because it considers the effects of covariates on the outcome of interest as well as examines the relationships between these variables and the survival distribution[^6]. While this model is praised for its flexibility and simplicity, it is also often criticized for its restrictive proportional hazards assumption.
+
+[^6]: Kleinbaum, D. G., & Klein, M. (2012). The Cox proportional hazards model and its characteristics. In *Survival analysis* (pp. 97-159). Springer, New York, NY.
 
 **The Proportional Hazards Assumption**
 
-The **proportional hazards assumption** states that the relative hazard remains constant over time across the different strata/covariate levels in the data. The most popular graphical technique for evaluating the PH assumption involves comparing estimated **log-log survival curves** over different strata of the variables being investigated. A log-log survival curve is a transformation of an estimated survival curve that results from taking the natural log of an estimated survival probability twice. Generally, if the log-log survival curves are approximately parallel for each level of the covariates then the proportional hazard assumption is met.
+The **proportional hazards assumption** states that the relative hazard remains constant over time across the different strata/covariate levels in the data[^7]. The most popular graphical technique for evaluating the PH assumption involves comparing estimated **log-log survival curves** over different strata of the variables being investigated[^8]. A log-log survival curve is a transformation of an estimated survival curve that results from taking the natural log of an estimated survival probability twice. Generally, if the log-log survival curves are approximately parallel for each level of the covariates then the proportional hazard assumption is met.
+
+[^7]: Kleinbaum, D. G., & Klein, M. (2012). The Cox proportional hazards model and its characteristics. In *Survival analysis* (pp. 97-159). Springer, New York, NY.
+
+[^8]: Sestelo, M. (2017). A short course on Survival Analysis applied to the Financial Industry.
 
 ![*The proportional hazards assumption states that the survival curves for different strata in the data are proportional over time and can be assessed by gauging the parallel nature of log-log survival curves.*](img/PH_assumption_good.png){width="608"}
 
-In the case of continuous covariates, this assumption can also be checked using statistical tests and graphical methods based on the scaled Schoenfeld residuals. The Schoenfeld residuals are calculated for all covariates for each individual experiencing an event at a given time. Those are the *differences* between that individual's covariate values at the event time and the corresponding risk-weighted average of covariate values among all individuals at risk. The Schoenfeld residuals are then scaled inversely with respect to their covariances/variances. We can think of this as down-weighting Schoenfeld residuals whose values are uncertain because of high variance. If the assumption is valid, the *Schoenfeld residuals* are independent of time. A plot that shows a non-random pattern against time is evidence of violation of the PH assumption. In summary, the proportional hazard assumption is supported by a non-significant relationship between residuals and time, and refuted by a significant relationship.
+In the case of continuous covariates, this assumption can also be checked using statistical tests and graphical methods based on the scaled **Schoenfeld residuals**[^9]. The Schoenfeld residuals are calculated for all covariates for each individual experiencing an event at a given time. Those are the *differences* between that individual's covariate values at the event time and the corresponding risk-weighted average of covariate values among all individuals at risk. The Schoenfeld residuals are then scaled inversely with respect to their covariances/variances. We can think of this as down-weighting Schoenfeld residuals whose values are uncertain because of high variance. If the assumption is valid, the Schoenfeld residuals are independent of time. A plot that shows a non-random pattern against time is evidence of violation of the PH assumption. In summary, the proportional hazard assumption is supported by a non-significant relationship between residuals and time, and refuted by a significant relationship.
+
+[^9]: Hess, K. R. (1995). Graphical methods for assessing violations of the proportional hazards assumption in Cox regression. *Statistics in medicine*, *14*(15), 1707-1723.
 
 (insert image)
 
-This is a strong assumption and is often viewed as impractical as it is more often than not violated. There are a number of extensions that aim to deal with data that violate this assumption, but they often rely on restrictive functions or limit the ability to estimate the effects of covariates on survival. **Random survival forests** provide an attractive non-parameteric alternative to these models.
+This is a strong assumption and is often viewed as impractical as it is more often than not violated. There are a number of extensions that aim to deal with data that violate this assumption, but they often rely on restrictive functions or limit the ability to estimate the effects of covariates on survival. **Random survival forests** provide an attractive non-parameteric alternative to these models[^10].
+
+[^10]: Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A comparison of the conditional inference survival forest model to random survival forests based on a simulation study as well as on two applications with time-to-event data. *BMC medical research methodology*, *17*(1), 1-17.
 
 ## Review of Random Forests
 
@@ -144,7 +154,10 @@ We will run a random survival forest model and a conditional inference forest mo
 
 1.  [PBC Data]{.underline}
 
-The first dataset, the PBC dataset hails from the `survival` package in R and summarizes the survival data of primary biliary cirrhosis (PBC) patients from a randomized trial conducted between 1974 and 1984.
+The first dataset, the PBC dataset hails from the `survival` package in R and summarizes the survival data of primary biliary cirrhosis (PBC) patients from a randomized trial conducted between 1974 and 1984[^11].
+
+[^11]: Reference
+
 
 Most of the covariates in the PBC data are either continuous or have two levels (few split-points).
 
