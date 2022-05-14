@@ -40,7 +40,7 @@ library(randomForest)
 
 ## What is Survival Analysis?
 
-The main goal of survival analysis is to analyze and estimate the expected amount of time until an event of interest occurs for a subject or groups of subjects. Originally, survival analysis was developed for the primary use of measuring the lifespans of certain populations. However, over time its utilities have extended to a wide array of applications even outside of the domain of healthcare. Thus, while biological death continues to be the main outcome under the scrutiny of survival analysis, other outcomes of interest may include time to mechanical failure, time to repeat offense of a released inmate, time to the split of a financial stock and more! Time in survival analysis is relative and all subjects of interest are likened to a common starting point at baseline (t = 0) with a 100% probability of not experiencing the event of interest.
+The main goal of survival analysis is to analyze and estimate the expected amount of time until an event of interest occurs for a subject or groups of subjects. Originally, survival analysis was developed for the primary use of measuring the lifespans of certain populations[^1]. However, over time its utilities have extended to a wide array of applications even outside of the domain of healthcare. Thus, while biological death continues to be the main outcome under the scrutiny of survival analysis, other outcomes of interest may include time to mechanical failure, time to repeat offense of a released inmate, time to the split of a financial stock and more! Time in survival analysis is relative and all subjects of interest are likened to a common starting point at baseline (t = 0) with a 100% probability of not experiencing the event of interest.
 
 Subjects are observed from baseline to some often pre-specified time at the end of study. Thus, not every subject will experience the event of interest within the observational period's time frame. In this case, we don't know if or when these subjects will experience the event, we just know that they have not experienced it during the study period. This is called **censoring**, more specifically, right-censoring. Right censoring is just one of multiple forms of censoring that survival data strives to adjust for and the form that we will focus on in this comprehensive review. Dropout is also a form of right censoring. The event of interest can happen during the specified time frame, outside of the time frame, or not at all but we don't know which scenario applies to the individuals that leave the study early.
 
@@ -158,18 +158,18 @@ In certain applications, it is of interest to compare the predictive accuracy of
 
 Using a test sample of size <img src="https://render.githubusercontent.com/render/math?math=N_{test}"/> , Brier scores at time t are defined as:
 
-![](img/brier_score_equation.png)
+![](img/brier_score_equation.png.png)
 
-$$
-BS(t) = \frac{1}{N_{test}}\sum_{l=1}^{N_{test}} \{[0 - \hat{S}(t|x)]^2 \frac{I(t_l \le t, \delta_l = 1)}{\hat{G}(t_l|x)} + [1 - \hat{S}(t|x)]^2 \frac{I(t_l > t)}{\hat{G}(t|x)} \}
-$$
+```{r}
+#BS(t) = \frac{1}{N_{test}}\sum_{l=1}^{N_{test}} \{[0 - \hat{S}(t|x)]^2 \frac{I(t_l \le t, \delta_l = 1)}{\hat{G}(t_l|x)} + [1 - \hat{S}(t|x)]^2 \frac{I(t_l > t)}{\hat{G}(t|x)} \}
+```
 
 where <img src="https://render.githubusercontent.com/render/math?math=\hat{G} (t|x) \approx "/> P(C \> t \| X = x) is the Kaplan-Meier estimate of the conditional survival function of the censoring times.
 
 The integrated Brier scores are given by:
 
 ::: {align="center"}
-<img src="https://render.githubusercontent.com/render/math?math=IBS = \int_0^{max(t)} BS(t)dt"/>
+<img src="https://render.githubusercontent.com/render/math?math=\Large IBS = \int_0^{max(t)} BS(t)dt"/>
 :::
 
 To avoid the problem of overfitting that arises from using the same data to train and test the model, we used the Bootstrap cross-validated estimates of the integrated Brier scores. The prediction errors are evaluated in each bootstrap sample.
@@ -178,12 +178,14 @@ The prediction errors for each of our models will be implemented in the `pec` pa
 
 ### PBC Data
 
+The following description comes from the `survival` package in R:
+
 Primary sclerosing cholangitis is an autoimmune disease leading to destruction of the small bile ducts in the liver. Progression is slow but inexorable, eventually leading to cirrhosis and liver decompensation.
 
 This data is from the Mayo Clinic trial in PBC conducted between 1974 and 1984. A total of 424 PBC patients met eligibility criteria for the randomized placebo controlled trial of the drug D-penicillamine. This dataset tracks survival status until end up follow up period as well as contains many covariates collected during the clinical trial.
 
 | Variable | Description                                                                                              |
-|-------------------------|-----------------------------------------------|
+|--------------------------|----------------------------------------------|
 | id       | case number                                                                                              |
 | time     | number of days between registration and the earlier of death, transplant, or end of observational period |
 | status   | status at endpoint, 0/1/2 for censored, transplant, dead                                                 |
@@ -585,7 +587,7 @@ We can compare the prediction error curves for the random survival forest and th
 
 Using bootstrap cross-validation ( <img src="https://render.githubusercontent.com/render/math?math=B"/> = 50), we see an integrated brier score of 0.07 for the random survival forest and 0.073 for the conditional inference forest. Recall that a lower score means better performance. While the random survival forest performs better here, we see that the difference is marginal and perhaps negligible.
 
-```{r, eval=FALSE}
+```{r}
 set.seed(1)
 fit_comp_pbc <- pec(list("rsf" = pbc_rf, "cforest" = pbc_cif),  
                     data = pbc_use,
@@ -619,7 +621,7 @@ turnover <- read_csv("data/turnover.csv")
 ```
 
 | Variable     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-|------------------------|-----------------------------------------------|
+|--------------------------|----------------------------------------------|
 | stag         | Experience (time)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | event        | Employee turnover                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | gender       | Employee's gender, female (f), or male (m)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -921,5 +923,7 @@ crps(fit_comp_turn)
 plot(fit_comp_turn, predErr = "BootCvErr")
 
 ```
+
+[^1]: My reference
 
 {% include lib/mathjax.html %}

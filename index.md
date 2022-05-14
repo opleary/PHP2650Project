@@ -5,7 +5,7 @@
 The main goal of survival analysis is to analyze and estimate the
 expected amount of time until an event of interest occurs for a subject
 or groups of subjects. Originally, survival analysis was developed for
-the primary use of measuring the lifespans of certain populations.
+the primary use of measuring the lifespans of certain populations[1].
 However, over time its utilities have extended to a wide array of
 applications even outside of the domain of healthcare. Thus, while
 biological death continues to be the main outcome under the scrutiny of
@@ -241,9 +241,7 @@ Using a test sample of size
 <img src="https://render.githubusercontent.com/render/math?math=N_{test}"/>
 , Brier scores at time t are defined as:
 
-$$
-BS(t) = \\frac{1}{N\_{test}}\\sum\_{l=1}^{N\_{test}} \\{\[0 - \\hat{S}(t|x)\]^2 \\frac{I(t\_l \\le t, \\delta\_l = 1)}{\\hat{G}(t\_l|x)} + \[1 - \\hat{S}(t|x)\]^2 \\frac{I(t\_l &gt; t)}{\\hat{G}(t|x)} \\}
-$$
+![](img/brier_score_equation.png.png)
 
 where
 <img src="https://render.githubusercontent.com/render/math?math=\hat{G} (t|x) \approx "/>
@@ -252,7 +250,7 @@ survival function of the censoring times.
 
 The integrated Brier scores are given by:
 
-<img src="https://render.githubusercontent.com/render/math?math=IBS = \int_0^{max(t)} BS(t)dt"/>
+<img src="https://render.githubusercontent.com/render/math?math=\Large IBS = \int_0^{max(t)} BS(t)dt"/>
 
 To avoid the problem of overfitting that arises from using the same data
 to train and test the model, we used the Bootstrap cross-validated
@@ -265,6 +263,8 @@ estimates for the integrated brier scores. The models are assessed on
 the data samples that are NOT in the bootstrap sample (OOB data).
 
 ### PBC Data
+
+The following description comes from the `survival` package in R:
 
 Primary sclerosing cholangitis is an autoimmune disease leading to
 destruction of the small bile ducts in the liver. Progression is slow
@@ -421,20 +421,20 @@ model as a whole.
     test.ph
 
     ##             chisq df       p
-    ## age        10.855  1 0.00099
-    ## edema       1.127  1 0.28835
-    ## bili        6.850  1 0.00886
-    ## albumin     3.640  1 0.05640
-    ## copper      0.956  1 0.32831
-    ## ast         0.729  1 0.39336
-    ## protime    14.456  1 0.00014
-    ## stage      17.276  1 3.2e-05
-    ## age:edema   1.063  1 0.30243
-    ## age:copper  0.305  1 0.58047
-    ## bili:ast   12.027  1 0.00052
-    ## GLOBAL     63.518 11 2.0e-09
+    ## age        10.869  1 0.00098
+    ## edema       1.109  1 0.29228
+    ## bili        6.760  1 0.00932
+    ## albumin     3.589  1 0.05816
+    ## copper      0.917  1 0.33837
+    ## ast         0.709  1 0.39969
+    ## protime    14.486  1 0.00014
+    ## stage      17.349  1 3.1e-05
+    ## age:edema   1.044  1 0.30698
+    ## age:copper  0.281  1 0.59625
+    ## bili:ast   11.952  1 0.00055
+    ## GLOBAL     63.574 11 2.0e-09
 
-![](index_files/figure-markdown_strict/unnamed-chunk-10-1.png)![](index_files/figure-markdown_strict/unnamed-chunk-10-2.png)![](index_files/figure-markdown_strict/unnamed-chunk-10-3.png)![](index_files/figure-markdown_strict/unnamed-chunk-10-4.png)![](index_files/figure-markdown_strict/unnamed-chunk-10-5.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-11-1.png)![](index_files/figure-markdown_strict/unnamed-chunk-11-2.png)![](index_files/figure-markdown_strict/unnamed-chunk-11-3.png)![](index_files/figure-markdown_strict/unnamed-chunk-11-4.png)![](index_files/figure-markdown_strict/unnamed-chunk-11-5.png)
 
 The output from the test tells us that the test is statistically
 significant for age, bili, protime, stage, and the interaction between
@@ -479,7 +479,7 @@ our data (2 censored and 2 non-censored) and compare the predicted
 median survival times (the time where the probability of survival = 0.5)
 of both of the models to what is observed.
 
-![](index_files/figure-markdown_strict/unnamed-chunk-18-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-19-1.png)
 
 <table>
 <thead>
@@ -566,6 +566,15 @@ forest and 0.073 for the conditional inference forest. Recall that a
 lower score means better performance. While the random survival forest
 performs better here, we see that the difference is marginal and perhaps
 negligible.
+
+    ## 
+    ## Integrated Brier score (crps):
+    ## 
+    ##         AppErr BootCvErr
+    ## rsf      0.041     0.067
+    ## cforest  0.054     0.072
+
+![](index_files/figure-markdown_strict/unnamed-chunk-22-1.png)
 
 ### Employee Turnover Data
 
@@ -710,7 +719,7 @@ We can test the proportional-hazards assumption for this model using the
     ## way:selfcontrol  0.6640  2 0.71750
     ## GLOBAL          73.0448 46 0.00677
 
-![](index_files/figure-markdown_strict/unnamed-chunk-29-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-30-1.png)
 
 The output from the test tells us that the test is statistically
 significant for profession at a significance level of 0.05. It’s also
@@ -750,7 +759,7 @@ and plot and compare their predicted survival curves as well as their
 predicted median survival times ( the time where the probability of
 survival = 0.5) to what is observed.
 
-![](index_files/figure-markdown_strict/unnamed-chunk-35-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-35-2.png)
 
 <table>
 <thead>
@@ -820,6 +829,8 @@ for computation and run-time purposes.
     ## rsfc     0.079     0.155
     ## cforest  0.061     0.121
 
-![](index_files/figure-markdown_strict/unnamed-chunk-40-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-41-1.png)
 
 {% include lib/mathjax.html %}
+
+[1] My reference
