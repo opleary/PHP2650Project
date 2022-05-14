@@ -51,7 +51,11 @@ In standard survival analysis, the **survival function**, S(t) is what
 defines the probability that the event of interest has **not** yet
 happened at time = t.[4]
 
-<img src="https://render.githubusercontent.com/render/math?math=\Large S(t) = P(T &gt; t)"/>
+<center>
+
+<img src="img/survival_func.png" width="214" />
+
+</center>
 
 S(t) is non-increasing and ranges between 0 and 1. The **hazard
 function** on the other hand is defined as the instantaneous risk of an
@@ -139,12 +143,12 @@ A random survival forest is an extension of random forests used to
 analyze time to event right-censored survival data.
 
 Random survival forests use splitting criterion based on survival time
-and censoring status. Survival trees are binary trees which recursively
-split tree nodes so that the dissimilarity between child nodes is
-maximized. Eventually the dissimilar cases are separated and each node
-becomes more homogeneous. The predictive outcome is defined as the total
-number of deaths, which is derived from the ensemble cumulative hazard
-function (CHF).
+and censoring status[11]. Survival trees are binary trees which
+recursively split tree nodes so that the dissimilarity between child
+nodes is maximized. Eventually the dissimilar cases are separated and
+each node becomes more homogeneous. The predictive outcome is defined as
+the total number of deaths, which is derived from the ensemble
+cumulative hazard function (CHF).
 
 The algorithm:
 
@@ -168,14 +172,22 @@ We determine a terminal node *h* ∈ *T* when there are no less than
 deaths and individuals who are at risk at time *t*<sub>*l*, *h*</sub>.
 Then the CHF estimate for a terminal node *h* is defined as
 
-<img src="img/hat_equation.png" width="731" />
+<center>
+
+<img src="img/hat_equation2.png" width="224" />
+
+</center>
 
 Each individual *i* has a *d* dimensional covariate **x**<sub>*i*</sub>.
 The binary structure of survival trees allows **x**<sub>*i*</sub> to be
 classified into a unique terminal node *h*. Thus the CHF for individual
 *i* is
 
-![](img/chf.png)
+<center>
+
+<img src="img/chf2.png" width="351" />
+
+</center>
 
 The ensemble CHF is found by averaging over
 <img src="https://render.githubusercontent.com/render/math?math=B"/>
@@ -185,16 +197,16 @@ survival trees.
 
 While random survival forests tend to be biased toward variables with
 many split points, conditional inference forests are designed to reduce
-this selection bias. Conditional inference forests are designed by
+this selection bias[12]. Conditional inference forests are designed by
 separating the algorithm which selects the best splitting covariate from
 the algorithm which selects the best split point.
 
 The algorithm:
 
 1.  For case weights *w*, set the global null hypothesis of independence
-    between any of the p covariates and the response variable. Stop the
-    algorithm if we fail to reject the null hypothesis. Otherwise,
-    select the *j*th covariate X<sub>j\*</sub> with the strongest
+    between any of the *p* covariates and the response variable. Stop
+    the algorithm if we fail to reject the null hypothesis. Otherwise,
+    select the *j*th covariate *X<sub>j\*</sub>* with the strongest
     association to *T*.
 
 2.  Select a set *A* in *X<sub>j</sub>* in order to split
@@ -209,7 +221,7 @@ The algorithm:
 </center>
 
 1.  Repeat steps 1 and 2 recursively using modified caseweights
-    *w*<sub>a</sub> and *w*<sub>b</sub>
+    *w*<sub>a</sub> and *w*<sub>b.</sub>
 
 ## Applications
 
@@ -220,7 +232,7 @@ forest model on two real survival datasets.
 
 The first dataset, the PBC dataset hails from the `survival` package in
 R and summarizes the survival data of primary biliary cirrhosis (PBC)
-patients from a randomized trial conducted between 1974 and 1984[11].
+patients from a randomized trial conducted between 1974 and 1984[13].
 
 Most of the covariates in the PBC data are either continuous or have two
 levels (few split-points).
@@ -245,7 +257,7 @@ combination on each data set that yields the lowest out-of-bag error.
 **Evaluating the Models: Variable Importance**
 
 For each model, we will assess the ranked **variable importance**. We’ll
-do this using the `varImp` function from the `caret` package in R[12].
+do this using the `varImp` function from the `caret` package in R[14].
 This function tracks the changes in metric statistics for each predictor
 and accumulates the reduction in the statistic when each predictor’s
 feature is added to the model. The reduction is the measure of variable
@@ -262,7 +274,7 @@ In certain applications, it is of interest to compare the predictive
 accuracy of different survival regression strategies for building a risk
 prediction model. There are several metrics that can be used to assess
 the resulting probabilistic risk predictions. We’re going to focus on
-one of the most popular metrics, the **Brier score**[13]. The brier
+one of the most popular metrics, the **Brier score**[15]. The brier
 score for an individual is defined as the squared difference between
 observed survival status (1 = alive at time t and 0 = dead at time t)
 and a model based prediction of surviving up to time t. The survival
@@ -285,7 +297,11 @@ survival function of the censoring times.
 
 The integrated Brier scores are given by:
 
-<img src="https://render.githubusercontent.com/render/math?math=\Large IBS = \int_0^{max(t)} BS(t)dt"/>
+<center>
+
+![](img/ibs.png)
+
+</center>
 
 To avoid the problem of overfitting that arises from using the same data
 to train and test the model, we used the Bootstrap cross-validated
@@ -293,13 +309,13 @@ estimates of the integrated Brier scores. The prediction errors are
 evaluated in each bootstrap sample.
 
 The prediction errors for each of our models will be implemented in the
-`pec` package in R[14]. We implement bootstrap cross-validation to get
+`pec` package in R[16]. We implement bootstrap cross-validation to get
 our estimates for the integrated brier scores. The models are assessed
 on the data samples that are NOT in the bootstrap sample (OOB data).
 
 ### PBC Data
 
-The following description comes from the `survival` package in R[15]:
+The following description comes from the `survival` package in R[17]:
 
 Primary sclerosing cholangitis is an autoimmune disease leading to
 destruction of the small bile ducts in the liver. Progression is slow
@@ -314,8 +330,8 @@ contains many covariates collected during the clinical trial.
 
 <table>
 <colgroup>
-<col style="width: 36%" />
-<col style="width: 63%" />
+<col style="width: 8%" />
+<col style="width: 91%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -477,7 +493,7 @@ model as a whole.
     ## bili:ast   12.027  1 0.00052
     ## GLOBAL     63.518 11 2.0e-09
 
-![](index_files/figure-markdown_strict/unnamed-chunk-14-1.png)![](index_files/figure-markdown_strict/unnamed-chunk-14-2.png)![](index_files/figure-markdown_strict/unnamed-chunk-14-3.png)![](index_files/figure-markdown_strict/unnamed-chunk-14-4.png)![](index_files/figure-markdown_strict/unnamed-chunk-14-5.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-16-1.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-2.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-3.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-4.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-5.png)
 
 The output from the test tells us that the test is statistically
 significant for age, bili, protime, stage, and the interaction between
@@ -492,7 +508,7 @@ useful alternatives in this case.
 
 In hyperparameter tuning which was done using the `tune` function from
 the `e1071` package in R, we found that an mtry value of 1 and a
-nodesize of 5 produced the lowest out-of-bag error (0.107)[16].
+nodesize of 5 produced the lowest out-of-bag error (0.107)[18].
 
 ![PBC OOB Error on Parameter
 Values](index_files/figure-markdown_strict/parampbc-1.png)
@@ -523,7 +539,7 @@ our data (2 censored and 2 non-censored) and compare the predicted
 median survival times (the time where the probability of survival = 0.5)
 of both of the models to what is observed.
 
-![](index_files/figure-markdown_strict/unnamed-chunk-22-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-24-1.png)
 
 <table>
 <thead>
@@ -575,11 +591,19 @@ observations.
 
 <u>Variable Importance</u>
 
-![*RSF Variable Importance PBC Data. Bili, edema, and copper are among
-the top 3.*](img/rsf.var_imp_pbc.png)
+<figure>
+<img src="img/rsf.var_imp_pbc.png" width="570"
+alt="RSF Variable Importance PBC Data. Bili, edema, and copper are among the top 3." />
+<figcaption aria-hidden="true"><em>RSF Variable Importance PBC Data.
+Bili, edema, and copper are among the top 3.</em></figcaption>
+</figure>
 
-![*CIF Variable Importance PBC Data. Bili, age, and stage are among the
-top 3.*](img/cif.var_imp_pbc.png)
+<figure>
+<img src="img/cif.var_imp_pbc.png" width="570"
+alt="CIF Variable Importance PBC Data. Bili, age, and stage are among the top 3." />
+<figcaption aria-hidden="true"><em>CIF Variable Importance PBC Data.
+Bili, age, and stage are among the top 3.</em></figcaption>
+</figure>
 
 We can compare the variable importance rankings between the random
 survival forest and the conditional inference forest. Most notably, the
@@ -618,7 +642,7 @@ negligible.
     ## rsf      0.041     0.068
     ## cforest  0.054     0.073
 
-![](index_files/figure-markdown_strict/unnamed-chunk-25-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-27-1.png)
 
 ### Employee Turnover Data
 
@@ -630,8 +654,8 @@ information.
 
 <table>
 <colgroup>
-<col style="width: 36%" />
-<col style="width: 63%" />
+<col style="width: 2%" />
+<col style="width: 97%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -763,7 +787,7 @@ We can test the proportional-hazards assumption for this model using the
     ## way:selfcontrol  0.6640  2 0.71750
     ## GLOBAL          73.0448 46 0.00677
 
-![](index_files/figure-markdown_strict/unnamed-chunk-33-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-35-1.png)
 
 The output from the test tells us that the test is statistically
 significant for profession at a significance level of 0.05. It’s also
@@ -777,7 +801,7 @@ In hyperparameter tuning which was done by changing mtry values using
 the ranger function, we found that an mtry value of 2 produced the
 lowest out-of-bag error (0.313).
 
-![](img/turning.tuning.plot.png)
+<img src="img/turning.tuning.plot.png" width="525" />
 
 Note that to run random survival forest for the employee turnover data,
 due to computational issues, we’ve switched to using the `ranger`
@@ -812,7 +836,7 @@ and plot and compare their predicted survival curves as well as their
 predicted median survival times ( the time where the probability of
 survival = 0.5) to what is observed.
 
-![](index_files/figure-markdown_strict/unnamed-chunk-39-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-41-1.png)
 
 <table>
 <thead>
@@ -868,11 +892,19 @@ First, we’ll compare the variables that the random survival forest model
 and the conditional inference model found to be most important in the
 training process on the employee turnover data.
 
-![RSF Variable Importance Employee Turnover Data. Industry, age, and
-age.way are among the top 3.](img/rsf.var_imp_turn.png)
+<figure>
+<img src="img/rsf.var_imp_turn.png" width="570"
+alt="RSF Variable Importance Employee Turnover Data. Industry, age, and age.way are among the top 3." />
+<figcaption aria-hidden="true">RSF Variable Importance Employee Turnover
+Data. Industry, age, and age.way are among the top 3.</figcaption>
+</figure>
 
-![CIF Variable Importance Employee Turnover Data. Industry, age.way, and
-age are among the top 3.](img/cif.var_imp_turn.png)
+<figure>
+<img src="img/cif.var_imp_turn.png" width="570"
+alt="CIF Variable Importance Employee Turnover Data. Industry, age.way, and age are among the top 3." />
+<figcaption aria-hidden="true">CIF Variable Importance Employee Turnover
+Data. Industry, age.way, and age are among the top 3.</figcaption>
+</figure>
 
 While the two models generally agree on the first 5 most important
 variables (with a switch in age and age.way in terms of order), we can
@@ -916,7 +948,7 @@ as time increases.
     ## rsfc     0.082      0.15
     ## cforest  0.061      0.12
 
-![](index_files/figure-markdown_strict/unnamed-chunk-45-1.png)
+![](index_files/figure-markdown_strict/unnamed-chunk-47-1.png)
 
 ## Closing Thoughts
 
@@ -962,28 +994,40 @@ survival forests based on a simulation study as well as on two
 applications with time-to-event data. *BMC medical research
 methodology*, *17*(1), 1-17.
 
-[11] Therneau, T. M. (2020). *A Package for Survival Analysis in R*.
-<https://CRAN.R-project.org/package=survival>
-
-[12] Kuhn, M. (2008). Building Predictive Models in R Using the caret
-Package. Journal of Statistical Software, 28(5), 1 - 26.
-doi:<http://dx.doi.org/10.18637/jss.v028.i05>
-
-[13] Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A
+[11] Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A
 comparison of the conditional inference survival forest model to random
 survival forests based on a simulation study as well as on two
 applications with time-to-event data. *BMC medical research
 methodology*, *17*(1), 1-17.
 
-[14] Mogensen UB, Ishwaran H, Gerds TA (2012). “Evaluating Random
+[12] Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A
+comparison of the conditional inference survival forest model to random
+survival forests based on a simulation study as well as on two
+applications with time-to-event data. *BMC medical research
+methodology*, *17*(1), 1-17.
+
+[13] Therneau, T. M. (2020). *A Package for Survival Analysis in R*.
+<https://CRAN.R-project.org/package=survival>
+
+[14] Kuhn, M. (2008). Building Predictive Models in R Using the caret
+Package. Journal of Statistical Software, 28(5), 1 - 26.
+doi:<http://dx.doi.org/10.18637/jss.v028.i05>
+
+[15] Nasejje, J. B., Mwambi, H., Dheda, K., & Lesosky, M. (2017). A
+comparison of the conditional inference survival forest model to random
+survival forests based on a simulation study as well as on two
+applications with time-to-event data. *BMC medical research
+methodology*, *17*(1), 1-17.
+
+[16] Mogensen UB, Ishwaran H, Gerds TA (2012). “Evaluating Random
 Forests for Survival Analysis Using Prediction Error Curves.” *Journal
 of Statistical Software*, **50**(11), 1–23.
 <https://www.jstatsoft.org/v50/i11>.
 
-[15] Therneau, T. M. (2020). *A Package for Survival Analysis in R*.
+[17] Therneau, T. M. (2020). *A Package for Survival Analysis in R*.
 <https://CRAN.R-project.org/package=survival>
 
-[16] Meyer D, Dimitriadou E, Hornik K, Weingessel A, Leisch F
+[18] Meyer D, Dimitriadou E, Hornik K, Weingessel A, Leisch F
 
 (2021). \_e1071: Misc Functions of the Department of
 
