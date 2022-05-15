@@ -247,7 +247,7 @@ The algorithm:
 
 </center>
 
-1.  Repeat steps 1 and 2 recursively using modified case-weights
+3.  Repeat steps 1 and 2 recursively using modified case-weights
     *w*<sub>a</sub> and *w*<sub>b</sub>.
 
 The first step finds the optimal split variable by testing the
