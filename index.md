@@ -517,18 +517,18 @@ model as a whole.
     test.ph
 
     ##             chisq df       p
-    ## age        10.884  1 0.00097
-    ## edema       1.115  1 0.29091
-    ## bili        6.809  1 0.00907
-    ## albumin     3.630  1 0.05673
-    ## copper      0.932  1 0.33430
-    ## ast         0.716  1 0.39761
-    ## protime    14.552  1 0.00014
-    ## stage      17.315  1 3.2e-05
-    ## age:edema   1.053  1 0.30492
-    ## age:copper  0.292  1 0.58908
-    ## bili:ast   11.955  1 0.00055
-    ## GLOBAL     63.669 11 1.9e-09
+    ## age        10.869  1 0.00098
+    ## edema       1.109  1 0.29228
+    ## bili        6.760  1 0.00932
+    ## albumin     3.589  1 0.05816
+    ## copper      0.917  1 0.33837
+    ## ast         0.709  1 0.39969
+    ## protime    14.486  1 0.00014
+    ## stage      17.349  1 3.1e-05
+    ## age:edema   1.044  1 0.30698
+    ## age:copper  0.281  1 0.59625
+    ## bili:ast   11.952  1 0.00055
+    ## GLOBAL     63.574 11 2.0e-09
 
 ![](index_files/figure-markdown_strict/unnamed-chunk-16-1.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-2.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-3.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-4.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-5.png)
 
@@ -680,8 +680,8 @@ performs better here, the difference is marginal and perhaps negligible.
     ## Integrated Brier score (crps):
     ## 
     ##         AppErr BootCvErr
-    ## rsf      0.041     0.068
-    ## cforest  0.054     0.073
+    ## rsf      0.041     0.067
+    ## cforest  0.055     0.072
 
 ![](index_files/figure-markdown_strict/unnamed-chunk-27-1.png)
 
@@ -936,15 +936,17 @@ training process on the employee turnover data.
 <figure>
 <img src="img/rsf.var_imp_turn.png" width="570"
 alt="RSF Variable Importance Employee Turnover Data. Industry, age, and age.way are among the top 3." />
-<figcaption aria-hidden="true">RSF Variable Importance Employee Turnover
-Data. Industry, age, and age.way are among the top 3.</figcaption>
+<figcaption aria-hidden="true"><em>RSF Variable Importance Employee
+Turnover Data. Industry, age, and age.way are among the top
+3.</em></figcaption>
 </figure>
 
 <figure>
 <img src="img/cif.var_imp_turn.png" width="570"
 alt="CIF Variable Importance Employee Turnover Data. Industry, age.way, and age are among the top 3." />
-<figcaption aria-hidden="true">CIF Variable Importance Employee Turnover
-Data. Industry, age.way, and age are among the top 3.</figcaption>
+<figcaption aria-hidden="true"><em>CIF Variable Importance Employee
+Turnover Data. Industry, age.way, and age are among the top
+3.</em></figcaption>
 </figure>
 
 While the two models generally agree on the first 5 most important

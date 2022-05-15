@@ -1036,9 +1036,9 @@ ggplot(turn_rf_imp, aes(x = reorder(vars, importance, decreasing = TRUE),
 
 ```
 
-![RSF Variable Importance Employee Turnover Data. Industry, age, and age.way are among the top 3.](img/rsf.var_imp_turn.png){width="570"}
+![*RSF Variable Importance Employee Turnover Data. Industry, age, and age.way are among the top 3.*](img/rsf.var_imp_turn.png){width="570"}
 
-![CIF Variable Importance Employee Turnover Data. Industry, age.way, and age are among the top 3.](img/cif.var_imp_turn.png){width="570"}
+![*CIF Variable Importance Employee Turnover Data. Industry, age.way, and age are among the top 3.*](img/cif.var_imp_turn.png){width="570"}
 
 While the two models generally agree on the first 5 most important variables (with a switch in age and age.way in terms of order), we can focus on the magnitude of the variable importance as well as the ordering of variables ranked 6-9. The industry variable in the dataset is one of the variables that has the most split points/levels. There are 16 unique variables that industry can take. Even though both models rank this variable to be the most important, relative to the conditional inference forest, the random survival forest seems to slightly inflate the importance of this covariate as it reaches an importance of just over 0.04 in the random survival forest (as opposed to about 0.035 in the conditional inference forest). After the first 5 variables, the random survival forest ranks profession, self-control, anxiety, and way as the next important while the conditional inference forest ranks self-control, way, profession, and then anxiety as the next important.
 
