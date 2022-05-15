@@ -671,8 +671,8 @@ forest and the conditional inference forest models.
 
 Using bootstrap cross-validation (
 <img src="https://render.githubusercontent.com/render/math?math=B"/> =
-50), we see an integrated brier score of 0.068 for the random survival
-forest and 0.073 for the conditional inference forest. Recall that a
+50), we see an integrated brier score of 0.067 for the random survival
+forest and 0.072 for the conditional inference forest. Recall that a
 lower score means better performance. While the random survival forest
 performs better here, the difference is marginal and perhaps negligible.
 
