@@ -203,7 +203,7 @@ The algorithm:
 
 </center>
 
-3.  Repeat steps 1 and 2 recursively using modified case-weights *w*~a~ and *w*~b~.
+Repeat steps 1 and 2 recursively using modified case-weights *w*~a~ and *w*~b~.
 
 The first step finds the optimal split variable by testing the association of the covariates to the outcome *T* using a linear rank test. Using permutation tests, the covariate with the strongest association to *T* is selected for splitting. In the second step, the selection of variables are found using a linear rank test. The covariates with the strongest association to $T$ (i.e. minimum p-value) are used for variable selection.
 
@@ -211,7 +211,7 @@ The first step finds the optimal split variable by testing the association of th
 
 We will run a random survival forest model and a conditional inference forest model on two real survival datasets.
 
-1.  [PBC Data]{.underline}
+[PBC Data]{.underline}
 
 The first dataset, the PBC dataset hails from the `survival` package in R and summarizes the survival data of 418 primary biliary cirrhosis (PBC) patients from a randomized trial conducted between 1974 and 1984[^14].
 
@@ -219,7 +219,7 @@ The first dataset, the PBC dataset hails from the `survival` package in R and su
 
 Most of the covariates in the PBC data are either continuous or have two levels (few split-points).
 
-2.  [Employee Data]{.underline}
+[Employee Data]{.underline}
 
 The second dataset was found on Kaggle, an online community platform for data scientists and machine learning enthusiasts allowing for the public-use of a vast array of practical datasets. This dataset contains the employee attrition information of 1,129 employees[^15].
 

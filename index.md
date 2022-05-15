@@ -247,8 +247,8 @@ The algorithm:
 
 </center>
 
-1.  Repeat steps 1 and 2 recursively using modified case-weights
-    *w*<sub>a</sub> and *w*<sub>b</sub>.
+Repeat steps 1 and 2 recursively using modified case-weights
+*w*<sub>a</sub> and *w*<sub>b</sub>.
 
 The first step finds the optimal split variable by testing the
 association of the covariates to the outcome *T* using a linear rank
@@ -263,7 +263,7 @@ are used for variable selection.
 We will run a random survival forest model and a conditional inference
 forest model on two real survival datasets.
 
-1.  <u>PBC Data</u>
+<u>PBC Data</u>
 
 The first dataset, the PBC dataset hails from the `survival` package in
 R and summarizes the survival data of 418 primary biliary cirrhosis
@@ -273,7 +273,7 @@ R and summarizes the survival data of 418 primary biliary cirrhosis
 Most of the covariates in the PBC data are either continuous or have two
 levels (few split-points).
 
-1.  <u>Employee Data</u>
+<u>Employee Data</u>
 
 The second dataset was found on Kaggle, an online community platform for
 data scientists and machine learning enthusiasts allowing for the
@@ -517,18 +517,18 @@ model as a whole.
     test.ph
 
     ##             chisq df       p
-    ## age        10.855  1 0.00099
-    ## edema       1.127  1 0.28835
-    ## bili        6.850  1 0.00886
-    ## albumin     3.640  1 0.05640
-    ## copper      0.956  1 0.32831
-    ## ast         0.729  1 0.39336
-    ## protime    14.456  1 0.00014
-    ## stage      17.276  1 3.2e-05
-    ## age:edema   1.063  1 0.30243
-    ## age:copper  0.305  1 0.58047
-    ## bili:ast   12.027  1 0.00052
-    ## GLOBAL     63.518 11 2.0e-09
+    ## age        10.884  1 0.00097
+    ## edema       1.115  1 0.29091
+    ## bili        6.809  1 0.00907
+    ## albumin     3.630  1 0.05673
+    ## copper      0.932  1 0.33430
+    ## ast         0.716  1 0.39761
+    ## protime    14.552  1 0.00014
+    ## stage      17.315  1 3.2e-05
+    ## age:edema   1.053  1 0.30492
+    ## age:copper  0.292  1 0.58908
+    ## bili:ast   11.955  1 0.00055
+    ## GLOBAL     63.669 11 1.9e-09
 
 ![](index_files/figure-markdown_strict/unnamed-chunk-16-1.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-2.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-3.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-4.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-5.png)
 
@@ -681,7 +681,7 @@ performs better here, the difference is marginal and perhaps negligible.
     ## 
     ##         AppErr BootCvErr
     ## rsf      0.041     0.068
-    ## cforest  0.054     0.073
+    ## cforest  0.055     0.073
 
 ![](index_files/figure-markdown_strict/unnamed-chunk-27-1.png)
 
