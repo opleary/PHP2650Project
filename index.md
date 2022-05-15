@@ -247,7 +247,7 @@ The algorithm:
 
 </center>
 
-3.  Repeat steps 1 and 2 recursively using modified case-weights
+1.  Repeat steps 1 and 2 recursively using modified case-weights
     *w*<sub>a</sub> and *w*<sub>b</sub>.
 
 The first step finds the optimal split variable by testing the
@@ -273,7 +273,7 @@ R and summarizes the survival data of 418 primary biliary cirrhosis
 Most of the covariates in the PBC data are either continuous or have two
 levels (few split-points).
 
-2.  <u>Employee Data</u>
+1.  <u>Employee Data</u>
 
 The second dataset was found on Kaggle, an online community platform for
 data scientists and machine learning enthusiasts allowing for the
@@ -517,18 +517,18 @@ model as a whole.
     test.ph
 
     ##             chisq df       p
-    ## age        10.869  1 0.00098
-    ## edema       1.109  1 0.29228
-    ## bili        6.760  1 0.00932
-    ## albumin     3.589  1 0.05816
-    ## copper      0.917  1 0.33837
-    ## ast         0.709  1 0.39969
-    ## protime    14.486  1 0.00014
-    ## stage      17.349  1 3.1e-05
-    ## age:edema   1.044  1 0.30698
-    ## age:copper  0.281  1 0.59625
-    ## bili:ast   11.952  1 0.00055
-    ## GLOBAL     63.574 11 2.0e-09
+    ## age        10.884  1 0.00097
+    ## edema       1.115  1 0.29091
+    ## bili        6.809  1 0.00907
+    ## albumin     3.630  1 0.05673
+    ## copper      0.932  1 0.33430
+    ## ast         0.716  1 0.39761
+    ## protime    14.552  1 0.00014
+    ## stage      17.315  1 3.2e-05
+    ## age:edema   1.053  1 0.30492
+    ## age:copper  0.292  1 0.58908
+    ## bili:ast   11.955  1 0.00055
+    ## GLOBAL     63.669 11 1.9e-09
 
 ![](index_files/figure-markdown_strict/unnamed-chunk-16-1.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-2.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-3.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-4.png)![](index_files/figure-markdown_strict/unnamed-chunk-16-5.png)
 
@@ -671,8 +671,8 @@ forest and the conditional inference forest models.
 
 Using bootstrap cross-validation (
 <img src="https://render.githubusercontent.com/render/math?math=B"/> =
-50), we see an integrated brier score of 0.067 for the random survival
-forest and 0.072 for the conditional inference forest. Recall that a
+50), we see an integrated brier score of 0.068 for the random survival
+forest and 0.073 for the conditional inference forest. Recall that a
 lower score means better performance. While the random survival forest
 performs better here, the difference is marginal and perhaps negligible.
 
@@ -680,8 +680,8 @@ performs better here, the difference is marginal and perhaps negligible.
     ## Integrated Brier score (crps):
     ## 
     ##         AppErr BootCvErr
-    ## rsf      0.041     0.067
-    ## cforest  0.055     0.072
+    ## rsf      0.041     0.068
+    ## cforest  0.054     0.073
 
 ![](index_files/figure-markdown_strict/unnamed-chunk-27-1.png)
 
