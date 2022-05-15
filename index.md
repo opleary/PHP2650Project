@@ -273,7 +273,7 @@ R and summarizes the survival data of 418 primary biliary cirrhosis
 Most of the covariates in the PBC data are either continuous or have two
 levels (few split-points).
 
-1.  <u>Employee Data</u>
+2.  <u>Employee Data</u>
 
 The second dataset was found on Kaggle, an online community platform for
 data scientists and machine learning enthusiasts allowing for the
